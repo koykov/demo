@@ -31,10 +31,12 @@ func NewQueueHTTP() *QueueHTTP {
 		pool: make(map[string]*demoQueue),
 		allow400: map[string]bool{
 			"/api/v1/ping": true,
+			"/api/v1/list": true,
 		},
 		allow404: map[string]bool{
 			"/api/v1/init": true,
 			"/api/v1/ping": true,
+			"/api/v1/list": true,
 		},
 	}
 	return h
@@ -79,6 +81,14 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.URL.Path == "/api/v1/ping":
 		resp.Message = "pong"
+
+	case r.URL.Path == "/api/v1/list":
+		list := make([]string, 0, len(h.pool))
+		for k, _ := range h.pool {
+			list = append(list, k)
+		}
+		b, _ := json.Marshal(list)
+		resp.Message = string(b)
 
 	case r.URL.Path == "/api/v1/status" && q != nil:
 		resp.Message = q.String()
