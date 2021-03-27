@@ -4,19 +4,33 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Balanced Leaky Queue</title>
-    <link href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://getbootstrap.com/docs/4.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/signin.css" rel="stylesheet">
 </head>
-<body class="text-center">
-<form class="card p-2" id="signIn">
-    <h1 class="h3 mb-3 font-weight-normal">Sign in</h1>
-    <div class="input-group">
-        <input type="text" class="form-control" id="addr" placeholder="Queue app address" required>
-        <div class="input-group-append">
-            <button type="submit" class="btn btn-secondary">Sign in</button>
+<body>
+
+<div class="jumbotron">
+    <div class="container">
+    <h1>Connect to demo app</h1>
+    <p class="lead">Before trying to connect follow the instruction:</p>
+    <ul>
+    <li>Build the demo app <span class="text-monospace bg-light">go build -o $GOPATH/bin/blqueue-demo githib.com/koykov/blqueue-demo</span></li>
+    <li>Run it <span class="text-monospace bg-light">$GOPATH/bin/blqueue-demo -hport 8080</span> (you may omit <span class="text-monospace bg-light">-hport</span> option, 8080 uses by default).</li>
+    <li>Connect to the app using form below. You need specify full URL including port, eg <span class="text-monospace bg-light">http://localhost:8080</span>.</li>
+    </ul>
+    <hr class="my-4">
+    <form class="card p-2" id="signIn">
+        <div class="input-group">
+            <label for="addr"></label><input type="text" class="form-control" id="addr" placeholder="Demo app address" required />
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-secondary">Connect</button>
+            </div>
+            <div class="invalid-feedback">Failed to connect.</div>
         </div>
+    </form>
     </div>
-</form>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 <script src="assets/app.js"></script>
 <script>
@@ -29,8 +43,11 @@
         app.setApiUrl(addr);
         jQuery.get(addr + 'ping', function (data) {
             if (data.status === 200) {
-                document.location = 'init.html';
+                localStorage.setItem('apiUrl', addr);
+                document.location = 'choose.html';
             }
+        }).fail(function(){
+            $('#addr').addClass('is-invalid');
         });
     });
 </script>
