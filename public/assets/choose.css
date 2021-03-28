@@ -1,0 +1,18 @@
+.status {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+}
+.status-active {
+    background-color: #3c933c;
+}
+.status-inactive {
+    background-color: #979797;
+}
+.status-fail {
+    background-color: #3743bd;
+}
+.status-throttle {
+    background-color: #ff3636;
+}

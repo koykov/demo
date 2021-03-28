@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -83,12 +84,18 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		resp.Message = "pong"
 
 	case r.URL.Path == "/api/v1/list":
-		list := make([]string, 0, len(h.pool))
-		for k, _ := range h.pool {
-			list = append(list, k)
+		buf := bytes.Buffer{}
+		buf.WriteByte('[')
+		c := 0
+		for _, a := range h.pool {
+			if c > 0 {
+				buf.WriteByte(',')
+			}
+			_, _ = buf.WriteString(a.String())
+			c++
 		}
-		b, _ := json.Marshal(list)
-		resp.Message = string(b)
+		buf.WriteByte(']')
+		resp.Message = buf.String()
 
 	case r.URL.Path == "/api/v1/status" && q != nil:
 		resp.Message = q.String()

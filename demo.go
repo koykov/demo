@@ -80,6 +80,7 @@ func (d *demoQueue) Stop() {
 
 func (d *demoQueue) String() string {
 	var out = &struct {
+		Key             string `json:"key"`
 		Queue           string `json:"queue"`
 		ProducersMin    int    `json:"producers_min"`
 		ProducersMax    int    `json:"producers_max"`
@@ -87,6 +88,7 @@ func (d *demoQueue) String() string {
 		ProducersActive int    `json:"producers_active"`
 	}{}
 
+	out.Key = d.key
 	out.Queue = "!queue"
 	out.ProducersMin = int(d.producersMin)
 	out.ProducersMax = int(d.producersMax)

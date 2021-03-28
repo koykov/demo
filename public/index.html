@@ -6,6 +6,7 @@
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <title>Balanced Leaky Queue demo : connect</title>
     <link href="https://getbootstrap.com/docs/4.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/styles.css" rel="stylesheet">
     <link href="assets/signin.css" rel="stylesheet">
 </head>
 <body>
@@ -34,17 +35,19 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 <script>
-    jQuery('#signIn').submit(function(event){
-        event.preventDefault();
+    $(document).ready(function(){
+        $('#signIn').submit(function(event){
+            event.preventDefault();
 
-        let addr = jQuery("#addr").val() + '/api/v1/';
-        jQuery.get(addr + 'ping', function (data) {
-            if (data.status === 200) {
-                localStorage.setItem('apiUrl', addr);
-                document.location = 'choose.html';
-            }
-        }).fail(function(){
-            $('#addr').addClass('is-invalid');
+            let addr = $("#addr").val() + '/api/v1/';
+            $.get(addr + 'ping', function (response){
+                if (response.status === 200) {
+                    localStorage.setItem('apiUrl', addr);
+                    document.location = 'choose.html';
+                }
+            }).fail(function(){
+                $('#addr').addClass('is-invalid');
+            });
         });
     });
 </script>
