@@ -12,10 +12,24 @@
 <body>
 
 <div class="container">
-    <nav class="navbar navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light rounded">
         <a class="navbar-brand" href="index.html">
             <img src="assets/logo.svg" alt="">
         </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#blqueue-navbar" aria-controls="blqueue-navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="blqueue-navbar">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html">Reconnect <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="choose.html">Index</a>
+                </li>
+            </ul>
+        </div>
     </nav>
     <div id="container"></div>
 </div>
@@ -35,21 +49,21 @@
                     for (let i in list) {
                         let item = list[i];
                         output += '<div class="media text-muted pt-3">\n' +
-                            '          <div class="mr-2 status status-' + item.queue.status + '"></div>\n' +
-                            '          <div class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">\n' +
-                            '            <a href="detail.html" class="d-block">@' + item.key + '</a>\n' +
-                            '            <div class="d-flex justify-content-between align-items-center w-100">\n' +
-                            '              <span class="text-gray-dark">Size: ' + item.queue.size + '; Fullness: ' + item.queue.fullness_rate*100 + '%; Workers: ' + item.queue.workers_active + '/' + item.queue.workers_max  + '; Producers: ' + item.producers_active + '/' + item.producers_max  + '</span>\n' +
-                            '            </div>\n' +
-                            '          </div>\n' +
-                            '        </div>';
+                            '  <div class="mr-2 status status-' + item.queue.status + '"></div>\n' +
+                            '  <div class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">\n' +
+                            '    <a href="detail.html" class="d-block">@' + item.key + '</a>\n' +
+                            '    <div class="d-flex justify-content-between align-items-center w-100">\n' +
+                            '      <span class="text-gray-dark">Size: ' + item.queue.size + '; Fullness: ' + item.queue.fullness_rate*100 + '%; Workers: ' + item.queue.workers_active + '/' + item.queue.workers_max  + '; Producers: ' + item.producers_active + '/' + item.producers_max  + '</span>\n' +
+                            '    </div>\n' +
+                            '  </div>\n' +
+                            '</div>';
                     }
                     if (output.length === 0) {
                         output += '<div class="media text-muted pt-3">\n' +
-                            '          <div class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">\n' +
-                            '            <div class="alert alert-warning" role="alert">No running queues found!</div>' +
-                            '          </div>\n' +
-                            '        </div>';
+                            '  <div class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">\n' +
+                            '    <div class="alert alert-warning" role="alert">No running queues found!</div>' +
+                            '  </div>\n' +
+                            '</div>';
                     }
                     $('#container').html('<div class="my-3 p-3 bg-white rounded box-shadow"><h6 class="border-bottom border-gray pb-2 mb-0">Running queues</h6>' + output + '<small class="d-block text-right mt-3"><a href="init.html">Add new</a></small></div>');
                 }
