@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <title>Balanced Leaky Queue demo : choose</title>
+    <link href="https://getbootstrap.com/docs/4.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/styles.css" rel="stylesheet">
+    <link href="assets/choose.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light rounded mb-5">
+        <a class="navbar-brand" href="index.html">
+            <img src="assets/logo.svg" alt="">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#blqueue-navbar" aria-controls="blqueue-navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="blqueue-navbar">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html">Reconnect <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="choose.html">Index</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div id="container"></div>
+    <div id="init-form-container" class="container" style="display:none">
+        <div class="row">
+            <div class="col-lg-12">
+            <h4 class="mb-3">Add queue</h4>
+                <form class="needs-validation pb-5" novalidate>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="queueName">Queue key</label>
+                            <input type="text" class="form-control" id="queueName" placeholder="" value="" required>
+                            <div class="invalid-feedback">
+                                Valid queue name is required.
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="queueSize">Size</label>
+                            <input class="form-control" type="number" value="1000" id="queueSize" onchange="$('#queueSizeRange').val(this.value);" required>
+                            <input type="range" class="custom-range" min="1000" max="1000000" step="500" id="queueSizeRange" value="1000" onchange="$('#queueSize').val(this.value);">
+                            <div class="invalid-feedback">
+                                Valid queue size is required.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="workersMin">Minimum workers</label>
+                            <input class="form-control" type="number" value="2" id="workersMin" required>
+                            <div class="invalid-feedback">
+                                Valid minimum workers is required.
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="workersMax">Maximum workers</label>
+                            <input class="form-control" type="number" value="2" id="workersMax" required>
+                            <div class="invalid-feedback">
+                                Valid maximum workers is required.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="producersMin">Minimum producers</label>
+                            <input class="form-control" type="number" value="2" id="producersMin" required>
+                            <div class="invalid-feedback">
+                                Valid minimum producers is required.
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="producersMax">Maximum producers</label>
+                            <input class="form-control" type="number" value="2" id="producersMax" required>
+                            <div class="invalid-feedback">
+                                Valid maximum producers is required.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="heartbeat">Heartbeat (milliseconds)</label>
+                            <input class="form-control" type="number" value="2" id="heartbeat" required>
+                            <div class="invalid-feedback">
+                                Valid heartbeat is required.
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Flags</label>
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="allowLeak">
+                                <label class="custom-control-label" for="allowLeak">Allow leak on throttle</label>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="mb-4">
+                    <button class="btn btn-primary btn-lg" type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function(){
+        let apiUrl = localStorage.getItem('apiUrl');
+
+        if (apiUrl == null || apiUrl.length === 0) {
+            $('#container').html('<div class="alert alert-danger" role="alert">Demo app API url isn\'t set. Go <a href="index.html">back</a> and try to connect again.</div>');
+        } else {
+            $('#init-form-container').show();
+            // ...
+        }
+    });
+</script>
+</body>
+</html>
