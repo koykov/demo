@@ -36,7 +36,7 @@
         <div class="row">
             <div class="col-lg-12">
             <h4 class="mb-3">Add queue</h4>
-                <form class="needs-validation pb-5" novalidate>
+                <form id="init-form" class="needs-validation pb-5" novalidate>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="queueName">Queue key</label>
@@ -106,7 +106,7 @@
                         </div>
                     </div>
                     <hr class="mb-4">
-                    <button class="btn btn-primary btn-lg" type="submit">Submit</button>
+                    <button id="submit" class="btn btn-primary btn-lg" type="submit">Submit</button>
                 </form>
             </div>
         </div>
@@ -122,7 +122,33 @@
             $('#container').html('<div class="alert alert-danger" role="alert">Demo app API url isn\'t set. Go <a href="index.html">back</a> and try to connect again.</div>');
         } else {
             $('#init-form-container').show();
-            // ...
+            $('#init-form').submit(function (){
+                let req = {
+                    size: $('#queueSize').val(),
+                    workers_min: $('#workersMin').val(),
+                    workers_max: $('#workersMax').val(),
+                    producers_min: $('#producersMin').val(),
+                    producers_max: $('#producersMax').val(),
+                    heartbeat: $('#heartbeat').val(),
+                    allow_leak: $('#allowLeak').prop('checked'),
+                };
+                let data = JSON.stringify(req);
+                console.log(data);
+                $.ajax({
+                    url: apiUrl + 'init?key=' + $('#queueName').val(),
+                    method: 'POST',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: data,
+                    success: function(response) {
+                        console.log(response);
+                    },
+                    error: function() {
+                        console.log("fail");
+                    }
+                });
+                return false;
+            });
         }
     });
 </script>
