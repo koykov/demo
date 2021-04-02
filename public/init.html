@@ -137,8 +137,10 @@
                 $.ajax({
                     url: apiUrl + 'init?key=' + $('#queueName').val(),
                     method: 'POST',
-                    dataType: 'json',
+                    dataType: 'jsonp',
                     contentType: 'application/json',
+                    crossDomain: true,
+                    cache: false,
                     data: data,
                     success: function(response) {
                         console.log(response);
