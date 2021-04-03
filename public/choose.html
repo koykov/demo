@@ -51,7 +51,7 @@
                         output += '<div class="media text-muted pt-3">\n' +
                             '  <div class="mr-2 status status-' + item.queue.status + '"></div>\n' +
                             '  <div class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">\n' +
-                            '    <a href="detail.html" class="d-block">@' + item.key + '</a>\n' +
+                            '    <a href="#" class="d-block" onclick="localStorage.setItem(\'queueID\', \'' + item.key + '\');document.location=\'queue.html\'">@' + item.key + '</a>\n' +
                             '    <div class="d-flex justify-content-between align-items-center w-100">\n' +
                             '      <span class="text-gray-dark">Size: ' + item.queue.size + '; Fullness: ' + item.queue.fullness_rate*100 + '%; Workers: ' + item.queue.workers_active + '/' + item.queue.workers_max  + '; Producers: ' + item.producers_active + '/' + item.producers_max  + '</span>\n' +
                             '    </div>\n' +

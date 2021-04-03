@@ -65,7 +65,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="workersMax">Maximum workers</label>
-                            <input class="form-control" type="number" value="2" id="workersMax" required>
+                            <input class="form-control" type="number" value="32" id="workersMax" required>
                             <div class="invalid-feedback">
                                 Valid maximum workers is required.
                             </div>
@@ -82,7 +82,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="producersMax">Maximum producers</label>
-                            <input class="form-control" type="number" value="2" id="producersMax" required>
+                            <input class="form-control" type="number" value="32" id="producersMax" required>
                             <div class="invalid-feedback">
                                 Valid maximum producers is required.
                             </div>
@@ -92,7 +92,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="heartbeat">Heartbeat (milliseconds)</label>
-                            <input class="form-control" type="number" value="2" id="heartbeat" required>
+                            <input class="form-control" type="number" value="1000" id="heartbeat" required>
                             <div class="invalid-feedback">
                                 Valid heartbeat is required.
                             </div>
@@ -100,7 +100,7 @@
                         <div class="col-md-6 mb-3">
                             <label>Flags</label>
                             <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="allowLeak">
+                                <input type="checkbox" class="custom-control-input" id="allowLeak" checked>
                                 <label class="custom-control-label" for="allowLeak">Allow leak on throttle</label>
                             </div>
                         </div>
@@ -123,30 +123,31 @@
         } else {
             $('#init-form-container').show();
             $('#init-form').submit(function (){
+                let queueID = $('#queueName').val();
                 let req = {
-                    size: $('#queueSize').val(),
-                    workers_min: $('#workersMin').val(),
-                    workers_max: $('#workersMax').val(),
-                    producers_min: $('#producersMin').val(),
-                    producers_max: $('#producersMax').val(),
-                    heartbeat: $('#heartbeat').val(),
+                    size: parseInt($('#queueSize').val()),
+                    workers_min: parseInt($('#workersMin').val()),
+                    workers_max: parseInt($('#workersMax').val()),
+                    producers_min: parseInt($('#producersMin').val()),
+                    producers_max: parseInt($('#producersMax').val()),
+                    heartbeat: parseInt($('#heartbeat').val())*1e6,
                     allow_leak: $('#allowLeak').prop('checked'),
                 };
                 let data = JSON.stringify(req);
-                console.log(data);
                 $.ajax({
-                    url: apiUrl + 'init?key=' + $('#queueName').val(),
+                    url: apiUrl + 'init?key=' + queueID,
                     method: 'POST',
-                    dataType: 'jsonp',
-                    contentType: 'application/json',
-                    crossDomain: true,
-                    cache: false,
+                    dataType: 'json',
+                    contentType: 'text/plain',
                     data: data,
                     success: function(response) {
-                        console.log(response);
+                        if (response.status === 200) {
+                            localStorage.setItem('queueID', queueID);
+                            document.location = 'queue.html';
+                        }
                     },
                     error: function() {
-                        console.log("fail");
+                        $('#container').html('<div class="alert alert-danger" role="alert">Failed to init new queue. See console output for details.</div>');
                     }
                 });
                 return false;
