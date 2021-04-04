@@ -132,14 +132,7 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			req.MetricsKey = key
 		}
 
-		conf.Size = req.Size
-		conf.Workers = req.Workers
-		conf.Heartbeat = req.Heartbeat
-		conf.WorkersMin = req.WorkersMin
-		conf.WorkersMax = req.WorkersMax
-		conf.WakeupFactor = req.WakeupFactor
-		conf.SleepFactor = req.SleepFactor
-		conf.MetricsKey = req.MetricsKey
+		req.MapConfig(&conf)
 
 		conf.MetricsHandler = prometheus.NewMetricsWriter(conf.MetricsKey)
 		conf.Proc = blqueue.DummyProc

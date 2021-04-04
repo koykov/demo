@@ -1,6 +1,10 @@
 package main
 
-import "time"
+import (
+	"time"
+
+	"github.com/koykov/blqueue"
+)
 
 type RequestInit struct {
 	Size      uint64        `json:"size"`
@@ -18,4 +22,15 @@ type RequestInit struct {
 	ProducersMax uint32 `json:"producers_max"`
 
 	AllowLeak bool `json:"allow_leak"`
+}
+
+func (r *RequestInit) MapConfig(conf *blqueue.Config) {
+	conf.Size = r.Size
+	conf.Workers = r.Workers
+	conf.Heartbeat = r.Heartbeat
+	conf.WorkersMin = r.WorkersMin
+	conf.WorkersMax = r.WorkersMax
+	conf.WakeupFactor = r.WakeupFactor
+	conf.SleepFactor = r.SleepFactor
+	conf.MetricsKey = r.MetricsKey
 }
