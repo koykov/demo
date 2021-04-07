@@ -6,32 +6,56 @@
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <title>Balanced Leaky Queue demo : choose</title>
     <link href="https://getbootstrap.com/docs/4.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://getbootstrap.com/docs/4.1/examples/dashboard/dashboard.css" rel="stylesheet">
     <link href="assets/styles.css" rel="stylesheet">
     <link href="assets/choose.css" rel="stylesheet">
+    <style type="text/css">
+        body {padding: 0;}
+        .navbar-brand {padding-top: .75rem;padding-bottom: .75rem;}
+    </style>
 </head>
 <body>
 
-<div class="container">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light rounded mb-5">
-        <a class="navbar-brand" href="index.html">
-            <img src="assets/logo.svg" alt="">
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#blqueue-navbar" aria-controls="blqueue-navbar" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <span class="navbar-brand col-sm-3 col-md-2 mr-0">Queue info</span>
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap"><a class="nav-link" href="choose.html">Go back</a></li>
+    </ul>
+</nav>
 
-        <div class="collapse navbar-collapse" id="blqueue-navbar">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="index.html">Reconnect <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="choose.html">Index</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-    <div id="container"></div>
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                <form id="ctl">
+                    <div class="mr-3 ml-3">
+                    <label for="producers">Active producers</label>
+                    </div>
+                    <div class="mb-3 input-group col-md-12">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-secondary" style="border-radius: 0">-1</button>
+                        </div>
+                        <input type="text" class="form-control" id="producers" value="0">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-secondary" style="border-radius: 0">+1</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </nav>
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                <h1 class="h2" id="queueID">!queueID</h1>
+            </div>
+
+            <div id="container"></div>
+
+            <div id="queue-container">
+                <canvas class="my-4" id="queueChart" width="900" height="380"></canvas>
+            </div>
+        </main>
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
@@ -39,8 +63,22 @@
     $(document).ready(function(){
         let apiUrl = localStorage.getItem('apiUrl');
         let queueID = localStorage.getItem('queueID');
-        console.log(apiUrl);
-        console.log(queueID);
+        if (apiUrl == null || apiUrl.length === 0) {
+            $('#container').html('<div class="alert alert-danger" role="alert">Demo app API url isn\'t set. Go <a href="index.html">back</a> and try to connect again.</div>');
+        } else if (queueID == null || queueID.length === 0) {
+            $('#container').html('<div class="alert alert-danger" role="alert">Queue ID isn\'t set. Go <a href="init.html">back</a> and init queue.</div>');
+        } else {
+            $.get(apiUrl + 'status?key=' + queueID, function (response){
+                console.log(response);
+                if (response.status === 200) {
+                    $('#queue-container').show();
+                } else {
+                    $('#container').html('<div class="alert alert-danger" role="alert">Error: ' + response.message + '</div>');
+                }
+            }).fail(function(){
+                $('#container').html('<div class="alert alert-danger" role="alert">Couldn\'t get queue info. Check app log output.</div>');
+            })
+        }
     });
 </script>
 </body>
