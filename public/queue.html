@@ -32,13 +32,17 @@
         </div>
     </nav>
     <div id="container" class="d-md-flex flex-md-equal w-100 my-md-3 pl-md-3 pt-3 pb-3 bg-white">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 w-100 border-bottom">
             <h1 class="h2" id="queueID">!queueID</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
-                <label>!count producers</label>
+                <div class="btn-group">
+                    <button id="dec-5" class="btn btn-sm btn-outline-secondary pl-3 pr-3">-5</button>
+                    <button id="dec-1" class="btn btn-sm btn-outline-secondary pl-3 pr-3">-1</button>
+                </div>
+                <label id="counter" class="mr-3 ml-3">!count producers</label>
                 <div class="btn-group mr-2">
-                    <button class="btn btn-sm btn-outline-secondary">Share</button>
-                    <button class="btn btn-sm btn-outline-secondary">Export</button>
+                    <button id="inc-1" class="btn btn-sm btn-outline-secondary pl-3 pr-3">+1</button>
+                    <button id="inc-5" class="btn btn-sm btn-outline-secondary pl-3 pr-3">+5</button>
                 </div>
             </div>
         </div>
@@ -58,13 +62,28 @@
             $.get(apiUrl + 'status?key=' + queueID, function (response){
                 console.log(response);
                 if (response.status === 200) {
-                    $('#queue-container').show();
+                    let queue = JSON.parse(response.message);
+                    console.log(queue);
+                    applyQueue(queue);
                 } else {
                     $('#container').html('<div class="alert alert-danger" role="alert">Error: ' + response.message + '</div>');
                 }
             }).fail(function(){
                 $('#container').html('<div class="alert alert-danger" role="alert">Couldn\'t get queue info. Check app log output.</div>');
             });
+        }
+
+        function applyQueue(queue) {
+            $('#queueID').text(queue.key);
+            $('#counter').text(queue.producers_active + ' counters');
+            if (queue.producers_active === queue.producers_min) {
+                $('#dec-1').attr('disabled', 'disabled');
+                $('#dec-5').attr('disabled', 'disabled');
+            }
+            if (queue.producers_active === queue.producers_max) {
+                $('#inc-1').attr('disabled', 'disabled');
+                $('#inc-5').attr('disabled', 'disabled');
+            }
         }
     });
 </script>

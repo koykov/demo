@@ -18,3 +18,8 @@ body {
     width: 36px;
     height: 36px;
 }
+
+#counter {
+    line-height: 32px;
+    margin-bottom: 0;
+}
