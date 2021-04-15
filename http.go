@@ -17,6 +17,8 @@ type QueueHTTP struct {
 	mux  sync.RWMutex
 	pool map[string]*demoQueue
 
+	hport, pport int
+
 	allow400 map[string]bool
 	allow404 map[string]bool
 }
@@ -27,9 +29,11 @@ type QueueResponse struct {
 	Message string `json:"message,omitempty"`
 }
 
-func NewQueueHTTP() *QueueHTTP {
+func NewQueueHTTP(hport, pport int) *QueueHTTP {
 	h := &QueueHTTP{
-		pool: make(map[string]*demoQueue),
+		pool:  make(map[string]*demoQueue),
+		hport: hport,
+		pport: pport,
 		allow400: map[string]bool{
 			"/api/v1/ping": true,
 			"/api/v1/list": true,
@@ -144,6 +148,8 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		q := demoQueue{
 			key:          key,
 			queue:        qi,
+			hport:        h.hport,
+			pport:        h.pport,
 			producersMin: req.ProducersMin,
 			producersMax: req.ProducersMax,
 		}
