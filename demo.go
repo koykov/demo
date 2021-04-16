@@ -23,13 +23,17 @@ type demoQueue struct {
 	producersUp uint32
 	producers []*producer
 
-	stats [500]Stat
+	stats Stat
 }
 
 type Stat struct {
-	Qsize, Qleak,
-	Wactive, Wsleep, Widle,
-	Pactive, Pidle int
+	Qsize   int `json:"qsize"`
+	Qleak   int `json:"qleak"`
+	Wactive int `json:"wactive"`
+	Wsleep  int `json:"wsleep"`
+	Widle   int `json:"widle"`
+	Pactive int `json:"pactive"`
+	Pidle   int `json:"pidle"`
 }
 
 var (
@@ -104,13 +108,13 @@ func (d *demoQueue) Stop() {
 
 func (d *demoQueue) String() string {
 	var out = &struct {
-		Key             string    `json:"key"`
-		Queue           string    `json:"queue"`
-		ProducersMin    int       `json:"producers_min"`
-		ProducersMax    int       `json:"producers_max"`
-		ProducersIdle   int       `json:"producers_idle"`
-		ProducersActive int       `json:"producers_active"`
-		Stats           [500]Stat `json:"stats"`
+		Key             string `json:"key"`
+		Queue           string `json:"queue"`
+		ProducersMin    int    `json:"producers_min"`
+		ProducersMax    int    `json:"producers_max"`
+		ProducersIdle   int    `json:"producers_idle"`
+		ProducersActive int    `json:"producers_active"`
+		Stats           *Stat  `json:"stats"`
 	}{}
 
 	out.Key = d.key
@@ -156,18 +160,16 @@ func (d *demoQueue) String() string {
 	if m := rePidle.FindSubmatch(contents); m != nil {
 		pidle, _ = strconv.ParseInt(string(m[1]), 10, 64)
 	}
-
-	copy(d.stats[0:], d.stats[1:500])
-	d.stats[499] = Stat{
-		Qsize:   int(qsize),
-		Qleak:   int(qleak),
-		Wactive: int(wactive),
-		Wsleep:  int(wsleep),
-		Widle:   int(widle),
-		Pactive: int(pactive),
-		Pidle:   int(pidle),
+	d.stats.Qsize = int(qsize)
+	if d.stats.Qleak -= int(qleak); d.stats.Qleak < 0 {
+		d.stats.Qleak *= -1
 	}
-	out.Stats = d.stats
+	d.stats.Wactive = int(wactive)
+	d.stats.Wsleep = int(wsleep)
+	d.stats.Widle = int(widle)
+	d.stats.Pactive = int(pactive)
+	d.stats.Pidle = int(pidle)
+	out.Stats = &d.stats
 
 	b, _ := json.Marshal(out)
 	b = bytes.Replace(b, []byte(`"!queue"`), []byte(d.queue.String()), 1)

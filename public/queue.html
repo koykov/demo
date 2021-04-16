@@ -31,7 +31,7 @@
             </ul>
         </div>
     </nav>
-    <div id="container" class="d-md-flex flex-md-equal w-100 my-md-3 pl-md-3 pt-3 pb-3 bg-white">
+    <div id="container" class="w-100 my-md-3 pl-md-3 pt-3 pb-3 bg-white">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 w-100 border-bottom">
             <h1 class="h2" id="queueID">!queueID</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
@@ -46,25 +46,108 @@
                 </div>
             </div>
         </div>
+
+        <div class="row">
+            <div class="col-12">
+                <canvas class="my-4" id="queueChart" width="900" height="380"></canvas>
+            </div>
+            <div class="col-6">
+                <canvas class="my-4" id="workerChart" width="450" height="380"></canvas>
+            </div>
+            <div class="col-6">
+                <canvas class="my-4" id="producerChart" width="450" height="380"></canvas>
+            </div>
+        </div>
     </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
 <script>
     $(document).ready(function(){
         let apiUrl = localStorage.getItem('apiUrl');
         let queueID = localStorage.getItem('queueID');
+
+        let delay = 1000;
+        let chartSize = 50;
+
+        let label = [];
+        let qsize = [];
+        let qleak = [];
+        let wactive = [];
+        let wsleep = [];
+        let widle = [];
+        let pactive = [];
+        let pidle = [];
+        for (let i = 0; i < chartSize; i++) {
+            label.push(0);
+            qsize.push(0);
+            qleak.push(0);
+            wactive.push(0);
+            wsleep.push(0);
+            widle.push(0);
+            pactive.push(0);
+            pidle.push(0);
+        }
+        let queueCtx = document.getElementById("queueChart");
+        let qchart = new Chart(queueCtx, {
+            type: 'line',
+            data: {
+                labels: label,
+                datasets: [
+                    {
+                        data: qsize,
+                        backgroundColor: 'transparent',
+                        borderColor: '#99cc33',
+                        pointBackgroundColor: '#339900',
+                        fill: false,
+                        cubicInterpolationMode: 'monotone',
+                        tension: 0.4
+                    },
+                    {
+                        data: qleak,
+                        backgroundColor: 'transparent',
+                        borderColor: '#ff9966',
+                        pointBackgroundColor: '#cc3300',
+                        fill: false,
+                        cubicInterpolationMode: 'monotone',
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                },
+                legend: {
+                    display: false,
+                },
+                animation: {
+                    duration: 0,
+                },
+                hover: {
+                    animationDuration: 0,
+                },
+                responsiveAnimationDuration: 0,
+                // bezierCurve: false
+            }
+        });
+
         if (apiUrl == null || apiUrl.length === 0) {
             $('#container').html('<div class="alert alert-danger" role="alert">Demo app API url isn\'t set. Go <a href="index.html">back</a> and try to connect again.</div>');
         } else if (queueID == null || queueID.length === 0) {
             $('#container').html('<div class="alert alert-danger" role="alert">Queue ID isn\'t set. Go <a href="init.html">back</a> and init queue.</div>');
         } else {
             $.get(apiUrl + 'status?key=' + queueID, function (response){
-                console.log(response);
                 if (response.status === 200) {
                     let queue = JSON.parse(response.message);
                     console.log(queue);
-                    applyQueue(queue);
+                    applyQueue(queue, qchart);
+                    setTimeout(redraw, delay);
                 } else {
                     $('#container').html('<div class="alert alert-danger" role="alert">Error: ' + response.message + '</div>');
                 }
@@ -73,7 +156,7 @@
             });
         }
 
-        function applyQueue(queue) {
+        function applyQueue(queue, queueChart) {
             $('#queueID').text(queue.key);
             $('#counter').text(queue.producers_active + ' counters');
             if (queue.producers_active === queue.producers_min) {
@@ -84,6 +167,28 @@
                 $('#inc-1').attr('disabled', 'disabled');
                 $('#inc-5').attr('disabled', 'disabled');
             }
+
+            for (let i = 0; i < chartSize-1; i++) {
+                queueChart.data.datasets[0].data[i] = queueChart.data.datasets[0].data[i+1];
+                queueChart.data.datasets[1].data[i] = queueChart.data.datasets[1].data[i+1];
+            }
+            queueChart.data.datasets[0].data[chartSize-1] = queue.stats.qsize;
+            console.log(queueChart.data.datasets[0].data);
+
+            queueChart.data.datasets[1].data[chartSize-1] = queue.stats.qleak;
+            queueChart.update();
+        }
+
+        function redraw() {
+            $.get(apiUrl + 'status?key=' + queueID, function (response){
+                if (response.status === 200) {
+                    let queue = JSON.parse(response.message);
+                    applyQueue(queue, qchart);
+                    setTimeout(redraw, delay);
+                } else {
+                    console.log('Error: ' + response.message);
+                }
+            });
         }
     });
 </script>
