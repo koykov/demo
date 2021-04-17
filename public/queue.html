@@ -133,7 +133,109 @@
                     animationDuration: 0,
                 },
                 responsiveAnimationDuration: 0,
-                // bezierCurve: false
+            }
+        });
+
+        let workerCtx = document.getElementById("workerChart");
+        let wchart = new Chart(workerCtx, {
+            type: 'line',
+            data: {
+                labels: label,
+                datasets: [
+                    {
+                        data: wactive,
+                        backgroundColor: 'transparent',
+                        borderColor: '#99cc33',
+                        pointBackgroundColor: '#339900',
+                        fill: false,
+                        cubicInterpolationMode: 'monotone',
+                        tension: 0.4
+                    },
+                    {
+                        data: wsleep,
+                        backgroundColor: 'transparent',
+                        borderColor: '#ff9966',
+                        pointBackgroundColor: '#cc3300',
+                        fill: false,
+                        cubicInterpolationMode: 'monotone',
+                        tension: 0.4
+                    },
+                    {
+                        data: widle,
+                        backgroundColor: 'transparent',
+                        borderColor: '#ff9966',
+                        pointBackgroundColor: '#cc3300',
+                        fill: false,
+                        cubicInterpolationMode: 'monotone',
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                },
+                legend: {
+                    display: false,
+                },
+                animation: {
+                    duration: 0,
+                },
+                hover: {
+                    animationDuration: 0,
+                },
+                responsiveAnimationDuration: 0,
+            }
+        });
+
+        let producerCtx = document.getElementById("producerChart");
+        let pchart = new Chart(producerCtx, {
+            type: 'line',
+            data: {
+                labels: label,
+                datasets: [
+                    {
+                        data: wactive,
+                        backgroundColor: 'transparent',
+                        borderColor: '#99cc33',
+                        pointBackgroundColor: '#339900',
+                        fill: false,
+                        cubicInterpolationMode: 'monotone',
+                        tension: 0.4
+                    },
+                    {
+                        data: wsleep,
+                        backgroundColor: 'transparent',
+                        borderColor: '#ff9966',
+                        pointBackgroundColor: '#cc3300',
+                        fill: false,
+                        cubicInterpolationMode: 'monotone',
+                        tension: 0.4
+                    },
+                ]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                },
+                legend: {
+                    display: false,
+                },
+                animation: {
+                    duration: 0,
+                },
+                hover: {
+                    animationDuration: 0,
+                },
+                responsiveAnimationDuration: 0,
             }
         });
 
@@ -146,7 +248,7 @@
                 if (response.status === 200) {
                     let queue = JSON.parse(response.message);
                     console.log(queue);
-                    applyQueue(queue, qchart);
+                    applyQueue(queue, qchart, wchart, pchart);
                     setTimeout(redraw, delay);
                 } else {
                     $('#container').html('<div class="alert alert-danger" role="alert">Error: ' + response.message + '</div>');
@@ -156,7 +258,7 @@
             });
         }
 
-        function applyQueue(queue, queueChart) {
+        function applyQueue(queue, queueChart, workerChart, producerChart) {
             $('#queueID').text(queue.key);
             $('#counter').text(queue.producers_active + ' counters');
             if (queue.producers_active === queue.producers_min) {
@@ -171,19 +273,34 @@
             for (let i = 0; i < chartSize-1; i++) {
                 queueChart.data.datasets[0].data[i] = queueChart.data.datasets[0].data[i+1];
                 queueChart.data.datasets[1].data[i] = queueChart.data.datasets[1].data[i+1];
+
+                workerChart.data.datasets[0].data[i] = workerChart.data.datasets[0].data[i+1];
+                workerChart.data.datasets[1].data[i] = workerChart.data.datasets[1].data[i+1];
+                workerChart.data.datasets[2].data[i] = workerChart.data.datasets[2].data[i+1];
+
+                producerChart.data.datasets[0].data[i] = producerChart.data.datasets[0].data[i+1];
+                producerChart.data.datasets[1].data[i] = producerChart.data.datasets[1].data[i+1];
             }
             queueChart.data.datasets[0].data[chartSize-1] = queue.stats.qsize;
-            console.log(queueChart.data.datasets[0].data);
-
             queueChart.data.datasets[1].data[chartSize-1] = queue.stats.qleak;
+
+            workerChart.data.datasets[0].data[chartSize-1] = queue.stats.wactive;
+            workerChart.data.datasets[1].data[chartSize-1] = queue.stats.wsleep;
+            workerChart.data.datasets[2].data[chartSize-1] = queue.stats.widle;
+
+            producerChart.data.datasets[0].data[chartSize-1] = queue.stats.pactive;
+            producerChart.data.datasets[1].data[chartSize-1] = queue.stats.pidle;
+
             queueChart.update();
+            workerChart.update();
+            producerChart.update();
         }
 
         function redraw() {
             $.get(apiUrl + 'status?key=' + queueID, function (response){
                 if (response.status === 200) {
                     let queue = JSON.parse(response.message);
-                    applyQueue(queue, qchart);
+                    applyQueue(queue, qchart, wchart, pchart);
                     setTimeout(redraw, delay);
                 } else {
                     console.log('Error: ' + response.message);
