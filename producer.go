@@ -39,7 +39,8 @@ func (p *producer) start() {
 }
 
 func (p *producer) stop() {
-	p.ctl <- signalStop
+	// todo uncomment later
+	// p.ctl <- signalStop
 }
 
 func (p *producer) produce(q *blqueue.Queue) {
