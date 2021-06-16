@@ -4,10 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
-	"net/http"
-	"regexp"
-	"strconv"
 
 	"github.com/koykov/blqueue"
 )
@@ -22,29 +18,7 @@ type demoQueue struct {
 	producersMax,
 	producersUp uint32
 	producers []*producer
-
-	stats Stat
 }
-
-type Stat struct {
-	Qsize   int `json:"qsize"`
-	Qleak   int `json:"qleak"`
-	Wactive int `json:"wactive"`
-	Wsleep  int `json:"wsleep"`
-	Widle   int `json:"widle"`
-	Pactive int `json:"pactive"`
-	Pidle   int `json:"pidle"`
-}
-
-var (
-	reQsize   = regexp.MustCompile(`queue_size{queue=".*"} (\d+)`)
-	reQleak   = regexp.MustCompile(`queue_leak{queue=".*"} (\d+)`)
-	reWactive = regexp.MustCompile(`queue_workers_active{queue=".*"} (\d+)`)
-	reWsleep  = regexp.MustCompile(`queue_workers_sleep{queue=".*"} (\d+)`)
-	reWidle   = regexp.MustCompile(`queue_workers_idle{queue=".*"} (\d+)`)
-	rePactive = regexp.MustCompile(`queue_producers_active{queue=".*"} (\d+)`)
-	rePidle   = regexp.MustCompile(`queue_producers_idle{queue=".*"} (\d+)`)
-)
 
 func (d *demoQueue) Run() {
 	d.producers = make([]*producer, d.producersMax)
@@ -114,7 +88,6 @@ func (d *demoQueue) String() string {
 		ProducersMax    int    `json:"producers_max"`
 		ProducersIdle   int    `json:"producers_idle"`
 		ProducersActive int    `json:"producers_active"`
-		Stats           *Stat  `json:"stats"`
 	}{}
 
 	out.Key = d.key
@@ -129,47 +102,6 @@ func (d *demoQueue) String() string {
 			out.ProducersActive++
 		}
 	}
-
-	resp, _ := http.Get("http://localhost:" + strconv.Itoa(d.pport) + "/metrics")
-	defer func() { _ = resp.Body.Close() }()
-	contents, _ := ioutil.ReadAll(resp.Body)
-
-	var (
-		qsize, qleak,
-		wactive, wsleep, widle,
-		pactive, pidle int64
-	)
-	if m := reQsize.FindSubmatch(contents); m != nil {
-		qsize, _ = strconv.ParseInt(string(m[1]), 10, 64)
-	}
-	if m := reQleak.FindSubmatch(contents); m != nil {
-		qleak, _ = strconv.ParseInt(string(m[1]), 10, 64)
-	}
-	if m := reWactive.FindSubmatch(contents); m != nil {
-		wactive, _ = strconv.ParseInt(string(m[1]), 10, 64)
-	}
-	if m := reWsleep.FindSubmatch(contents); m != nil {
-		wsleep, _ = strconv.ParseInt(string(m[1]), 10, 64)
-	}
-	if m := reWidle.FindSubmatch(contents); m != nil {
-		widle, _ = strconv.ParseInt(string(m[1]), 10, 64)
-	}
-	if m := rePactive.FindSubmatch(contents); m != nil {
-		pactive, _ = strconv.ParseInt(string(m[1]), 10, 64)
-	}
-	if m := rePidle.FindSubmatch(contents); m != nil {
-		pidle, _ = strconv.ParseInt(string(m[1]), 10, 64)
-	}
-	d.stats.Qsize = int(qsize)
-	if d.stats.Qleak -= int(qleak); d.stats.Qleak < 0 {
-		d.stats.Qleak *= -1
-	}
-	d.stats.Wactive = int(wactive)
-	d.stats.Wsleep = int(wsleep)
-	d.stats.Widle = int(widle)
-	d.stats.Pactive = int(pactive)
-	d.stats.Pidle = int(pidle)
-	out.Stats = &d.stats
 
 	b, _ := json.Marshal(out)
 	b = bytes.Replace(b, []byte(`"!queue"`), []byte(d.queue.String()), 1)
