@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"sync"
 
@@ -143,6 +144,10 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if req.AllowLeak {
 			conf.LeakyHandler = &blqueue.DummyLeak{}
 		}
+
+		conf.Logger = log.New(os.Stderr, "", log.LstdFlags)
+		conf.VerbosityLevel = blqueue.VerboseInfo | blqueue.VerboseWarn
+
 		qi := blqueue.New(conf)
 
 		q := demoQueue{
