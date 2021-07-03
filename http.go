@@ -9,7 +9,6 @@ import (
 	"os"
 	"strconv"
 	"sync"
-	"time"
 
 	"github.com/koykov/blqueue"
 	"github.com/koykov/blqueue/metrics/prometheus"
@@ -141,9 +140,7 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		req.MapConfig(&conf)
 
 		conf.MetricsHandler = prometheus.NewMetricsWriter(conf.MetricsKey)
-		conf.Proc = func(_ interface{}) {
-			time.Sleep(75 * time.Nanosecond)
-		}
+		conf.DequeueHandler = &Dequeue{}
 		if req.AllowLeak {
 			conf.LeakyHandler = &blqueue.DummyLeak{}
 		}
