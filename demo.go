@@ -16,14 +16,15 @@ type demoQueue struct {
 
 	producersMin,
 	producersMax,
-	producersUp uint32
+	producersUp,
+	producerDelay uint32
 	producers []*producer
 }
 
 func (d *demoQueue) Run() {
 	d.producers = make([]*producer, d.producersMax)
 	for i := 0; i < int(d.producersMax); i++ {
-		d.producers[i] = makeProducer(uint32(i))
+		d.producers[i] = makeProducer(uint32(i), d.producerDelay)
 	}
 	for i := 0; i < int(d.producersMin); i++ {
 		go d.producers[i].produce(d.queue)

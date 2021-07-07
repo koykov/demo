@@ -21,15 +21,20 @@ const (
 
 type producer struct {
 	idx    uint32
+	delay  uint32
 	ctl    chan signal
 	status status
 }
 
-func makeProducer(idx uint32) *producer {
+func makeProducer(idx, delay uint32) *producer {
 	p := &producer{
 		idx:    idx,
+		delay:  delay,
 		ctl:    make(chan signal, 1),
 		status: statusIdle,
+	}
+	if p.delay == 0 {
+		p.delay = 50
 	}
 	return p
 }
@@ -61,7 +66,7 @@ func (p *producer) produce(q *blqueue.Queue) {
 				Header  uint32
 				Payload int64
 			}{4, math.MaxInt64}
-			time.Sleep(time.Nanosecond * 50)
+			time.Sleep(time.Duration(p.delay) * time.Nanosecond)
 			q.Enqueue(x)
 		}
 	}

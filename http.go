@@ -140,7 +140,7 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		req.MapConfig(&conf)
 
 		conf.MetricsHandler = metrics.NewPrometheusMetrics(conf.MetricsKey)
-		conf.DequeueHandler = &Dequeue{}
+		conf.DequeueHandler = NewDequeue(req.WorkerDelay)
 		if req.AllowLeak {
 			conf.LeakyHandler = &blqueue.DummyLeak{}
 		}
@@ -151,12 +151,13 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		qi := blqueue.New(conf)
 
 		q := demoQueue{
-			key:          key,
-			queue:        qi,
-			hport:        h.hport,
-			pport:        h.pport,
-			producersMin: req.ProducersMin,
-			producersMax: req.ProducersMax,
+			key:           key,
+			queue:         qi,
+			hport:         h.hport,
+			pport:         h.pport,
+			producersMin:  req.ProducersMin,
+			producersMax:  req.ProducersMax,
+			producerDelay: req.ProducerDelay,
 		}
 
 		h.mux.Lock()
