@@ -13,8 +13,8 @@ var (
 	config = cbytecache.Config{
 		HashFn:        fastconv.Fnv64aString,
 		Shards:        4,
-		Expire:        30 * time.Second,
-		Vacuum:        300 * time.Second,
+		Expire:        5 * time.Minute,
+		Vacuum:        300 * time.Minute,
 		MaxSize:       512 * cbytecache.Kilobyte,
 		MetricsWriter: nil,
 		Logger:        log.New(os.Stdout, "", log.LstdFlags),
@@ -28,4 +28,7 @@ func main() {
 	}
 	err = c.Set("foo", []byte("bar"))
 	log.Println(err)
+	var dst []byte
+	dst, err = c.GetTo(dst, "foo")
+	log.Println(string(dst), err)
 }
