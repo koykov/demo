@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/koykov/cbytecache"
-	"github.com/koykov/fastconv"
+	"github.com/koykov/hash/fnv"
 )
 
 var (
 	config = cbytecache.Config{
-		HashFn:        fastconv.Fnv64aString,
+		HashFn:        fnv.Hash64aString,
 		Shards:        4,
 		Expire:        5 * time.Minute,
 		Vacuum:        300 * time.Minute,
@@ -22,7 +22,7 @@ var (
 )
 
 func main() {
-	c, err := cbytecache.NewCByteCache(config)
+	c, err := cbytecache.NewCByteCache(&config)
 	if err != nil {
 		log.Fatal(err)
 	}
