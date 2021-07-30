@@ -17,7 +17,8 @@ const (
 	dataSize = 1e6
 	writers  = 10
 	readers  = 10
-	testDur  = time.Second * 30
+	testDur  = 30 * time.Second
+	sleepDur = 100 * time.Microsecond
 )
 
 var (
@@ -70,7 +71,7 @@ func main() {
 				case <-d:
 					return
 				default:
-					time.Sleep(time.Millisecond * 10)
+					time.Sleep(sleepDur)
 					key := fmt.Sprintf("key%d", rand.Int31n(dataSize))
 					payload := data[key]
 					if err := c.Set(key, payload); err != nil {
@@ -92,7 +93,7 @@ func main() {
 				case <-d:
 					return
 				default:
-					time.Sleep(time.Millisecond * 10)
+					time.Sleep(sleepDur)
 					var (
 						dst []byte
 						err error
