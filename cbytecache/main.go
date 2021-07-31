@@ -2,15 +2,19 @@ package main
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
 	"log"
 	"math/rand"
+	"net/http"
 	"os"
 	"sync"
 	"time"
 
 	"github.com/koykov/cbytecache"
 	"github.com/koykov/hash/fnv"
+	metrics "github.com/koykov/metric_writers/cbytecache"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 const (
@@ -28,7 +32,7 @@ var (
 		Expire:        5 * time.Minute,
 		Vacuum:        300 * time.Minute,
 		MaxSize:       1 * cbytecache.Gigabyte,
-		MetricsWriter: nil,
+		MetricsWriter: metrics.NewPrometheusMetrics("demo1GB"),
 		Logger:        log.New(os.Stdout, "", log.LstdFlags),
 	}
 
@@ -41,9 +45,13 @@ var (
 		[]byte(`{"quiz":{"sport":{"q1":{"question":"Which one is correct team name in NBA?","options":["New York Bulls","Los Angeles Kings","Golden State Warriros","Huston Rocket"],"answer":"Huston Rocket"}},"maths":{"q1":{"question":"5 + 7 = ?","options":["10","11","12","13"],"answer":"12"},"q2":{"question":"12 - 8 = ?","options":["1","2","3","4"],"answer":"4"}}}}`),
 	}
 	data = make(map[string][]byte, dataSize)
+
+	pport = flag.Int("pport", 8081, "Prometheus port")
 )
 
 func init() {
+	flag.Parse()
+
 	eln := int32(len(exmpl))
 	for i := 0; i < dataSize; i++ {
 		key := fmt.Sprintf("key%d", i)
@@ -53,6 +61,16 @@ func init() {
 }
 
 func main() {
+	paddr := fmt.Sprintf(":%d", *pport)
+	go func() {
+		// registered metrics endpoint
+		http.Handle("/metrics", promhttp.Handler())
+		log.Printf("Start Prometheus server on address %s/metrics\n", paddr)
+		if err := http.ListenAndServe(paddr, nil); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
 	c, err := cbytecache.NewCByteCache(&config)
 	if err != nil {
 		log.Fatal(err)
