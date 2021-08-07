@@ -28,7 +28,7 @@ const (
 var (
 	config = cbytecache.Config{
 		HashFn:        fnv.Hash64aString,
-		Shards:        4,
+		Buckets:       4,
 		Expire:        5 * time.Minute,
 		Vacuum:        300 * time.Minute,
 		MaxSize:       1 * cbytecache.Gigabyte,
