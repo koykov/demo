@@ -9,3 +9,12 @@ type demoCache struct {
 	writers,
 	readers uint32
 }
+
+func (d *demoCache) Run() {
+	// todo implement me
+}
+
+func (d *demoCache) String() string {
+	// todo implement me
+	return ""
+}

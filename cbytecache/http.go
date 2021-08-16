@@ -1,9 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
 	"sync"
+
+	"github.com/koykov/cbytecache"
+	metrics "github.com/koykov/metric_writers/cbytecache"
 )
 
 type CacheHTTP struct {
@@ -11,6 +18,9 @@ type CacheHTTP struct {
 	pool map[string]*demoCache
 
 	hport, pport int
+
+	allow400 map[string]bool
+	allow404 map[string]bool
 }
 
 type CacheResponse struct {
@@ -24,6 +34,15 @@ func NewCacheHTTP(hport, pport int) *CacheHTTP {
 		pool:  make(map[string]*demoCache),
 		hport: hport,
 		pport: pport,
+		allow400: map[string]bool{
+			"/api/v1/ping": true,
+			"/api/v1/list": true,
+		},
+		allow404: map[string]bool{
+			"/api/v1/init": true,
+			"/api/v1/ping": true,
+			"/api/v1/list": true,
+		},
 	}
 	return h
 }
@@ -39,8 +58,8 @@ func (h *CacheHTTP) get(key string) *demoCache {
 
 func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var (
-		// key  string
-		// c    *demoCache
+		key  string
+		c    *demoCache
 		resp CacheResponse
 	)
 
@@ -57,9 +76,94 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	resp.Status = http.StatusOK
 
+	if key = r.FormValue("key"); len(key) == 0 && !h.allow400[r.URL.Path] {
+		resp.Status = http.StatusBadRequest
+		return
+	}
+	if c = h.get(key); c == nil && !h.allow404[r.URL.Path] {
+		resp.Status = http.StatusNotFound
+		return
+	}
+
 	switch {
 	case r.URL.Path == "/api/v1/ping":
 		resp.Message = "pong"
+
+	case r.URL.Path == "/api/v1/list":
+		buf := bytes.Buffer{}
+		buf.WriteByte('[')
+		c := 0
+		for _, a := range h.pool {
+			if c > 0 {
+				buf.WriteByte(',')
+			}
+			_, _ = buf.WriteString(a.String())
+			c++
+		}
+		buf.WriteByte(']')
+		resp.Message = buf.String()
+
+	case r.URL.Path == "/api/v1/status" && c != nil:
+		resp.Message = c.String()
+
+	case r.URL.Path == "/api/v1/init":
+		if c != nil {
+			resp.Status = http.StatusNotAcceptable
+			return
+		}
+
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			log.Println("err", err)
+			resp.Status = http.StatusBadRequest
+			resp.Error = err.Error()
+			return
+		}
+
+		var (
+			req  RequestInit
+			conf cbytecache.Config
+		)
+
+		err = json.Unmarshal(body, &req)
+		if err != nil {
+			log.Println("err", err)
+			resp.Status = http.StatusBadRequest
+			resp.Error = err.Error()
+			return
+		}
+		if len(req.MetricsKey) == 0 {
+			req.MetricsKey = key
+		}
+
+		req.MapConfig(&conf)
+
+		conf.MetricsWriter = metrics.NewPrometheusMetrics(req.MetricsKey)
+		conf.Logger = log.New(os.Stderr, "", log.LstdFlags)
+
+		ci, err := cbytecache.NewCByteCache(&conf)
+		if err != nil {
+			log.Println("err", err)
+			resp.Status = http.StatusInternalServerError
+			resp.Error = err.Error()
+			return
+		}
+
+		c := demoCache{
+			key:     key,
+			cache:   ci,
+			writers: req.Writers,
+			readers: req.Readers,
+		}
+
+		h.mux.Lock()
+		h.pool[key] = &c
+		h.mux.Unlock()
+
+		c.Run()
+
+		resp.Message = "success"
+
 	default:
 		resp.Status = http.StatusNotFound
 		return
