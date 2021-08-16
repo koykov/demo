@@ -153,8 +153,6 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		q := demoQueue{
 			key:           key,
 			queue:         qi,
-			hport:         h.hport,
-			pport:         h.pport,
 			producersMin:  req.ProducersMin,
 			producersMax:  req.ProducersMax,
 			producerDelay: req.ProducerDelay,

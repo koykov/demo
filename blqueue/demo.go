@@ -12,8 +12,6 @@ type demoQueue struct {
 	key   string
 	queue *blqueue.Queue
 
-	hport, pport int
-
 	producersMin,
 	producersMax,
 	producersUp,
