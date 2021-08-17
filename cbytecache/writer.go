@@ -1,14 +1,17 @@
 package main
 
 import (
+	"math/rand"
 	"sync/atomic"
 
+	"github.com/koykov/bytealg"
 	"github.com/koykov/cbytecache"
 )
 
 type writer struct {
 	idx    uint32
 	ctl    chan signal
+	buf    bytealg.ChainBuf
 	status status
 }
 
@@ -44,8 +47,9 @@ func (w *writer) run(cache *cbytecache.CByteCache) {
 			if w.getStatus() == statusIdle {
 				return
 			}
-			// todo write to cache
-			_ = cache
+			i := rand.Intn(1e9)
+			w.buf.Reset().WriteStr("key").WriteInt(int64(i))
+			_ = cache.Set(w.buf.String(), getTestBody(i))
 		}
 	}
 }
