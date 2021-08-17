@@ -4,16 +4,18 @@ import (
 	"github.com/koykov/cbytecache"
 )
 
-type status uint32
-type signal uint32
-
 const (
 	statusIdle   status = 0
 	statusActive status = 1
 
 	signalInit signal = 0
 	signalStop signal = 1
+
+	maxIndex = 1e9
 )
+
+type status uint32
+type signal uint32
 
 type demoCache struct {
 	key   string
@@ -23,6 +25,7 @@ type demoCache struct {
 	readers uint32
 
 	writersPool []*writer
+	readersPool []*reader
 }
 
 func (d *demoCache) Run() {
@@ -33,6 +36,15 @@ func (d *demoCache) Run() {
 	for i := 0; i < int(d.writers); i++ {
 		go d.writersPool[i].run(d.cache)
 		d.writersPool[i].start()
+	}
+
+	d.readersPool = make([]*reader, d.readers)
+	for i := 0; i < int(d.readers); i++ {
+		d.readersPool[i] = makeReader(uint32(i))
+	}
+	for i := 0; i < int(d.readers); i++ {
+		go d.readersPool[i].run(d.cache)
+		d.readersPool[i].start()
 	}
 }
 

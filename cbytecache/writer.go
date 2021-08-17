@@ -47,7 +47,7 @@ func (w *writer) run(cache *cbytecache.CByteCache) {
 			if w.getStatus() == statusIdle {
 				return
 			}
-			i := rand.Intn(1e9)
+			i := rand.Intn(maxIndex)
 			w.buf.Reset().WriteStr("key").WriteInt(int64(i))
 			_ = cache.Set(w.buf.String(), getTestBody(i))
 		}
