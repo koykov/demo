@@ -164,6 +164,17 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		resp.Message = "success"
 
+	case r.URL.Path == "/api/v1/stop":
+		if c != nil {
+			c.Stop()
+		}
+
+		h.mux.Lock()
+		delete(h.pool, key)
+		h.mux.Unlock()
+
+		resp.Message = "success"
+
 	default:
 		resp.Status = http.StatusNotFound
 		return
