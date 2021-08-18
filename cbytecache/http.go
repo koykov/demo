@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/koykov/cbytecache"
+	"github.com/koykov/hash/fnv"
 	metrics "github.com/koykov/metric_writers/cbytecache"
 )
 
@@ -138,6 +139,7 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		req.MapConfig(&conf)
 
+		conf.HashFn = fnv.Hash64aString
 		conf.MetricsWriter = metrics.NewPrometheusMetrics(req.MetricsKey)
 		conf.Logger = log.New(os.Stderr, "", log.LstdFlags)
 

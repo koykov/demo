@@ -8,8 +8,8 @@ import (
 
 type RequestInit struct {
 	Buckets        uint                  `json:"buckets"`
-	Expire         time.Duration         `json:"expire"`
-	Vacuum         time.Duration         `json:"vacuum"`
+	Expire         time.Duration         `json:"expire_ns"`
+	Vacuum         time.Duration         `json:"vacuum_ns"`
 	ForceSet       bool                  `json:"force_set"`
 	CollisionCheck bool                  `json:"collision_check"`
 	MaxSize        cbytecache.MemorySize `json:"max_size"`
