@@ -11,7 +11,7 @@ import (
 	"sync"
 
 	"github.com/koykov/blqueue"
-	metrics "github.com/koykov/metric_writers/blqueue"
+	metrics "github.com/koykov/metrics_writers/blqueue"
 )
 
 type QueueHTTP struct {
@@ -140,7 +140,7 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		req.MapConfig(&conf)
 
 		conf.MetricsHandler = metrics.NewPrometheusMetrics(conf.MetricsKey)
-		conf.DequeueHandler = NewDequeue(req.WorkerDelay)
+		conf.Dequeuer = NewDequeue(req.WorkerDelay)
 		if req.AllowLeak {
 			conf.Catcher = &blqueue.DummyCatcher{}
 		}
@@ -148,7 +148,7 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		conf.Logger = log.New(os.Stderr, "", log.LstdFlags)
 		conf.VerbosityLevel = blqueue.VerboseInfo | blqueue.VerboseWarn
 
-		qi := blqueue.New(conf)
+		qi := blqueue.New(&conf)
 
 		q := demoQueue{
 			key:           key,
