@@ -139,7 +139,7 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		req.MapConfig(&conf)
 
-		conf.MetricsHandler = metrics.NewPrometheusMetrics(conf.MetricsKey)
+		conf.MetricsWriter = metrics.NewPrometheusMetrics(conf.MetricsKey)
 		conf.Dequeuer = NewDequeue(req.WorkerDelay)
 		if req.AllowLeak {
 			conf.Catcher = &blqueue.DummyCatcher{}
