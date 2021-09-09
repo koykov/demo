@@ -11,7 +11,7 @@ import (
 
 	"github.com/koykov/cbytecache"
 	"github.com/koykov/hash/fnv"
-	metrics "github.com/koykov/metric_writers/cbytecache"
+	metrics "github.com/koykov/metrics_writers/cbytecache"
 )
 
 type CacheHTTP struct {
@@ -139,7 +139,7 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		req.MapConfig(&conf)
 
-		conf.HashFn = fnv.Hash64aString
+		conf.Hasher = fnv.Hasher{}
 		conf.MetricsWriter = metrics.NewPrometheusMetrics(req.MetricsKey)
 		conf.Logger = log.New(os.Stderr, "", log.LstdFlags)
 
