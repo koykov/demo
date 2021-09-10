@@ -14,8 +14,6 @@ const (
 
 	signalInit signal = 0
 	signalStop signal = 1
-
-	maxIndex = 1e9
 )
 
 type status uint32
