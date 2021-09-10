@@ -153,6 +153,7 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		c := demoCache{
 			key:     key,
+			config:  &conf,
 			cache:   ci,
 			writers: req.Writers,
 			readers: req.Readers,

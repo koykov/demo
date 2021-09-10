@@ -10,17 +10,19 @@ import (
 
 type reader struct {
 	idx    uint32
+	status status
 	ctl    chan signal
 	buf    bytealg.ChainBuf
 	dst    []byte
-	status status
+	offPtr *uint64
 }
 
-func makeReader(idx uint32) *reader {
+func makeReader(idx uint32, offPtr *uint64) *reader {
 	r := &reader{
 		idx:    idx,
-		ctl:    make(chan signal, 1),
 		status: statusIdle,
+		ctl:    make(chan signal, 1),
+		offPtr: offPtr,
 	}
 	return r
 }
@@ -48,7 +50,7 @@ func (r *reader) run(cache *cbytecache.CByteCache) {
 			if r.getStatus() == statusIdle {
 				return
 			}
-			i := rand.Intn(maxIndex)
+			i := rand.Intn(int(atomic.LoadUint64(r.offPtr)))
 			r.buf.Reset().WriteStr("key").WriteInt(int64(i))
 			r.dst, _ = cache.GetTo(r.dst[:0], r.buf.String())
 		}

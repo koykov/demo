@@ -10,16 +10,18 @@ import (
 
 type writer struct {
 	idx    uint32
+	status status
 	ctl    chan signal
 	buf    bytealg.ChainBuf
-	status status
+	offPtr *uint64
 }
 
-func makeWriter(idx uint32) *writer {
+func makeWriter(idx uint32, offPtr *uint64) *writer {
 	w := &writer{
 		idx:    idx,
-		ctl:    make(chan signal, 1),
 		status: statusIdle,
+		ctl:    make(chan signal, 1),
+		offPtr: offPtr,
 	}
 	return w
 }
@@ -47,7 +49,7 @@ func (w *writer) run(cache *cbytecache.CByteCache) {
 			if w.getStatus() == statusIdle {
 				return
 			}
-			i := rand.Intn(maxIndex)
+			i := rand.Intn(int(atomic.LoadUint64(w.offPtr)))
 			w.buf.Reset().WriteStr("key").WriteInt(int64(i))
 			_ = cache.Set(w.buf.String(), getTestBody(i))
 		}
