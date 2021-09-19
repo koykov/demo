@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"sync/atomic"
 
-	"github.com/koykov/bytealg"
+	"github.com/koykov/bytebuf"
 	"github.com/koykov/cbytecache"
 )
 
@@ -12,7 +12,7 @@ type reader struct {
 	idx    uint32
 	status status
 	ctl    chan signal
-	buf    bytealg.ChainBuf
+	buf    bytebuf.ChainBuf
 	dst    []byte
 	offPtr *uint64
 }
