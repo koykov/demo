@@ -1,0 +1,69 @@
+package main
+
+import (
+	"math/rand"
+	"sort"
+	"sync"
+	"time"
+
+	"github.com/koykov/fastconv"
+)
+
+type ckey struct {
+	key    string
+	expire uint32
+}
+
+type keyRegistry struct {
+	mux  sync.RWMutex
+	keys []ckey
+}
+
+var (
+	chars = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+)
+
+func (r *keyRegistry) get(newPercent int) string {
+	if rand.Intn(100) < newPercent {
+		l := rand.Intn(16) + 16
+		b := make([]byte, l)
+		for i := 0; i < l; i++ {
+			b[i] = chars[rand.Intn(len(chars)-1)]
+		}
+		return fastconv.B2S(b)
+	} else {
+		r.mux.RLock()
+		i := rand.Intn(len(r.keys) - 1)
+		key := &r.keys[i]
+		r.mux.RUnlock()
+		return key.key
+	}
+}
+
+func (r *keyRegistry) set(key string, expire time.Duration) {
+	r.mux.Lock()
+	r.keys = append(r.keys, ckey{
+		key:    key,
+		expire: uint32(time.Now().Unix() + int64(expire.Seconds())),
+	})
+	r.mux.Unlock()
+}
+
+func (r *keyRegistry) evict() {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+	now := uint32(time.Now().Unix())
+	l := len(r.keys)
+	if l == 0 {
+		return
+	}
+	_ = r.keys[l-1]
+	z := sort.Search(l-1, func(i int) bool {
+		return now <= r.keys[i].expire
+	})
+	if z == 0 {
+		return
+	}
+	copy(r.keys[0:], r.keys[z:])
+	r.keys = r.keys[l-z:]
+}
