@@ -21,10 +21,11 @@ type keyRegistry struct {
 
 var (
 	chars = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+	keys  keyRegistry
 )
 
 func (r *keyRegistry) get(newPercent int) string {
-	if rand.Intn(100) < newPercent {
+	if rand.Intn(100) < newPercent || len(r.keys) < 100 {
 		l := rand.Intn(16) + 16
 		b := make([]byte, l)
 		for i := 0; i < l; i++ {

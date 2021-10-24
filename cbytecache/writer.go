@@ -1,27 +1,24 @@
 package main
 
 import (
-	"math/rand"
 	"sync/atomic"
 
-	"github.com/koykov/bytebuf"
 	"github.com/koykov/cbytecache"
 )
 
 type writer struct {
 	idx    uint32
 	status status
+	config *cbytecache.Config
 	ctl    chan signal
-	buf    bytebuf.ChainBuf
-	offPtr *uint64
 }
 
-func makeWriter(idx uint32, offPtr *uint64) *writer {
+func makeWriter(idx uint32, config *cbytecache.Config) *writer {
 	w := &writer{
 		idx:    idx,
 		status: statusIdle,
+		config: config,
 		ctl:    make(chan signal, 1),
-		offPtr: offPtr,
 	}
 	return w
 }
@@ -49,9 +46,9 @@ func (w *writer) run(cache *cbytecache.CByteCache) {
 			if w.getStatus() == statusIdle {
 				return
 			}
-			i := rand.Intn(int(atomic.LoadUint64(w.offPtr)))
-			w.buf.Reset().WriteStr("key").WriteInt(int64(i))
-			_ = cache.Set(w.buf.String(), getTestBody(i))
+			key := keys.get(10)
+			_ = cache.Set(key, getTestBody())
+			keys.set(key, w.config.Expire)
 		}
 	}
 }

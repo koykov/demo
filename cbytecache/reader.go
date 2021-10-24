@@ -1,28 +1,25 @@
 package main
 
 import (
-	"math/rand"
 	"sync/atomic"
 
-	"github.com/koykov/bytebuf"
 	"github.com/koykov/cbytecache"
 )
 
 type reader struct {
 	idx    uint32
 	status status
+	config *cbytecache.Config
 	ctl    chan signal
-	buf    bytebuf.ChainBuf
 	dst    []byte
-	offPtr *uint64
 }
 
-func makeReader(idx uint32, offPtr *uint64) *reader {
+func makeReader(idx uint32, config *cbytecache.Config) *reader {
 	r := &reader{
 		idx:    idx,
 		status: statusIdle,
+		config: config,
 		ctl:    make(chan signal, 1),
-		offPtr: offPtr,
 	}
 	return r
 }
@@ -50,9 +47,8 @@ func (r *reader) run(cache *cbytecache.CByteCache) {
 			if r.getStatus() == statusIdle {
 				return
 			}
-			i := rand.Intn(int(atomic.LoadUint64(r.offPtr)))
-			r.buf.Reset().WriteStr("key").WriteInt(int64(i))
-			r.dst, _ = cache.GetTo(r.dst[:0], r.buf.String())
+			key := keys.get(10)
+			r.dst, _ = cache.GetTo(r.dst[:0], key)
 		}
 	}
 }
