@@ -1,6 +1,9 @@
 package main
 
 import (
+	"context"
+	"time"
+
 	"github.com/koykov/cbytecache"
 )
 
@@ -25,6 +28,8 @@ type demoCache struct {
 
 	writersPool []*writer
 	readersPool []*reader
+
+	cancelFnExpire context.CancelFunc
 }
 
 func (d *demoCache) Run() {
@@ -45,9 +50,24 @@ func (d *demoCache) Run() {
 		go d.readersPool[i].run(d.cache)
 		d.readersPool[i].start()
 	}
+
+	var clockExpire context.Context
+	clockExpire, d.cancelFnExpire = context.WithCancel(context.Background())
+	tickerExpire := time.NewTicker(d.config.Expire)
+	go func(ctx context.Context) {
+		for {
+			select {
+			case <-tickerExpire.C:
+				keys.bulkEvict()
+			case <-ctx.Done():
+				return
+			}
+		}
+	}(clockExpire)
 }
 
 func (d *demoCache) Stop() {
+	d.cancelFnExpire()
 	// todo implement me
 }
 

@@ -50,7 +50,7 @@ func (r *keyRegistry) set(key string, expire time.Duration) {
 	r.mux.Unlock()
 }
 
-func (r *keyRegistry) evict() {
+func (r *keyRegistry) bulkEvict() {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 	now := uint32(time.Now().Unix())
