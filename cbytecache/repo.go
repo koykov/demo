@@ -15,8 +15,10 @@ type RequestInit struct {
 	MetricsKey     string                `json:"metrics_key"`
 
 	Writers    uint32 `json:"writers"`
-	Readers    uint32 `json:"readers"`
+	WriterKRP  uint32 `json:"writer_krp"` // KRP - keys rotate percent
 	WriteDelay uint32 `json:"write_delay"`
+	Readers    uint32 `json:"readers"`
+	ReaderKRP  uint32 `json:"reader_krp"` // KRP - keys rotate percent
 	ReadDelay  uint32 `json:"read_delay"`
 }
 
