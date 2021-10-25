@@ -21,6 +21,7 @@ type signal uint32
 type demoCache struct {
 	key    string
 	config *cbytecache.Config
+	rawReq *RequestInit
 	cache  *cbytecache.CByteCache
 
 	writers,
@@ -35,7 +36,7 @@ type demoCache struct {
 func (d *demoCache) Run() {
 	d.writersPool = make([]*writer, d.writers)
 	for i := 0; i < int(d.writers); i++ {
-		d.writersPool[i] = makeWriter(uint32(i), d.config)
+		d.writersPool[i] = makeWriter(uint32(i), d.config, d.rawReq)
 	}
 	for i := 0; i < int(d.writers); i++ {
 		go d.writersPool[i].run(d.cache)
@@ -44,7 +45,7 @@ func (d *demoCache) Run() {
 
 	d.readersPool = make([]*reader, d.readers)
 	for i := 0; i < int(d.readers); i++ {
-		d.readersPool[i] = makeReader(uint32(i), d.config)
+		d.readersPool[i] = makeReader(uint32(i), d.config, d.rawReq)
 	}
 	for i := 0; i < int(d.readers); i++ {
 		go d.readersPool[i].run(d.cache)

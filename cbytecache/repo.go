@@ -14,8 +14,10 @@ type RequestInit struct {
 	MaxSize        cbytecache.MemorySize `json:"max_size"`
 	MetricsKey     string                `json:"metrics_key"`
 
-	Writers uint32 `json:"writers"`
-	Readers uint32 `json:"readers"`
+	Writers    uint32 `json:"writers"`
+	Readers    uint32 `json:"readers"`
+	WriteDelay uint32 `json:"write_delay"`
+	ReadDelay  uint32 `json:"read_delay"`
 }
 
 func (r *RequestInit) MapConfig(conf *cbytecache.Config) {

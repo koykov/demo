@@ -2,6 +2,7 @@ package main
 
 import (
 	"sync/atomic"
+	"time"
 
 	"github.com/koykov/cbytecache"
 )
@@ -10,14 +11,16 @@ type writer struct {
 	idx    uint32
 	status status
 	config *cbytecache.Config
+	rawReq *RequestInit
 	ctl    chan signal
 }
 
-func makeWriter(idx uint32, config *cbytecache.Config) *writer {
+func makeWriter(idx uint32, config *cbytecache.Config, rawReq *RequestInit) *writer {
 	w := &writer{
 		idx:    idx,
 		status: statusIdle,
 		config: config,
+		rawReq: rawReq,
 		ctl:    make(chan signal, 1),
 	}
 	return w
@@ -49,6 +52,9 @@ func (w *writer) run(cache *cbytecache.CByteCache) {
 			key := keys.get(10)
 			_ = cache.Set(key, getTestBody())
 			keys.set(key, w.config.Expire)
+			if delay := w.rawReq.WriteDelay; delay > 0 {
+				time.Sleep(time.Duration(delay))
+			}
 		}
 	}
 }
