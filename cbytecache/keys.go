@@ -25,6 +25,8 @@ var (
 )
 
 func (r *keyRegistry) get(newPercent int) string {
+	r.mux.RLock()
+	defer r.mux.RUnlock()
 	if rand.Intn(100) < newPercent || len(r.keys) < 100 {
 		l := rand.Intn(16) + 16
 		b := make([]byte, l)
@@ -33,8 +35,6 @@ func (r *keyRegistry) get(newPercent int) string {
 		}
 		return fastconv.B2S(b)
 	} else {
-		r.mux.RLock()
-		defer r.mux.RUnlock()
 		for c := 0; c < 10; c++ {
 			i := rand.Intn(len(r.keys) - 1)
 			key := &r.keys[i]
