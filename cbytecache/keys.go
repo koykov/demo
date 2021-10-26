@@ -34,10 +34,15 @@ func (r *keyRegistry) get(newPercent int) string {
 		return fastconv.B2S(b)
 	} else {
 		r.mux.RLock()
-		i := rand.Intn(len(r.keys) - 1)
-		key := &r.keys[i]
-		r.mux.RUnlock()
-		return key.key
+		defer r.mux.RUnlock()
+		for c := 0; c < 10; c++ {
+			i := rand.Intn(len(r.keys) - 1)
+			key := &r.keys[i]
+			if int64(key.expire) > time.Now().Unix() {
+				return key.key
+			}
+		}
+		return ""
 	}
 }
 

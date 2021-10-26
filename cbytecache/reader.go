@@ -50,10 +50,11 @@ func (r *reader) run(cache *cbytecache.CByteCache) {
 			if r.getStatus() == statusIdle {
 				return
 			}
-			key := keys.get(int(r.rawReq.ReaderKRP))
-			r.dst, _ = cache.GetTo(r.dst[:0], key)
-			if delay := r.rawReq.ReaderDelay; delay > 0 {
-				time.Sleep(time.Duration(delay))
+			if key := keys.get(int(r.rawReq.ReaderKRP)); len(key) > 0 {
+				r.dst, _ = cache.GetTo(r.dst[:0], key)
+				if delay := r.rawReq.ReaderDelay; delay > 0 {
+					time.Sleep(time.Duration(delay))
+				}
 			}
 		}
 	}
