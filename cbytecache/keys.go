@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"math/rand"
 	"sort"
 	"sync"
@@ -38,7 +39,7 @@ func (r *keyRegistry) get(newPercent int) string {
 		for c := 0; c < 10; c++ {
 			i := rand.Intn(len(r.keys) - 1)
 			key := &r.keys[i]
-			if int64(key.expire) > time.Now().Unix() {
+			if int64(key.expire) < time.Now().Unix() {
 				return key.key
 			}
 		}
@@ -70,6 +71,7 @@ func (r *keyRegistry) bulkEvict() {
 	if z == 0 {
 		return
 	}
+	log.Printf("found %d expired keys", z)
 	copy(r.keys[0:], r.keys[z:])
 	r.keys = r.keys[l-z:]
 }
