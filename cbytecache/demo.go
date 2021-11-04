@@ -54,7 +54,7 @@ func (d *demoCache) Run() {
 
 	var clockExpire context.Context
 	clockExpire, d.cancelFnExpire = context.WithCancel(context.Background())
-	tickerExpire := time.NewTicker(d.config.Expire)
+	tickerExpire := time.NewTicker(d.config.Expire / 4)
 	go func(ctx context.Context) {
 		for {
 			select {
