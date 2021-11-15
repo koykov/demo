@@ -34,5 +34,4 @@ func (r *RequestInit) MapConfig(conf *blqueue.Config) {
 	conf.WorkersMax = r.WorkersMax
 	conf.WakeupFactor = r.WakeupFactor
 	conf.SleepFactor = r.SleepFactor
-	conf.MetricsKey = r.MetricsKey
 }

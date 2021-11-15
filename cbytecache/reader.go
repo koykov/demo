@@ -1,10 +1,14 @@
 package main
 
 import (
+	"bytes"
+	"log"
+	"strconv"
 	"sync/atomic"
 	"time"
 
 	"github.com/koykov/cbytecache"
+	"github.com/koykov/fastconv"
 )
 
 type reader struct {
@@ -36,6 +40,7 @@ func (r *reader) stop() {
 }
 
 func (r *reader) run(cache *cbytecache.CByteCache) {
+	var err error
 	for {
 		select {
 		case cmd := <-r.ctl:
@@ -51,7 +56,17 @@ func (r *reader) run(cache *cbytecache.CByteCache) {
 				return
 			}
 			if key := keys.get(int(r.rawReq.ReaderKRP)); len(key) > 0 {
-				r.dst, _ = cache.GetTo(r.dst[:0], key)
+				if r.dst, err = cache.GetTo(r.dst[:0], key); err == nil && len(r.dst) > 0 {
+					ri := r.dst[:1]
+					if i, err := strconv.ParseInt(fastconv.B2S(ri), 10, 64); err == nil {
+						e := testData[i]
+						if !bytes.Equal(r.dst, e) {
+							log.Println("bad answer")
+						}
+					}
+				} else {
+					// log.Println("err", err, "len", len(r.dst))
+				}
 				if delay := r.rawReq.ReaderDelay; delay > 0 {
 					time.Sleep(time.Duration(delay))
 				}
