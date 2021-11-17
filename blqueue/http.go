@@ -211,9 +211,9 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			q.Stop()
 		}
 
-		// h.mux.Lock()
-		// delete(h.pool, key)
-		// h.mux.Unlock()
+		h.mux.Lock()
+		delete(h.pool, key)
+		h.mux.Unlock()
 
 		resp.Message = "success"
 	default:
