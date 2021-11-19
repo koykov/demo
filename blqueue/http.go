@@ -133,20 +133,16 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			resp.Error = err.Error()
 			return
 		}
-		if len(req.MetricsKey) == 0 {
-			req.MetricsKey = key
-		}
-
+		conf.Key = key
 		req.MapConfig(&conf)
 
-		conf.MetricsWriter = metrics.NewPrometheusMetrics(req.MetricsKey)
+		conf.MetricsWriter = metrics.NewPrometheusMetrics()
 		conf.DequeueWorker = NewDequeue(req.WorkerDelay)
 		if req.AllowLeak {
 			conf.DLQ = &blqueue.DummyDLQ{}
 		}
 
 		conf.Logger = log.New(os.Stderr, "", log.LstdFlags)
-		conf.VerbosityLevel = blqueue.VerboseInfo | blqueue.VerboseWarn
 
 		qi := blqueue.New(&conf)
 

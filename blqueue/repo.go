@@ -17,8 +17,6 @@ type RequestInit struct {
 	WakeupFactor float32 `json:"wakeup_factor"`
 	SleepFactor  float32 `json:"sleep_factor"`
 
-	MetricsKey string `json:"metrics_key"`
-
 	ProducersMin  uint32 `json:"producers_min"`
 	ProducersMax  uint32 `json:"producers_max"`
 	ProducerDelay uint32 `json:"producer_delay"`
