@@ -8,11 +8,11 @@ var (
 
 func init() {
 	producerIdle = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "queue_producers_idle",
+		Name: "blqueue_producers_idle",
 		Help: "Indicates how many producers idle.",
 	}, []string{"queue"})
 	producerActive = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "queue_producers_active",
+		Name: "blqueue_producers_active",
 		Help: "Indicates how many producers active.",
 	}, []string{"queue"})
 
