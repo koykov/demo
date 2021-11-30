@@ -1,9 +1,12 @@
 package main
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/koykov/blqueue"
+	"github.com/koykov/clock"
 )
 
 type RequestInit struct {
@@ -41,4 +44,41 @@ func (r *RequestInit) MapConfig(conf *blqueue.Config) {
 	conf.WorkersMax = r.WorkersMax
 	conf.WakeupFactor = r.WakeupFactor
 	conf.SleepFactor = r.SleepFactor
+	if len(r.Schedule) > 0 {
+		now := time.Now()
+		s := blqueue.NewSchedule()
+		for _, rule := range r.Schedule {
+			var r1 string
+			if r1 = rule.Range; len(r1) == 0 {
+				if p := strings.Split(rule.RelRange, "-"); len(p) == 2 {
+					var (
+						d0, d1 time.Duration
+						err    error
+					)
+					if d0, err = clock.Relative(p[0]); err != nil {
+						fmt.Println("bad range", rule.RelRange, "err", err)
+						continue
+					}
+					if d1, err = clock.Relative(p[1]); err != nil {
+						fmt.Println("bad range", rule.RelRange, "err", err)
+						continue
+					}
+					now0, now1 := now.Add(d0), now.Add(d1)
+					r0 := fmt.Sprintf("%02d:%02d:%02d-%02d:%02d:%02d", now0.Hour(), now0.Minute(), now0.Second(),
+						now1.Hour(), now1.Minute(), now1.Second())
+					params := blqueue.ScheduleParams{
+						WorkersMin:   rule.WorkersMin,
+						WorkersMax:   rule.WorkersMax,
+						WakeupFactor: rule.WakeupFactor,
+						SleepFactor:  rule.SleepFactor,
+					}
+					if err = s.AddRange(r0, params); err != nil {
+						fmt.Println("error", err, "caught on adding range", r0)
+						continue
+					}
+				}
+			}
+		}
+		conf.Schedule = s
+	}
 }

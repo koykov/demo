@@ -135,31 +135,9 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		conf.Key = key
 		req.MapConfig(&conf)
-
-		// sched := blqueue.NewSchedule()
-		// now := time.Now()
-		// now1 := now.Add(time.Minute)
-		// now2 := now.Add(time.Minute*2)
-		// now3 := now.Add(time.Minute*3)
-		// now4 := now.Add(time.Minute*4)
-		// now5 := now.Add(time.Minute*5)
-		// now6 := now.Add(time.Minute*6)
-		// now7 := now.Add(time.Minute*7)
-		// now8 := now.Add(time.Minute*8)
-		// t1 := fmt.Sprintf("%02d:%02d:%02d", now1.Hour(), now1.Minute(), now1.Second())
-		// t2 := fmt.Sprintf("%02d:%02d:%02d", now2.Hour(), now2.Minute(), now2.Second())
-		// t3 := fmt.Sprintf("%02d:%02d:%02d", now3.Hour(), now3.Minute(), now3.Second())
-		// t4 := fmt.Sprintf("%02d:%02d:%02d", now4.Hour(), now4.Minute(), now4.Second())
-		// t5 := fmt.Sprintf("%02d:%02d:%02d", now5.Hour(), now5.Minute(), now5.Second())
-		// t6 := fmt.Sprintf("%02d:%02d:%02d", now6.Hour(), now6.Minute(), now6.Second())
-		// t7 := fmt.Sprintf("%02d:%02d:%02d", now7.Hour(), now7.Minute(), now7.Second())
-		// t8 := fmt.Sprintf("%02d:%02d:%02d", now8.Hour(), now8.Minute(), now8.Second())
-		// _ = sched.AddRange(t1 + "-" + t2, blqueue.ScheduleParams{WorkersMin: 4, WorkersMax: 16})
-		// _ = sched.AddRange(t3 + "-" + t4, blqueue.ScheduleParams{WorkersMin: 1, WorkersMax: 32})
-		// _ = sched.AddRange(t5 + "-" + t6, blqueue.ScheduleParams{WorkersMin: 10, WorkersMax: 16})
-		// _ = sched.AddRange(t7 + "-" + t8, blqueue.ScheduleParams{WorkersMin: 1, WorkersMax: 20})
-		// log.Println(sched.String())
-		// conf.Schedule = sched
+		if conf.Schedule != nil && conf.Schedule.Len() > 0 {
+			log.Println("schedule", conf.Schedule.String())
+		}
 
 		conf.MetricsWriter = metrics.NewPrometheusMetrics()
 		conf.Dequeuer = NewDequeue(req.WorkerDelay)
