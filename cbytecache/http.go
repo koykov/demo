@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/koykov/cbytecache"
+	"github.com/koykov/clock"
 	"github.com/koykov/hash/fnv"
 	metrics "github.com/koykov/metrics_writers/cbytecache"
 )
@@ -142,6 +143,7 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		conf.Hasher = fnv.Hasher{}
 		conf.MetricsWriter = metrics.NewPrometheusMetrics(req.MetricsKey)
 		conf.Logger = log.New(os.Stderr, "", log.LstdFlags)
+		conf.Clock = clock.NewClock()
 
 		ci, err := cbytecache.NewCByteCache(&conf)
 		if err != nil {
