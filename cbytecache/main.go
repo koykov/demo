@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/koykov/cbyte"
+	mw "github.com/koykov/metrics_writers/cbyte"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -17,6 +19,10 @@ var (
 
 func init() {
 	flag.Parse()
+
+	m := mw.NewPrometheusMetrics()
+	cbyte.RegisterMetricsHandler(m)
+
 	ch = NewCacheHTTP(*hport, *pport)
 }
 
