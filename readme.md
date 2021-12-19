@@ -2,3 +2,4 @@
 
 Currently supports packages:
 * [blqueue](https://github.com/koykov/blqueue)
+* [cbytecache](https://github.com/koykov/cbytecache)
