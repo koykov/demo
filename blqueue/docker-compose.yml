@@ -23,10 +23,7 @@ services:
       - '--storage.tsdb.retention.time=200h'
       - '--web.enable-lifecycle'
     restart: unless-stopped
-    ports:
-      - "9090:9090"
-    networks:
-      - blq-net
+    network_mode: "host"
     labels:
       org.label-schema.group: "monitoring"
 
@@ -41,10 +38,7 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - GF_USERS_ALLOW_SIGN_UP=false
     restart: unless-stopped
-    ports:
-      - "3000:3000"
-    networks:
-      - blq-net
+    network_mode: "host"
     labels:
       org.label-schema.group: "monitoring"
 
@@ -53,11 +47,6 @@ services:
       context: .
       dockerfile: ./Dockerfile
     image: blqueued
-    ports:
-      - "8080:8080"
-      - "8081:8081"
-      - "8082:8082"
-    networks:
-      - blq-net
+    network_mode: "host"
     volumes:
       - .:/go/src/github.com/koykov/demo/blqueue
