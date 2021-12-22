@@ -144,17 +144,13 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if req.AllowLeak {
 			conf.DLQ = &blqueue.DummyDLQ{}
 		}
-
 		conf.Logger = log.New(os.Stderr, "", log.LstdFlags)
 
 		qi, _ := blqueue.New(&conf)
-
 		q := demoQueue{
-			key:           key,
-			queue:         qi,
-			producersMin:  req.ProducersMin,
-			producersMax:  req.ProducersMax,
-			producerDelay: req.ProducerDelay,
+			key:   key,
+			queue: qi,
+			req:   &req,
 		}
 
 		h.mux.Lock()

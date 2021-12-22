@@ -2,8 +2,10 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
+	"time"
 
 	"github.com/koykov/blqueue"
 )
@@ -11,34 +13,49 @@ import (
 type demoQueue struct {
 	key   string
 	queue *blqueue.Queue
+	req   *RequestInit
 
-	producersMin,
-	producersMax,
-	producersUp,
-	producerDelay uint32
-	producers []*producer
+	producersUp uint32
+	producers   []*producer
+
+	cancel context.CancelFunc
 }
 
 func (d *demoQueue) Run() {
-	d.producers = make([]*producer, d.producersMax)
-	for i := 0; i < int(d.producersMax); i++ {
-		d.producers[i] = makeProducer(uint32(i), d.producerDelay)
+	d.producers = make([]*producer, d.req.ProducersMax)
+	for i := 0; i < int(d.req.ProducersMax); i++ {
+		d.producers[i] = makeProducer(uint32(i), d.req.ProducerDelay)
 	}
-	for i := 0; i < int(d.producersMin); i++ {
+	for i := 0; i < int(d.req.ProducersMin); i++ {
 		go d.producers[i].produce(d.queue)
 		d.producers[i].start()
 	}
-	d.producersUp = d.producersMin
+	d.producersUp = d.req.ProducersMin
 
 	producerActive.WithLabelValues(d.key).Add(float64(d.producersUp))
-	producerIdle.WithLabelValues(d.key).Add(float64(d.producersMax - d.producersUp))
+	producerIdle.WithLabelValues(d.key).Add(float64(d.req.ProducersMax - d.producersUp))
+
+	var ctx context.Context
+	ctx, d.cancel = context.WithCancel(context.Background())
+	ticker := time.NewTicker(time.Millisecond * 50)
+	go func(ctx context.Context) {
+		for {
+			select {
+			case <-ticker.C:
+				d.calibrate()
+			case <-ctx.Done():
+				ticker.Stop()
+				return
+			}
+		}
+	}(ctx)
 }
 
 func (d *demoQueue) ProducerUp(delta uint32) error {
 	if delta == 0 {
 		delta = 1
 	}
-	if d.producersUp+delta >= d.producersMax {
+	if d.producersUp+delta >= d.req.ProducersMax {
 		return errors.New("maximum producers count reached")
 	}
 	c := d.producersUp
@@ -55,7 +72,7 @@ func (d *demoQueue) ProducerDown(delta uint32) error {
 	if delta == 0 {
 		delta = 1
 	}
-	if d.producersUp-delta < d.producersMin {
+	if d.producersUp-delta < d.req.ProducersMin {
 		return errors.New("minimum producers count reached")
 	}
 	c := d.producersUp
@@ -89,6 +106,11 @@ func (d *demoQueue) stop(force bool) {
 	} else {
 		d.queue.Close()
 	}
+	d.cancel()
+}
+
+func (d *demoQueue) calibrate() {
+	// todo consider producers schedule
 }
 
 func (d *demoQueue) String() string {
@@ -103,8 +125,8 @@ func (d *demoQueue) String() string {
 
 	out.Key = d.key
 	out.Queue = "!queue"
-	out.ProducersMin = int(d.producersMin)
-	out.ProducersMax = int(d.producersMax)
+	out.ProducersMin = int(d.req.ProducersMin)
+	out.ProducersMax = int(d.req.ProducersMax)
 	for _, p := range d.producers {
 		switch p.getStatus() {
 		case statusIdle:

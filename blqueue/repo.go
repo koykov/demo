@@ -14,26 +14,31 @@ type RequestInit struct {
 	Workers   uint32        `json:"workers,omitempty"`
 	Heartbeat time.Duration `json:"heartbeat,omitempty"`
 
-	WorkersMin   uint32  `json:"workers_min"`
-	WorkersMax   uint32  `json:"workers_max"`
-	WorkerDelay  uint32  `json:"worker_delay,omitempty"`
-	WakeupFactor float32 `json:"wakeup_factor,omitempty"`
-	SleepFactor  float32 `json:"sleep_factor,omitempty"`
-
-	ProducersMin  uint32 `json:"producers_min"`
-	ProducersMax  uint32 `json:"producers_max"`
-	ProducerDelay uint32 `json:"producer_delay,omitempty"`
-
-	AllowLeak bool `json:"allow_leak,omitempty"`
-
-	Schedule []struct {
+	WorkersMin      uint32  `json:"workers_min"`
+	WorkersMax      uint32  `json:"workers_max"`
+	WorkerDelay     uint32  `json:"worker_delay,omitempty"`
+	WakeupFactor    float32 `json:"wakeup_factor,omitempty"`
+	SleepFactor     float32 `json:"sleep_factor,omitempty"`
+	WorkersSchedule []struct {
 		Range        string  `json:"range,omitempty"`
 		RelRange     string  `json:"rel_range,omitempty"`
 		WorkersMin   uint32  `json:"workers_min,omitempty"`
 		WorkersMax   uint32  `json:"workers_max,omitempty"`
 		WakeupFactor float32 `json:"wakeup_factor,omitempty"`
 		SleepFactor  float32 `json:"sleep_factor,omitempty"`
-	} `json:"schedule,omitempty"`
+	} `json:"workers_schedule,omitempty"`
+
+	ProducersMin      uint32 `json:"producers_min"`
+	ProducersMax      uint32 `json:"producers_max"`
+	ProducerDelay     uint32 `json:"producer_delay,omitempty"`
+	ProducersSchedule []struct {
+		Range        string `json:"range,omitempty"`
+		RelRange     string `json:"rel_range,omitempty"`
+		ProducersMin uint32 `json:"workers_min,omitempty"`
+		ProducersMax uint32 `json:"workers_max,omitempty"`
+	} `json:"producers_schedule,omitempty"`
+
+	AllowLeak bool `json:"allow_leak,omitempty"`
 }
 
 func (r *RequestInit) MapConfig(conf *blqueue.Config) {
@@ -44,10 +49,10 @@ func (r *RequestInit) MapConfig(conf *blqueue.Config) {
 	conf.WorkersMax = r.WorkersMax
 	conf.WakeupFactor = r.WakeupFactor
 	conf.SleepFactor = r.SleepFactor
-	if len(r.Schedule) > 0 {
+	if len(r.WorkersSchedule) > 0 {
 		now := time.Now()
 		s := blqueue.NewSchedule()
-		for _, rule := range r.Schedule {
+		for _, rule := range r.WorkersSchedule {
 			var r1 string
 			if r1 = rule.Range; len(r1) == 0 {
 				if p := strings.Split(rule.RelRange, "-"); len(p) == 2 {
