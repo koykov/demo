@@ -85,7 +85,8 @@ func (d *demoQueue) ProducersDown(delta uint32) error {
 	if delta == 0 {
 		delta = 1
 	}
-	if d.producersUp-delta < d.req.ProducersMin {
+	params, _ := d.rtParams()
+	if d.producersUp-delta < params.min {
 		return errors.New("minimum producers count reached")
 	}
 	c := d.producersUp
@@ -132,9 +133,9 @@ func (d *demoQueue) calibrate() {
 		if d.pmax > params.max {
 			for i := d.pmax - 1; i >= params.max; i-- {
 				if d.producers[i].getStatus() == statusActive {
-					d.producers[i].stop()
-					// atomic.AddInt32(&d.producersUp, -1)
-					d.producersUp--
+					if err := d.ProducersDown(1); err != nil {
+						log.Println("err", err)
+					}
 				}
 			}
 		}
