@@ -32,10 +32,9 @@ type RequestInit struct {
 	ProducersMax      uint32 `json:"producers_max"`
 	ProducerDelay     uint32 `json:"producer_delay,omitempty"`
 	ProducersSchedule []struct {
-		Range        string `json:"range,omitempty"`
-		RelRange     string `json:"rel_range,omitempty"`
-		ProducersMin uint32 `json:"producers_min,omitempty"`
-		ProducersMax uint32 `json:"producers_max,omitempty"`
+		Range     string `json:"range,omitempty"`
+		RelRange  string `json:"rel_range,omitempty"`
+		Producers uint32 `json:"producers,omitempty"`
 	} `json:"producers_schedule,omitempty"`
 
 	AllowLeak bool `json:"allow_leak,omitempty"`
@@ -112,8 +111,12 @@ func (r *RequestInit) MapInternalQueue(queue *demoQueue) {
 					r0 := fmt.Sprintf("%02d:%02d:%02d-%02d:%02d:%02d", now0.Hour(), now0.Minute(), now0.Second(),
 						now1.Hour(), now1.Minute(), now1.Second())
 					params := blqueue.ScheduleParams{
-						WorkersMin: rule.ProducersMin,
-						WorkersMax: rule.ProducersMax,
+						WorkersMin: rule.Producers,
+						WorkersMax: rule.Producers + 1,
+					}
+					if params.WorkersMin > r.ProducersMax {
+						params.WorkersMin = r.ProducersMax
+						params.WorkersMax = r.ProducersMax + 1
 					}
 					if err = s.AddRange(r0, params); err != nil {
 						fmt.Println("error", err, "caught on adding range", r0)
