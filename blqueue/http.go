@@ -152,6 +152,7 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			queue: qi,
 			req:   &req,
 		}
+		req.MapInternalQueue(&q)
 
 		h.mux.Lock()
 		h.pool[key] = &q
@@ -173,7 +174,7 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 			delta = uint32(ud)
 		}
-		if err := q.ProducerUp(delta); err != nil {
+		if err := q.ProducersUp(delta); err != nil {
 			log.Println("err", err)
 			resp.Status = http.StatusInternalServerError
 			resp.Error = err.Error()
@@ -193,7 +194,7 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 			delta = uint32(ud)
 		}
-		if err := q.ProducerDown(delta); err != nil {
+		if err := q.ProducersDown(delta); err != nil {
 			log.Println("err", err)
 			resp.Status = http.StatusInternalServerError
 			resp.Error = err.Error()

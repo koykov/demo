@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log"
 	"time"
 
 	"github.com/koykov/blqueue"
@@ -18,12 +19,22 @@ type demoQueue struct {
 	producersUp uint32
 	producers   []*producer
 
+	schedule *blqueue.Schedule
+	schedID  int
+	pmax     uint32
+
 	cancel context.CancelFunc
 }
 
+type realtimeParams struct {
+	min, max uint32
+}
+
 func (d *demoQueue) Run() {
-	d.producers = make([]*producer, d.req.ProducersMax)
-	for i := 0; i < int(d.req.ProducersMax); i++ {
+	d.pmax = d.producersMaxDaily()
+
+	d.producers = make([]*producer, d.pmax)
+	for i := 0; i < int(d.pmax); i++ {
 		d.producers[i] = makeProducer(uint32(i), d.req.ProducerDelay)
 	}
 	for i := 0; i < int(d.req.ProducersMin); i++ {
@@ -33,7 +44,9 @@ func (d *demoQueue) Run() {
 	d.producersUp = d.req.ProducersMin
 
 	producerActive.WithLabelValues(d.key).Add(float64(d.producersUp))
-	producerIdle.WithLabelValues(d.key).Add(float64(d.req.ProducersMax - d.producersUp))
+	producerIdle.WithLabelValues(d.key).Add(float64(d.pmax - d.producersUp))
+
+	d.schedID = -1
 
 	var ctx context.Context
 	ctx, d.cancel = context.WithCancel(context.Background())
@@ -51,11 +64,11 @@ func (d *demoQueue) Run() {
 	}(ctx)
 }
 
-func (d *demoQueue) ProducerUp(delta uint32) error {
+func (d *demoQueue) ProducersUp(delta uint32) error {
 	if delta == 0 {
 		delta = 1
 	}
-	if d.producersUp+delta >= d.req.ProducersMax {
+	if d.producersUp+delta >= d.pmax {
 		return errors.New("maximum producers count reached")
 	}
 	c := d.producersUp
@@ -68,7 +81,7 @@ func (d *demoQueue) ProducerUp(delta uint32) error {
 	return nil
 }
 
-func (d *demoQueue) ProducerDown(delta uint32) error {
+func (d *demoQueue) ProducersDown(delta uint32) error {
 	if delta == 0 {
 		delta = 1
 	}
@@ -110,7 +123,53 @@ func (d *demoQueue) stop(force bool) {
 }
 
 func (d *demoQueue) calibrate() {
-	// todo consider producers schedule
+	var (
+		params  realtimeParams
+		schedID int
+	)
+	if params, schedID = d.rtParams(); schedID != d.schedID {
+		d.schedID = schedID
+		if d.pmax > params.max {
+			for i := d.pmax - 1; i >= params.max; i-- {
+				if d.producers[i].getStatus() == statusActive {
+					d.producers[i].stop()
+					// atomic.AddInt32(&d.producersUp, -1)
+					d.producersUp--
+				}
+			}
+		}
+		if pu := d.producersUp; params.min > pu {
+			target := params.min - pu
+			if err := d.ProducersUp(target); err != nil {
+				log.Println("err", err)
+			}
+		}
+	}
+}
+
+func (d *demoQueue) rtParams() (params realtimeParams, schedID int) {
+	if d.schedule != nil {
+		var schedParams blqueue.ScheduleParams
+		if schedParams, schedID = d.schedule.Get(); schedID != -1 {
+			params.min, params.max = schedParams.WorkersMin, schedParams.WorkersMax
+			return
+		}
+	}
+	schedID = -1
+	params.min = d.req.ProducersMin
+	params.max = d.req.ProducersMax
+	return
+}
+
+func (d *demoQueue) producersMaxDaily() uint32 {
+	sched, conf := uint32(0), d.req.ProducersMax
+	if d.schedule != nil {
+		sched = d.schedule.WorkersMaxDaily()
+	}
+	if sched > conf {
+		return sched
+	}
+	return conf
 }
 
 func (d *demoQueue) String() string {
@@ -126,7 +185,7 @@ func (d *demoQueue) String() string {
 	out.Key = d.key
 	out.Queue = "!queue"
 	out.ProducersMin = int(d.req.ProducersMin)
-	out.ProducersMax = int(d.req.ProducersMax)
+	out.ProducersMax = int(d.pmax)
 	for _, p := range d.producers {
 		switch p.getStatus() {
 		case statusIdle:

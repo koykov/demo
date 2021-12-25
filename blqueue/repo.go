@@ -34,8 +34,8 @@ type RequestInit struct {
 	ProducersSchedule []struct {
 		Range        string `json:"range,omitempty"`
 		RelRange     string `json:"rel_range,omitempty"`
-		ProducersMin uint32 `json:"workers_min,omitempty"`
-		ProducersMax uint32 `json:"workers_max,omitempty"`
+		ProducersMin uint32 `json:"producers_min,omitempty"`
+		ProducersMax uint32 `json:"producers_max,omitempty"`
 	} `json:"producers_schedule,omitempty"`
 
 	AllowLeak bool `json:"allow_leak,omitempty"`
@@ -85,5 +85,43 @@ func (r *RequestInit) MapConfig(conf *blqueue.Config) {
 			}
 		}
 		conf.Schedule = s
+	}
+}
+
+func (r *RequestInit) MapInternalQueue(queue *demoQueue) {
+	if len(r.ProducersSchedule) > 0 {
+		now := time.Now()
+		s := blqueue.NewSchedule()
+		for _, rule := range r.ProducersSchedule {
+			var r1 string
+			if r1 = rule.Range; len(r1) == 0 {
+				if p := strings.Split(rule.RelRange, "-"); len(p) == 2 {
+					var (
+						d0, d1 time.Duration
+						err    error
+					)
+					if d0, err = clock.Relative(p[0]); err != nil {
+						fmt.Println("bad range", rule.RelRange, "err", err)
+						continue
+					}
+					if d1, err = clock.Relative(p[1]); err != nil {
+						fmt.Println("bad range", rule.RelRange, "err", err)
+						continue
+					}
+					now0, now1 := now.Add(d0), now.Add(d1)
+					r0 := fmt.Sprintf("%02d:%02d:%02d-%02d:%02d:%02d", now0.Hour(), now0.Minute(), now0.Second(),
+						now1.Hour(), now1.Minute(), now1.Second())
+					params := blqueue.ScheduleParams{
+						WorkersMin: rule.ProducersMin,
+						WorkersMax: rule.ProducersMax,
+					}
+					if err = s.AddRange(r0, params); err != nil {
+						fmt.Println("error", err, "caught on adding range", r0)
+						continue
+					}
+				}
+			}
+		}
+		queue.schedule = s
 	}
 }
