@@ -25,10 +25,6 @@ type demoQueue struct {
 	cancel context.CancelFunc
 }
 
-type realtimeParams struct {
-	size uint32
-}
-
 func (d *demoQueue) Run() {
 	d.producers = make([]*producer, d.req.ProducersMax)
 	for i := 0; i < int(d.req.ProducersMax); i++ {
@@ -121,19 +117,19 @@ func (d *demoQueue) stop(force bool) {
 
 func (d *demoQueue) calibrate() {
 	var (
-		params  realtimeParams
+		rtSize  uint32
 		schedID int
 	)
-	if params, schedID = d.rtParams(); schedID != d.schedID {
+	if rtSize, schedID = d.rtSize(); schedID != d.schedID {
 		d.schedID = schedID
 		pu := d.producersUp
-		if params.size > pu {
-			target := params.size - pu
+		if rtSize > pu {
+			target := rtSize - pu
 			if err := d.ProducersUp(target); err != nil {
 				log.Println("err", err)
 			}
-		} else if params.size < pu {
-			target := pu - params.size
+		} else if rtSize < pu {
+			target := pu - rtSize
 			if err := d.ProducersDown(target); err != nil {
 				log.Println("err", err)
 			}
@@ -141,16 +137,16 @@ func (d *demoQueue) calibrate() {
 	}
 }
 
-func (d *demoQueue) rtParams() (params realtimeParams, schedID int) {
+func (d *demoQueue) rtSize() (size uint32, schedID int) {
 	if d.schedule != nil {
 		var schedParams blqueue.ScheduleParams
 		if schedParams, schedID = d.schedule.Get(); schedID != -1 {
-			params.size = schedParams.WorkersMin
+			size = schedParams.WorkersMin
 			return
 		}
 	}
 	schedID = -1
-	params.size = d.req.ProducersMin
+	size = d.req.ProducersMin
 	return
 }
 
