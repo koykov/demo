@@ -2,6 +2,21 @@
 
 Demo application for [blqueue](https://github.com/koykov/blqueue) package.
 
+## Installation
+
+Default way is running app in Docker container. Before start, you need to make `.env` file with admin login/password for
+builtin Grafana server:
+```dotenv
+ADMIN_USER=<login>
+ADMIN_PASSWORD=<password>
+```
+Then just run `sudo docker-compose up` in the package directory.
+
+API will available at `http://localhost:8080`,
+Grafana at `http://localhost:3000/`.
+
+You may start the app from host machine, but you need to configure Prometheus and Grafana services yourself.
+
 ## API
 
 #### Init the queue
