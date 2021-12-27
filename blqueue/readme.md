@@ -62,3 +62,12 @@ in metrics writers to filter queue metrics.
   ]
 }
 ```
+
+#### Producers up
+
+```shell
+curl -i -X GET '/api/v1/producer-up?key=<queueKey>&delta=<delta>'
+```
+
+Activate `delta` producers. If currently active producers + `delta` will exceed `producers_max` param, then request will
+fail with error.
