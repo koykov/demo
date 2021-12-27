@@ -71,3 +71,12 @@ curl -i -X GET '/api/v1/producer-up?key=<queueKey>&delta=<delta>'
 
 Activate `delta` producers. If currently active producers + `delta` will exceed `producers_max` param, then request will
 fail with error.
+
+#### Producers down
+
+```shell
+curl -i -X GET '/api/v1/producer-down?key=<queueKey>&delta=<delta>'
+```
+
+Stop `delta` producers. If currently active producers - `delta` will smaller than `producers_min` param, then request
+will fail with error.
