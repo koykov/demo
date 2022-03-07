@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"log"
+	"math/rand"
+	"time"
 )
 
 var (
@@ -14,6 +16,7 @@ func init() {
 	if *port == 0 {
 		log.Fatalln("empty app port provided")
 	}
+	rand.Seed(time.Now().UnixNano())
 }
 
 func main() {}

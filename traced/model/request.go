@@ -33,7 +33,9 @@ func (r *Request) FromV1(p []byte) (err error) {
 	if err = json.Unmarshal(p, &v1); err != nil {
 		return
 	}
-	r.BF, r.BC = v1.PriceFloor, v1.PriceCeil
+	if r.BF, r.BC = v1.PriceFloor, v1.PriceCeil; r.BC <= r.BF {
+		r.BC = r.BF * 3
+	}
 	r.Limit = 1
 	r.UID = v1.UserID
 	r.Cur = "USD"
@@ -46,6 +48,7 @@ func (r *Request) FromV2(p []byte) (err error) {
 		return
 	}
 	r.BF = float64(v2.PriceLow)
+	r.BC = r.BF * 3
 	r.Limit = 1
 	r.UID = v2.User
 	r.Cur = v2.Currency
@@ -53,7 +56,6 @@ func (r *Request) FromV2(p []byte) (err error) {
 }
 
 func (r *Request) FromV3(p []byte) (err error) {
-	r = &Request{}
 	var v url.Values
 	if v, err = url.ParseQuery(string(p)); err != nil {
 		return
@@ -85,6 +87,9 @@ func (r *Request) FromV3(p []byte) (err error) {
 		case "currency":
 			r.Cur = vv[0]
 		}
+	}
+	if r.BC <= r.BF {
+		r.BC = r.BF * 3
 	}
 	return
 }

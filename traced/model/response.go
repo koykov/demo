@@ -31,6 +31,7 @@ func (r *Response) FromV1(p []byte) (err error) {
 		return
 	}
 	r.Bid = float64(v1.Price)
+	r.Cur = "USD"
 	r.Mkup = string(v1.Markup)
 	return
 }
