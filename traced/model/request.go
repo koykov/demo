@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"strconv"
 )
@@ -62,29 +63,23 @@ func (r *Request) FromV3(p []byte) (err error) {
 	}
 	for k, vv := range v {
 		switch k {
-		case "bf":
-		case "lo":
-		case "pl":
+		case "bf", "lo", "pl":
 			if r.BF, err = strconv.ParseFloat(vv[0], 64); err != nil {
 				return
 			}
-		case "bc":
-		case "hi":
-		case "pt":
+		case "bc", "hi", "pt":
 			if r.BC, err = strconv.ParseFloat(vv[0], 64); err != nil {
 				return
 			}
-		case "limit":
+		case "lim", "limit":
 			var u64 uint64
 			if u64, err = strconv.ParseUint(vv[0], 10, 64); err != nil {
 				return
 			}
 			r.Limit = uint(u64)
-		case "uid":
-		case "user_id":
+		case "uid", "user_id":
 			r.UID = vv[0]
-		case "cur":
-		case "currency":
+		case "cur", "currency":
 			r.Cur = vv[0]
 		}
 	}
@@ -92,4 +87,25 @@ func (r *Request) FromV3(p []byte) (err error) {
 		r.BC = r.BF * 3
 	}
 	return
+}
+
+func (r Request) ToV1() []byte {
+	v1 := RequestV1{}
+	v1.PriceFloor, v1.PriceCeil = r.BF, r.BC
+	v1.UserID = r.UID
+	b, _ := json.Marshal(v1)
+	return b
+}
+
+func (r Request) ToV2() []byte {
+	v2 := RequestV2{}
+	v2.PriceLow = float32(r.BF)
+	v2.User = r.UID
+	v2.Currency = r.Cur
+	b, _ := json.Marshal(v2)
+	return b
+}
+
+func (r Request) ToV3() []byte {
+	return []byte(fmt.Sprintf("/v3?bf=%f&bc=%f&lim=%d&user_id=%s&cur=%s", r.BF, r.BC, r.Limit, r.UID, r.Cur))
 }

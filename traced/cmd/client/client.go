@@ -49,7 +49,7 @@ func (h *ClientHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		v1 := model.ResponseV1{
-			Price:  float32(math.Floor(req.BF)) + rand.Float32(),
+			Price:  float32(randomizeBid(req.BF, req.BC)),
 			Markup: []byte(traced.RandString(128)),
 		}
 		resp, _ = json.Marshal(v1)
@@ -68,7 +68,7 @@ func (h *ClientHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		v2 := model.ResponseV2{
-			Commission: math.Floor(req.BF) + rand.Float64(),
+			Commission: randomizeBid(req.BF, req.BC),
 			Currency:   req.Cur,
 			Data:       traced.RandString(64),
 		}
@@ -78,7 +78,16 @@ func (h *ClientHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			status = http.StatusMethodNotAllowed
 			return
 		}
-		// ...
+		if err := req.FromV3([]byte(r.URL.RawQuery)); err != nil {
+			status = http.StatusBadRequest
+			return
+		}
+		v3 := model.ResponseV3{
+			A: float32(randomizeBid(req.BF, req.BC)),
+			B: traced.RandString(32),
+			C: req.Cur,
+		}
+		resp, _ = json.Marshal(v3)
 	default:
 		status = http.StatusNotFound
 		return
@@ -89,4 +98,15 @@ func (h *ClientHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func checkMethod(r *http.Request, must string) bool {
 	return r.Method == must
+}
+
+func randomizeBid(bf, bc float64) float64 {
+	b := math.Floor(bf) + rand.Float64()
+	if rand.Intn(100) > 95 {
+		b = bf - 0.001
+	}
+	if rand.Intn(100) < 5 {
+		b = bc + 0.001
+	}
+	return b
 }
