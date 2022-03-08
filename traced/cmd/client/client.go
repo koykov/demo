@@ -35,7 +35,7 @@ func (h *ClientHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch r.URL.Path {
 	case "/v1":
-		if !checkMethod(r, "POST") {
+		if !traced.CheckMethod(r, "POST") {
 			status = http.StatusMethodNotAllowed
 			return
 		}
@@ -54,7 +54,7 @@ func (h *ClientHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		resp, _ = json.Marshal(v1)
 	case "/v2":
-		if !checkMethod(r, "POST") {
+		if !traced.CheckMethod(r, "POST") {
 			status = http.StatusMethodNotAllowed
 			return
 		}
@@ -74,7 +74,7 @@ func (h *ClientHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		resp, _ = json.Marshal(v2)
 	case "/v3":
-		if !checkMethod(r, "GET") {
+		if !traced.CheckMethod(r, "GET") {
 			status = http.StatusMethodNotAllowed
 			return
 		}
@@ -94,10 +94,6 @@ func (h *ClientHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, _ = w.Write(resp)
-}
-
-func checkMethod(r *http.Request, must string) bool {
-	return r.Method == must
 }
 
 func randomizeBid(bf, bc float64) float64 {
