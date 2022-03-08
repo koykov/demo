@@ -21,6 +21,8 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		req  model.Request
 		resp *model.Response
 		out  []byte
+		body []byte
+		err  error
 	)
 	status := http.StatusOK
 	defer func() { w.WriteHeader(status) }()
@@ -31,12 +33,49 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			status = http.StatusMethodNotAllowed
 			return
 		}
-		body, err := io.ReadAll(r.Body)
+		body, err = io.ReadAll(r.Body)
 		if err != nil {
 			status = http.StatusInternalServerError
 			return
 		}
 		if err = req.FromV1(body); err != nil {
+			status = http.StatusBadRequest
+			return
+		}
+		if resp, err = Auction(&req); err != nil {
+			status = http.StatusInternalServerError
+			return
+		}
+
+		out, _ = json.Marshal(resp)
+
+	case "/v2":
+		if !traced.CheckMethod(r, "POST") {
+			status = http.StatusMethodNotAllowed
+			return
+		}
+		body, err = io.ReadAll(r.Body)
+		if err != nil {
+			status = http.StatusInternalServerError
+			return
+		}
+		if err = req.FromV2(body); err != nil {
+			status = http.StatusBadRequest
+			return
+		}
+		if resp, err = Auction(&req); err != nil {
+			status = http.StatusInternalServerError
+			return
+		}
+
+		out, _ = json.Marshal(resp)
+
+	case "/v3":
+		if !traced.CheckMethod(r, "GET") {
+			status = http.StatusMethodNotAllowed
+			return
+		}
+		if err = req.FromV3([]byte(r.URL.RawQuery)); err != nil {
 			status = http.StatusBadRequest
 			return
 		}
