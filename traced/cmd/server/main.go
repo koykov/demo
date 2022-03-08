@@ -12,7 +12,6 @@ import (
 var (
 	port  = flag.Uint("port", 0, "Application port.")
 	cport = flag.String("cport", "", "Client applications port separated by comma.")
-	caddr []string
 )
 
 func init() {
@@ -25,7 +24,7 @@ func init() {
 	}
 	cports := strings.Split(*cport, ",")
 	for i := 0; i < len(cports); i++ {
-		caddr = append(caddr, fmt.Sprintf(":%s", cports[i]))
+		cpool = append(cpool, fmt.Sprintf(":%s", cports[i]))
 	}
 	rand.Seed(time.Now().UnixNano())
 }
