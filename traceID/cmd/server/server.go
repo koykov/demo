@@ -5,8 +5,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/koykov/demo/traced"
-	"github.com/koykov/demo/traced/model"
+	"github.com/koykov/demo/traceID"
+	"github.com/koykov/demo/traceID/model"
 )
 
 type ServerHTTP struct{}
@@ -29,7 +29,7 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch r.URL.Path {
 	case "/v1":
-		if !traced.CheckMethod(r, "POST") {
+		if !traceID.CheckMethod(r, "POST") {
 			status = http.StatusMethodNotAllowed
 			return
 		}
@@ -50,7 +50,7 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		out, _ = json.Marshal(resp)
 
 	case "/v2":
-		if !traced.CheckMethod(r, "POST") {
+		if !traceID.CheckMethod(r, "POST") {
 			status = http.StatusMethodNotAllowed
 			return
 		}
@@ -71,7 +71,7 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		out, _ = json.Marshal(resp)
 
 	case "/v3":
-		if !traced.CheckMethod(r, "GET") {
+		if !traceID.CheckMethod(r, "GET") {
 			status = http.StatusMethodNotAllowed
 			return
 		}

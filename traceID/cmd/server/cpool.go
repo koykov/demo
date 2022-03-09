@@ -4,7 +4,7 @@ import (
 	"errors"
 	"math/rand"
 
-	"github.com/koykov/demo/traced/model"
+	"github.com/koykov/demo/traceID/model"
 )
 
 type cv struct {

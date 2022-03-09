@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/koykov/demo/traced"
-	"github.com/koykov/demo/traced/model"
+	"github.com/koykov/demo/traceID"
+	"github.com/koykov/demo/traceID/model"
 )
 
 type ClientHTTP struct{}
@@ -35,7 +35,7 @@ func (h *ClientHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch r.URL.Path {
 	case "/v1":
-		if !traced.CheckMethod(r, "POST") {
+		if !traceID.CheckMethod(r, "POST") {
 			status = http.StatusMethodNotAllowed
 			return
 		}
@@ -50,11 +50,11 @@ func (h *ClientHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		v1 := model.ResponseV1{
 			Price:  float32(randomizeBid(req.BF, req.BC)),
-			Markup: []byte(traced.RandString(128)),
+			Markup: []byte(traceID.RandString(128)),
 		}
 		resp, _ = json.Marshal(v1)
 	case "/v2":
-		if !traced.CheckMethod(r, "POST") {
+		if !traceID.CheckMethod(r, "POST") {
 			status = http.StatusMethodNotAllowed
 			return
 		}
@@ -70,11 +70,11 @@ func (h *ClientHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		v2 := model.ResponseV2{
 			Commission: randomizeBid(req.BF, req.BC),
 			Currency:   req.Cur,
-			Data:       traced.RandString(64),
+			Data:       traceID.RandString(64),
 		}
 		resp, _ = json.Marshal(v2)
 	case "/v3":
-		if !traced.CheckMethod(r, "GET") {
+		if !traceID.CheckMethod(r, "GET") {
 			status = http.StatusMethodNotAllowed
 			return
 		}
@@ -84,7 +84,7 @@ func (h *ClientHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		v3 := model.ResponseV3{
 			A: float32(randomizeBid(req.BF, req.BC)),
-			B: traced.RandString(32),
+			B: traceID.RandString(32),
 			C: req.Cur,
 		}
 		resp, _ = json.Marshal(v3)
