@@ -25,7 +25,10 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		err  error
 	)
 	status := http.StatusOK
-	defer func() { w.WriteHeader(status) }()
+	defer func() {
+		w.WriteHeader(status)
+		_, _ = w.Write(out)
+	}()
 
 	switch r.URL.Path {
 	case "/v1":
@@ -86,6 +89,4 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		out, _ = json.Marshal(resp)
 	}
-
-	_, _ = w.Write(out)
 }
