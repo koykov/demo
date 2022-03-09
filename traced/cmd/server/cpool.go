@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"math/rand"
 
 	"github.com/koykov/demo/traced/model"
@@ -26,6 +27,9 @@ func filterClients(req *model.Request) (r []cv, err error) {
 			c: cpool[i],
 			v: v,
 		})
+	}
+	if len(r) == 0 {
+		err = errors.New("no clients available")
 	}
 	return
 }
