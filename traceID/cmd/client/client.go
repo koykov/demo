@@ -25,7 +25,10 @@ func (h *ClientHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		resp []byte
 	)
 	status := http.StatusOK
-	defer func() { w.WriteHeader(status) }()
+	defer func() {
+		w.WriteHeader(status)
+		_, _ = w.Write(resp)
+	}()
 
 	time.Sleep(time.Duration(200+rand.Intn(3000)) * time.Millisecond)
 	if rand.Intn(100) > 80 {
@@ -92,8 +95,6 @@ func (h *ClientHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		status = http.StatusNotFound
 		return
 	}
-
-	_, _ = w.Write(resp)
 }
 
 func randomizeBid(bf, bc float64) float64 {
