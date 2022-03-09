@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"net/http"
 	"sync"
@@ -21,13 +22,40 @@ func Auction(req *model.Request) (resp *model.Response, err error) {
 	if pool, err = filterClients(req); err != nil {
 		return
 	}
+
 	stream := make(streamRE, len(pool))
+	var (
+		winner *model.Response
+		maxBid float64
+	)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go func(ctx context.Context, stream streamRE) {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case re, ok := <-stream:
+				if !ok {
+					return
+				}
+				if re.resp.Bid > maxBid {
+					winner = re.resp
+				}
+			}
+		}
+	}(ctx, stream)
+
 	var wg sync.WaitGroup
 	for i := 0; i < len(pool); i++ {
 		wg.Add(1)
 		go execReq(&pool[i], req, stream)
 	}
 	wg.Wait()
+
+	close(stream)
+
 	return
 }
 
