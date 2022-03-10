@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -29,4 +30,11 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func main() {}
+func main() {
+	addr := fmt.Sprintf(":%d", *port)
+	h := ServerHTTP{}
+	log.Printf("starting HTTP server at '%s'\n", addr)
+	if err := http.ListenAndServe(addr, &h); err != nil {
+		log.Fatalf("couldn't start HTTP server: '%s'\n", err.Error())
+	}
+}
