@@ -64,13 +64,6 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			status = http.StatusBadRequest
 			return
 		}
-		if resp, err = Auction(ttx, &req); err != nil {
-			ttx.Error("auction failed").Err(err)
-			status = http.StatusInternalServerError
-			return
-		}
-
-		out, _ = json.Marshal(resp)
 
 	case "/v2":
 		ttx.Info("income /v1 request").
@@ -94,13 +87,6 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			status = http.StatusBadRequest
 			return
 		}
-		if resp, err = Auction(ttx, &req); err != nil {
-			ttx.Error("auction failed").Err(err)
-			status = http.StatusInternalServerError
-			return
-		}
-
-		out, _ = json.Marshal(resp)
 
 	case "/v3":
 		ttx.Info("income /v1 request").
@@ -118,12 +104,12 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			status = http.StatusBadRequest
 			return
 		}
-		if resp, err = Auction(ttx, &req); err != nil {
-			ttx.Error("auction failed").Err(err)
-			status = http.StatusInternalServerError
-			return
-		}
-
-		out, _ = json.Marshal(resp)
 	}
+
+	if resp, err = Auction(ttx, &req); err != nil {
+		ttx.Error("auction failed").Err(err)
+		status = http.StatusInternalServerError
+		return
+	}
+	out, _ = json.Marshal(resp)
 }
