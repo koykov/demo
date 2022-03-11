@@ -40,6 +40,15 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		traceID.ReleaseCtx(ttx)
 	}()
 
+	var id string
+	if v := r.URL.Query()["traceID"]; len(v) > 0 {
+		id = v[0]
+	}
+	if len(id) == 0 {
+		status = http.StatusBadRequest
+		return
+	}
+
 	switch r.URL.Path {
 	case "/v1":
 		ttx.Info("income /v1 request").
@@ -105,6 +114,7 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	req.TraceID = id
 
 	if resp, err = Auction(ttx, &req); err != nil {
 		ttx.Error("auction failed").Err(err)

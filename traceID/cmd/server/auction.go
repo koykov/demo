@@ -112,9 +112,7 @@ func execReq(ttx *traceID.Ctx, cv *cv, req *model.Request, stream streamRE) {
 			Var("version", cv.v).
 			Var("body", fastconv.B2S(b))
 		if hr, resp.err = http.Post(cv.c, "application/json", bytes.NewBuffer(b)); resp.err != nil {
-			tth.Error("request failed").
-				Var("code", hr.StatusCode).
-				Err(resp.err)
+			tth.Error("request failed").Err(resp.err)
 			return
 		}
 		buf, resp.err = io.ReadAll(hr.Body)
@@ -135,9 +133,7 @@ func execReq(ttx *traceID.Ctx, cv *cv, req *model.Request, stream streamRE) {
 			Var("version", cv.v).
 			Var("body", fastconv.B2S(b))
 		if hr, resp.err = http.Post(cv.c, "application/json", bytes.NewBuffer(b)); resp.err != nil {
-			tth.Error("request failed").
-				Var("code", hr.StatusCode).
-				Err(resp.err)
+			tth.Error("request failed").Err(resp.err)
 			return
 		}
 		if buf, resp.err = io.ReadAll(hr.Body); resp.err != nil {
@@ -157,9 +153,7 @@ func execReq(ttx *traceID.Ctx, cv *cv, req *model.Request, stream streamRE) {
 			Var("version", cv.v).
 			Var("url", fastconv.B2S(b))
 		if hr, resp.err = http.Get(cv.c + string(b)); resp.err != nil {
-			tth.Error("request failed").
-				Var("code", hr.StatusCode).
-				Err(resp.err)
+			tth.Error("request failed").Err(resp.err)
 			return
 		}
 		if buf, resp.err = io.ReadAll(hr.Body); resp.err != nil {
