@@ -72,10 +72,23 @@ func Auction(ttx *traceID.Ctx, req *model.Request) (resp *model.Response, err er
 
 	close(stream)
 
-	// todo consider bid floor/ceil
-
 	ttx.Info("auction winner").
 		Var("winner", winner)
+
+	if req.BF > 0 && winner.Bid < req.BF {
+		err = ErrBidfloorFail
+		ttx.Warn("bidfloor check failed").
+			Var("bidfloor", req.BF).
+			Var("bid", winner.Bid)
+		return
+	}
+	if req.BC > 0 && winner.Bid > req.BC {
+		err = ErrBidceilFail
+		ttx.Warn("bidceil check failed").
+			Var("bidceil", req.BC).
+			Var("bid", winner.Bid)
+		return
+	}
 
 	return
 }
