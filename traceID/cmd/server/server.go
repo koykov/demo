@@ -3,7 +3,9 @@ package main
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
+	"os"
 
 	td "github.com/koykov/demo/traceID"
 	"github.com/koykov/demo/traceID/model"
@@ -12,6 +14,10 @@ import (
 )
 
 type ServerHTTP struct{}
+
+var (
+	logger = log.New(os.Stdout, "", log.LstdFlags)
+)
 
 func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -28,6 +34,7 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	)
 	status := http.StatusOK
 	ttx := traceID.AcquireCtx()
+	ttx.SetLogger(logger)
 	defer func() {
 		w.WriteHeader(status)
 		_, _ = w.Write(out)
