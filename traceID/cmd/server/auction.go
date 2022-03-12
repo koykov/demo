@@ -13,7 +13,7 @@ import (
 )
 
 type re struct {
-	resp *model.Response
+	resp model.Response
 	err  error
 }
 
@@ -57,7 +57,7 @@ func Auction(ttx *traceID.Ctx, req *model.Request) (resp *model.Response, err er
 				}
 				c++
 				if re.resp.Bid > maxBid {
-					winner = re.resp
+					winner = &re.resp
 				}
 			}
 		}
@@ -66,7 +66,7 @@ func Auction(ttx *traceID.Ctx, req *model.Request) (resp *model.Response, err er
 	var wg sync.WaitGroup
 	for i := 0; i < len(pool); i++ {
 		wg.Add(1)
-		go execReq(ttx, &pool[i], req, stream)
+		go execReq(ttx, &pool[i], req, stream, &wg)
 	}
 	wg.Wait()
 
@@ -93,7 +93,7 @@ func Auction(ttx *traceID.Ctx, req *model.Request) (resp *model.Response, err er
 	return
 }
 
-func execReq(ttx *traceID.Ctx, cv *cv, req *model.Request, stream streamRE) {
+func execReq(ttx *traceID.Ctx, cv *cv, req *model.Request, stream streamRE, wg *sync.WaitGroup) {
 	var (
 		resp re
 		hr   *http.Response
@@ -101,7 +101,10 @@ func execReq(ttx *traceID.Ctx, cv *cv, req *model.Request, stream streamRE) {
 	)
 
 	tth := ttx.AcquireThread()
-	defer ttx.ReleaseThread(tth)
+	defer func() {
+		ttx.ReleaseThread(tth)
+		wg.Done()
+	}()
 
 	defer func() { stream <- resp }()
 	switch cv.v {
