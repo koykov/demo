@@ -55,6 +55,7 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		status = http.StatusBadRequest
 		return
 	}
+	ttx.SetID(id).SetService("server")
 
 	switch r.URL.Path {
 	case "/v1":
