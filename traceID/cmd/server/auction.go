@@ -72,6 +72,11 @@ func Auction(ttx *traceID.Ctx, req *model.Request) (resp *model.Response, err er
 
 	close(stream)
 
+	if winner == nil {
+		ttx.Warn("no winner")
+		return
+	}
+
 	ttx.Info("auction winner").
 		Var("winner", winner)
 
@@ -89,6 +94,8 @@ func Auction(ttx *traceID.Ctx, req *model.Request) (resp *model.Response, err er
 			Var("bid", winner.Bid)
 		return
 	}
+
+	resp = winner
 
 	return
 }
@@ -114,7 +121,7 @@ func execReq(ttx *traceID.Ctx, cv *cv, req *model.Request, stream streamRE, wg *
 			Var("addr", cv.c).
 			Var("version", cv.v).
 			Var("body", fastconv.B2S(b))
-		if hr, resp.err = http.Post(cv.c, "application/json", bytes.NewBuffer(b)); resp.err != nil {
+		if hr, resp.err = http.Post(cv.c+"/"+cv.v, "application/json", bytes.NewBuffer(b)); resp.err != nil {
 			tth.Error("request failed").Err(resp.err)
 			return
 		}
@@ -135,7 +142,7 @@ func execReq(ttx *traceID.Ctx, cv *cv, req *model.Request, stream streamRE, wg *
 			Var("addr", cv.c).
 			Var("version", cv.v).
 			Var("body", fastconv.B2S(b))
-		if hr, resp.err = http.Post(cv.c, "application/json", bytes.NewBuffer(b)); resp.err != nil {
+		if hr, resp.err = http.Post(cv.c+"/"+cv.v, "application/json", bytes.NewBuffer(b)); resp.err != nil {
 			tth.Error("request failed").Err(resp.err)
 			return
 		}

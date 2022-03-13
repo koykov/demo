@@ -128,5 +128,9 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		status = http.StatusInternalServerError
 		return
 	}
+	if resp == nil {
+		ttx.Warn("no response")
+		return
+	}
 	out, _ = json.Marshal(resp)
 }
