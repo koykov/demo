@@ -57,6 +57,10 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	ttx.SetID(id).SetService("server")
 
+	if v := r.URL.Query()["traceOVR"]; len(v) > 0 {
+		ttx.SetFlag(traceID.FlagOverwrite, v[0] == "1" || v[0] == "true")
+	}
+
 	switch r.URL.Path {
 	case "/v1":
 		ttx.Info("income /v1 request").
