@@ -66,6 +66,7 @@ func (r *PBRequest) Unmarshal(p []byte) error {
 		return ErrPacketTooShort
 	}
 	tl = binary.LittleEndian.Uint16(p[:2])
+	p = p[2:]
 	if uint16(len(p)) < tl {
 		return ErrPacketTooShort
 	}
