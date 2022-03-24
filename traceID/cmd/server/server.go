@@ -2,10 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
-	"log"
 	"net/http"
-	"os"
 
 	td "github.com/koykov/demo/traceID"
 	"github.com/koykov/demo/traceID/model"
@@ -13,11 +12,9 @@ import (
 	"github.com/koykov/traceID"
 )
 
-type ServerHTTP struct{}
-
-var (
-	logger = log.New(os.Stdout, "", log.LstdFlags)
-)
+type ServerHTTP struct {
+	PortPB, PortCB int
+}
 
 func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -67,7 +64,7 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			Var("method", r.Method).
 			Var("url", r.URL)
 		if !td.CheckMethod(r, "POST") {
-			ttx.Error("method mismatch").
+			ttx.Error("bad method").
 				Var("need", "POST").
 				Var("got", r.Method)
 			status = http.StatusMethodNotAllowed
@@ -91,7 +88,7 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			Var("method", r.Method).
 			Var("url", r.URL)
 		if !td.CheckMethod(r, "POST") {
-			ttx.Error("method mismatch").
+			ttx.Error("bad method").
 				Var("need", "POST").
 				Var("got", r.Method)
 			status = http.StatusMethodNotAllowed
@@ -114,7 +111,7 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			Var("method", r.Method).
 			Var("url", r.URL)
 		if !td.CheckMethod(r, "GET") {
-			ttx.Error("method mismatch").
+			ttx.Error("bad method").
 				Var("need", "GET").
 				Var("got", r.Method)
 			status = http.StatusMethodNotAllowed
@@ -137,5 +134,29 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ttx.Warn("no response")
 		return
 	}
+
+	pb := model.PBRequest{
+		Commission: float32(resp.Bid * .25),
+		Cur:        resp.Cur,
+		TraceID:    resp.TraceID,
+	}
+	pbBody, err := pb.Marshal()
+	if err != nil {
+		ttx.Error("postback build fail").Err(err)
+		return
+	}
+	cb := model.CBRequest{
+		Bid:     resp.Bid,
+		Cur:     resp.Cur,
+		PB:      fmt.Sprintf("http://:%d/pb/%s", h.PortPB, string(pbBody)),
+		TraceID: resp.TraceID,
+	}
+	cbBody, err := cb.Marshal()
+	if err != nil {
+		ttx.Error("callback build fail").Err(err)
+		return
+	}
+	resp.CB = fmt.Sprintf("http://:%d/pb/%s", h.PortPB, string(cbBody))
+
 	out, _ = json.Marshal(resp)
 }

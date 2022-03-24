@@ -6,6 +6,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -17,6 +18,8 @@ var (
 	port  = flag.Uint("port", 0, "Application port.")
 	tport = flag.Uint("tport", 0, "Trace daemon port.")
 	cport = flag.String("cport", "", "Client applications port separated by comma.")
+
+	logger = log.New(os.Stdout, "", log.LstdFlags)
 )
 
 func init() {
