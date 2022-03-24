@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
+	"io"
 	"net/http"
 	"regexp"
+	"time"
 
 	td "github.com/koykov/demo/traceID"
 	"github.com/koykov/demo/traceID/model"
@@ -69,5 +72,34 @@ func (h *CallbackHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Var("encoded", m[1]).
 		Var("decoded", req)
 
-	// ...
+	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*300)
+	defer cancel()
+	hreq, err := http.NewRequestWithContext(ctx, "GET", req.PB, nil)
+	if err != nil {
+		ttx.Error("PB request fail").
+			Var("stage", "build").
+			Err(err)
+		status = http.StatusInternalServerError
+		return
+	}
+	hres, err := http.DefaultClient.Do(hreq)
+	if err != nil {
+		ttx.Error("PB request fail").
+			Var("stage", "exec").
+			Err(err)
+		status = http.StatusInternalServerError
+		return
+	}
+	body, err := io.ReadAll(hres.Body)
+	defer func() { _ = hres.Body.Close() }()
+	if err != nil {
+		ttx.Error("PB request fail").
+			Var("stage", "read").
+			Err(err)
+		status = http.StatusInternalServerError
+		return
+	}
+	ttx.Info("PB response").
+		Var("code", hres.StatusCode).
+		Var("body", string(body))
 }
