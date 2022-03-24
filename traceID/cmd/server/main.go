@@ -7,7 +7,9 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/koykov/traceID"
@@ -15,11 +17,15 @@ import (
 )
 
 var (
-	port  = flag.Uint("port", 0, "Application port.")
-	tport = flag.Uint("tport", 0, "Trace daemon port.")
-	cport = flag.String("cport", "", "Client applications port separated by comma.")
+	port   = flag.Uint("port", 0, "Application port.")
+	cbport = flag.Uint("cbport", 0, "Callback application port.")
+	pbport = flag.Uint("pbport", 0, "Postback application port.")
+	tport  = flag.Uint("tport", 0, "Trace daemon port.")
+	cport  = flag.String("cport", "", "Client applications port separated by comma.")
 
 	logger = log.New(os.Stdout, "", log.LstdFlags)
+
+	i10n chan os.Signal
 )
 
 func init() {
@@ -41,13 +47,41 @@ func init() {
 
 	bc := broadcaster.HTTP{Addr: fmt.Sprintf("http://:%d/post-msg", *tport)}
 	traceID.RegisterBroadcaster(&bc)
+
+	i10n = make(chan os.Signal, 1)
+	signal.Notify(i10n, os.Interrupt, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
 }
 
 func main() {
-	addr := fmt.Sprintf(":%d", *port)
-	h := ServerHTTP{}
-	log.Printf("starting HTTP server at '%s'\n", addr)
-	if err := http.ListenAndServe(addr, &h); err != nil {
-		log.Fatalf("couldn't start HTTP server: '%s'\n", err.Error())
-	}
+	go func() {
+		addr := fmt.Sprintf(":%d", *port)
+		h := ServerHTTP{
+			PortPB: *cbport,
+			PortCB: *pbport,
+		}
+		log.Printf("starting HTTP server at '%s'\n", addr)
+		if err := http.ListenAndServe(addr, &h); err != nil {
+			log.Fatalf("couldn't start HTTP server: '%s'\n", err.Error())
+		}
+	}()
+
+	go func() {
+		addr := fmt.Sprintf(":%d", *cbport)
+		h := CallbackHTTP{}
+		log.Printf("starting Callback server at '%s'\n", addr)
+		if err := http.ListenAndServe(addr, &h); err != nil {
+			log.Fatalf("couldn't start Callback server: '%s'\n", err.Error())
+		}
+	}()
+
+	go func() {
+		addr := fmt.Sprintf(":%d", *pbport)
+		h := PostbackHTTP{}
+		log.Printf("starting Postback server at '%s'\n", addr)
+		if err := http.ListenAndServe(addr, &h); err != nil {
+			log.Fatalf("couldn't start Postback server: '%s'\n", err.Error())
+		}
+	}()
+
+	<-i10n
 }

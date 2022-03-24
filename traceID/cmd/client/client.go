@@ -52,8 +52,9 @@ func (h *ClientHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		v1 := model.ResponseV1{
-			Price:  float32(randomizeBid(req.BF, req.BC)),
-			Markup: []byte(traceID.RandString(128)),
+			Price:   float32(randomizeBid(req.BF, req.BC)),
+			Markup:  []byte(traceID.RandString(128)),
+			TraceID: req.TraceID,
 		}
 		resp, _ = json.Marshal(v1)
 	case "/v2":
@@ -74,6 +75,7 @@ func (h *ClientHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			Commission: randomizeBid(req.BF, req.BC),
 			Currency:   req.Cur,
 			Data:       traceID.RandString(64),
+			TraceID:    req.TraceID,
 		}
 		resp, _ = json.Marshal(v2)
 	case "/v3":
@@ -86,9 +88,10 @@ func (h *ClientHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		v3 := model.ResponseV3{
-			A: float32(randomizeBid(req.BF, req.BC)),
-			B: traceID.RandString(32),
-			C: req.Cur,
+			A:       float32(randomizeBid(req.BF, req.BC)),
+			B:       traceID.RandString(32),
+			C:       req.Cur,
+			TraceID: req.TraceID,
 		}
 		resp, _ = json.Marshal(v3)
 	default:
