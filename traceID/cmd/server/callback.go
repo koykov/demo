@@ -64,7 +64,7 @@ func (h *CallbackHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ttx.SetID(req.TraceID).SetService("cbw")
+	ttx.SetID(req.TraceID).SetService("cbworker")
 	ttx.Info("income /cb request").
 		Var("method", r.Method).
 		Var("url", r.URL)
@@ -102,4 +102,6 @@ func (h *CallbackHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ttx.Info("PB response").
 		Var("code", hres.StatusCode).
 		Var("body", string(body))
+
+	out = body
 }

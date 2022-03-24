@@ -156,7 +156,7 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ttx.Error("callback build fail").Err(err)
 		return
 	}
-	resp.CB = fmt.Sprintf("http://:%d/cb/%s", h.PortPB, string(cbBody))
+	resp.CB = fmt.Sprintf("http://:%d/cb/%s", h.PortCB, string(cbBody))
 
 	out, _ = json.Marshal(resp)
 }

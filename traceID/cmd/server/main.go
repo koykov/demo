@@ -56,8 +56,8 @@ func main() {
 	go func() {
 		addr := fmt.Sprintf(":%d", *port)
 		h := ServerHTTP{
-			PortPB: *cbport,
-			PortCB: *pbport,
+			PortCB: *cbport,
+			PortPB: *pbport,
 		}
 		log.Printf("starting HTTP server at '%s'\n", addr)
 		if err := http.ListenAndServe(addr, &h); err != nil {
