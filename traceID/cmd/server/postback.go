@@ -64,7 +64,7 @@ func (h *PostbackHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ttx.SetID(req.TraceID).SetService("pbworker")
-	ttx.Info("income /cb request").
+	ttx.Info("income /pb request").
 		Var("method", r.Method).
 		Var("url", r.URL)
 	ttx.Debug("request body").
