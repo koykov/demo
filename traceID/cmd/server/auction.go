@@ -125,17 +125,24 @@ func execReq(ttx *traceID.Ctx, cv *cv, req *model.Request, stream streamRE, wg *
 			tth.Error("request failed").Err(resp.err)
 			return
 		}
+		tth.Debug("request v1 done").
+			Var("code", hr.StatusCode).
+			Var("len", hr.ContentLength)
 		buf, resp.err = io.ReadAll(hr.Body)
 		if resp.err != nil {
 			tth.Error("body read failed").Err(resp.err)
 			return
 		}
+		tth.Debug("response v1 body").
+			Var("body", string(buf))
 		if resp.err = resp.resp.FromV1(buf); resp.err != nil {
 			tth.Error("body decoding failed").
 				Var("version", cv.v).
 				Err(resp.err)
 			return
 		}
+		tth.Debug("decoded response v1").
+			Var("decoded", resp.resp)
 	case "v2":
 		b := req.ToV2()
 		tth.Info("send request").
@@ -146,16 +153,23 @@ func execReq(ttx *traceID.Ctx, cv *cv, req *model.Request, stream streamRE, wg *
 			tth.Error("request failed").Err(resp.err)
 			return
 		}
+		tth.Debug("request v2 done").
+			Var("code", hr.StatusCode).
+			Var("len", hr.ContentLength)
 		if buf, resp.err = io.ReadAll(hr.Body); resp.err != nil {
 			tth.Error("body read failed").Err(resp.err)
 			return
 		}
+		tth.Debug("response v2 body").
+			Var("body", string(buf))
 		if resp.err = resp.resp.FromV2(buf); resp.err != nil {
 			tth.Error("body decoding failed").
 				Var("version", cv.v).
 				Err(resp.err)
 			return
 		}
+		tth.Debug("decoded response v2").
+			Var("decoded", resp.resp)
 	case "v3":
 		b := req.ToV3()
 		tth.Info("send request").
@@ -166,16 +180,23 @@ func execReq(ttx *traceID.Ctx, cv *cv, req *model.Request, stream streamRE, wg *
 			tth.Error("request failed").Err(resp.err)
 			return
 		}
+		tth.Debug("request v3 done").
+			Var("code", hr.StatusCode).
+			Var("len", hr.ContentLength)
 		if buf, resp.err = io.ReadAll(hr.Body); resp.err != nil {
 			tth.Error("body read failed").Err(resp.err)
 			return
 		}
+		tth.Debug("response v3 body").
+			Var("body", string(buf))
 		if resp.err = resp.resp.FromV3(buf); resp.err != nil {
 			tth.Error("body decoding failed").
 				Var("version", cv.v).
 				Err(resp.err)
 			return
 		}
+		tth.Debug("decoded response v3").
+			Var("decoded", resp.resp)
 	}
 	return
 }
