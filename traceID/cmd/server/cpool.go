@@ -17,7 +17,7 @@ var (
 	vp    = []string{"v1", "v2", "v3"}
 )
 
-func filterClients(req *model.Request) (r []CV, err error) {
+func filterClients(_ *model.Request) (r []CV, err error) {
 	for i := 0; i < len(cpool); i++ {
 		if rand.Intn(100) > 80 {
 			continue

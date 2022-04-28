@@ -39,7 +39,7 @@ func Auction(ttx *traceID.Ctx, req *model.Request) (resp *model.Response, err er
 		var c int
 		tth := ttx.AcquireThread()
 		defer func() {
-			ttx.Debug("reviewed {count} responses").
+			tth.Debug("reviewed {count} responses").
 				Var("count", c).
 				Var("max bid", maxBid)
 			ttx.ReleaseThread(tth)
@@ -53,8 +53,11 @@ func Auction(ttx *traceID.Ctx, req *model.Request) (resp *model.Response, err er
 					return
 				}
 				if re.err != nil {
+					tth.Error("caught failed response").Err(err)
 					continue
 				}
+				tth.Trace(traceID.LevelDebug|traceID.LevelAssert, "caught response").
+					Var("response", re.resp)
 				c++
 				if re.resp.Bid > maxBid {
 					winner = &re.resp
@@ -133,7 +136,7 @@ func execReq(ttx *traceID.Ctx, cv *CV, req *model.Request, stream streamRE, wg *
 			tth.Error("body read failed").Err(resp.err)
 			return
 		}
-		tth.Debug("response v1 body").
+		tth.Warn("response v1 body").
 			Var("body", string(buf))
 		if resp.err = resp.resp.FromV1(buf); resp.err != nil {
 			tth.Error("body decoding failed").
@@ -141,7 +144,7 @@ func execReq(ttx *traceID.Ctx, cv *CV, req *model.Request, stream streamRE, wg *
 				Err(resp.err)
 			return
 		}
-		tth.Debug("decoded response v1").
+		tth.Error("decoded response v1").
 			Var("decoded", resp.resp)
 	case "v2":
 		b := req.ToV2()
@@ -153,14 +156,14 @@ func execReq(ttx *traceID.Ctx, cv *CV, req *model.Request, stream streamRE, wg *
 			tth.Error("request failed").Err(resp.err)
 			return
 		}
-		tth.Debug("request v2 done").
+		tth.Fatal("request v2 done").
 			Var("code", hr.StatusCode).
 			Var("len", hr.ContentLength)
 		if buf, resp.err = io.ReadAll(hr.Body); resp.err != nil {
 			tth.Error("body read failed").Err(resp.err)
 			return
 		}
-		tth.Debug("response v2 body").
+		tth.Assert("response v2 body").
 			Var("body", string(buf))
 		if resp.err = resp.resp.FromV2(buf); resp.err != nil {
 			tth.Error("body decoding failed").
@@ -169,6 +172,7 @@ func execReq(ttx *traceID.Ctx, cv *CV, req *model.Request, stream streamRE, wg *
 			return
 		}
 		tth.Debug("decoded response v2").
+			Comment("life goes on, man").
 			Var("decoded", resp.resp)
 	case "v3":
 		b := req.ToV3()
