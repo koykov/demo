@@ -20,7 +20,7 @@ type re struct {
 type streamRE chan re
 
 func Auction(ttx *traceID.Ctx, req *model.Request) (resp *model.Response, err error) {
-	var pool []cv
+	var pool []CV
 	if pool, err = filterClients(req); err != nil {
 		ttx.Error("build clients pool failed").Err(err)
 		return
@@ -100,7 +100,7 @@ func Auction(ttx *traceID.Ctx, req *model.Request) (resp *model.Response, err er
 	return
 }
 
-func execReq(ttx *traceID.Ctx, cv *cv, req *model.Request, stream streamRE, wg *sync.WaitGroup) {
+func execReq(ttx *traceID.Ctx, cv *CV, req *model.Request, stream streamRE, wg *sync.WaitGroup) {
 	var (
 		resp re
 		hr   *http.Response
@@ -114,14 +114,14 @@ func execReq(ttx *traceID.Ctx, cv *cv, req *model.Request, stream streamRE, wg *
 	}()
 
 	defer func() { stream <- resp }()
-	switch cv.v {
+	switch cv.Version {
 	case "v1":
 		b := req.ToV1()
 		tth.Info("send request").
-			Var("addr", cv.c).
-			Var("version", cv.v).
+			Var("addr", cv.Client).
+			Var("version", cv.Version).
 			Var("body", fastconv.B2S(b))
-		if hr, resp.err = http.Post(cv.c+"/"+cv.v, "application/json", bytes.NewBuffer(b)); resp.err != nil {
+		if hr, resp.err = http.Post(cv.Client+"/"+cv.Version, "application/json", bytes.NewBuffer(b)); resp.err != nil {
 			tth.Error("request failed").Err(resp.err)
 			return
 		}
@@ -137,7 +137,7 @@ func execReq(ttx *traceID.Ctx, cv *cv, req *model.Request, stream streamRE, wg *
 			Var("body", string(buf))
 		if resp.err = resp.resp.FromV1(buf); resp.err != nil {
 			tth.Error("body decoding failed").
-				Var("version", cv.v).
+				Var("version", cv.Version).
 				Err(resp.err)
 			return
 		}
@@ -146,10 +146,10 @@ func execReq(ttx *traceID.Ctx, cv *cv, req *model.Request, stream streamRE, wg *
 	case "v2":
 		b := req.ToV2()
 		tth.Info("send request").
-			Var("addr", cv.c).
-			Var("version", cv.v).
+			Var("addr", cv.Client).
+			Var("version", cv.Version).
 			Var("body", fastconv.B2S(b))
-		if hr, resp.err = http.Post(cv.c+"/"+cv.v, "application/json", bytes.NewBuffer(b)); resp.err != nil {
+		if hr, resp.err = http.Post(cv.Client+"/"+cv.Version, "application/json", bytes.NewBuffer(b)); resp.err != nil {
 			tth.Error("request failed").Err(resp.err)
 			return
 		}
@@ -164,7 +164,7 @@ func execReq(ttx *traceID.Ctx, cv *cv, req *model.Request, stream streamRE, wg *
 			Var("body", string(buf))
 		if resp.err = resp.resp.FromV2(buf); resp.err != nil {
 			tth.Error("body decoding failed").
-				Var("version", cv.v).
+				Var("version", cv.Version).
 				Err(resp.err)
 			return
 		}
@@ -173,10 +173,10 @@ func execReq(ttx *traceID.Ctx, cv *cv, req *model.Request, stream streamRE, wg *
 	case "v3":
 		b := req.ToV3()
 		tth.Info("send request").
-			Var("addr", cv.c).
-			Var("version", cv.v).
+			Var("addr", cv.Client).
+			Var("version", cv.Version).
 			Var("url", fastconv.B2S(b))
-		if hr, resp.err = http.Get(cv.c + string(b)); resp.err != nil {
+		if hr, resp.err = http.Get(cv.Client + string(b)); resp.err != nil {
 			tth.Error("request failed").Err(resp.err)
 			return
 		}
@@ -191,7 +191,7 @@ func execReq(ttx *traceID.Ctx, cv *cv, req *model.Request, stream streamRE, wg *
 			Var("body", string(buf))
 		if resp.err = resp.resp.FromV3(buf); resp.err != nil {
 			tth.Error("body decoding failed").
-				Var("version", cv.v).
+				Var("version", cv.Version).
 				Err(resp.err)
 			return
 		}
