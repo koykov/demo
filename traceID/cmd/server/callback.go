@@ -11,6 +11,7 @@ import (
 	"github.com/koykov/demo/traceID/model"
 	"github.com/koykov/fastconv"
 	"github.com/koykov/traceID"
+	"github.com/koykov/traceID/marshaller"
 )
 
 type CallbackHTTP struct{}
@@ -30,7 +31,7 @@ func (h *CallbackHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	)
 	status := http.StatusOK
 	ttx := traceID.AcquireCtx()
-	ttx.SetLogger(logger)
+	ttx.SetLogger(logger).SetMarshaller(marshaller.JSON{})
 	defer func() {
 		w.WriteHeader(status)
 		_, _ = w.Write(out)
