@@ -53,7 +53,7 @@ func Auction(ttx *traceID.Ctx, req *model.Request) (resp *model.Response, err er
 					return
 				}
 				if re.err != nil {
-					tth.Error("caught failed response").Err(err)
+					tth.Error("caught failed response").Err(re.err)
 					continue
 				}
 				tth.Trace(traceID.LevelDebug|traceID.LevelAssert, "caught response").
