@@ -31,8 +31,19 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		err  error
 	)
 	status := http.StatusOK
-	ttx := traceID.AcquireCtx()
-	ttx.SetLogger(logger).SetMarshaller(marshaller.JSON{})
+	var ttx traceID.CtxInterface
+
+	var id string
+	if v := r.URL.Query()["traceID"]; len(v) > 0 {
+		id = v[0]
+	}
+	if len(id) == 0 {
+		ttx = traceID.DummyCtx{}
+	} else {
+		ttx = traceID.AcquireCtx()
+		ttx.SetLogger(logger).SetMarshaller(marshaller.JSON{})
+	}
+
 	defer func() {
 		w.WriteHeader(status)
 		_, _ = w.Write(out)
@@ -42,17 +53,10 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			Var("body", fastconv.B2S(out))
 
 		_ = ttx.Flush()
-		traceID.ReleaseCtx(ttx)
+		if len(id) > 0 {
+			traceID.ReleaseCtx(interface{}(ttx).(*traceID.Ctx))
+		}
 	}()
-
-	var id string
-	if v := r.URL.Query()["traceID"]; len(v) > 0 {
-		id = v[0]
-	}
-	if len(id) == 0 {
-		status = http.StatusBadRequest
-		return
-	}
 	ttx.SetID(id).SetService("server")
 
 	if v := r.URL.Query()["traceOVR"]; len(v) > 0 {
@@ -63,7 +67,7 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "/v1":
 		ttx.Info("income /v1 request").
 			Var("method", r.Method).
-			Var("url", r.URL)
+			Var("url", r.URL.String())
 		if !td.CheckMethod(r, "POST") {
 			ttx.Error("bad method").
 				Var("need", "POST").
@@ -87,7 +91,7 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "/v2":
 		ttx.Info("income /v1 request").
 			Var("method", r.Method).
-			Var("url", r.URL)
+			Var("url", r.URL.String())
 		if !td.CheckMethod(r, "POST") {
 			ttx.Error("bad method").
 				Var("need", "POST").
@@ -110,7 +114,7 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "/v3":
 		ttx.Info("income /v1 request").
 			Var("method", r.Method).
-			Var("url", r.URL)
+			Var("url", r.URL.String())
 		if !td.CheckMethod(r, "GET") {
 			ttx.Error("bad method").
 				Var("need", "GET").
@@ -132,7 +136,7 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if resp == nil {
-		ttx.Warn("no response")
+		ttx.Fatal("no response")
 		return
 	}
 

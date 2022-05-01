@@ -19,7 +19,7 @@ type re struct {
 
 type streamRE chan re
 
-func Auction(ttx *traceID.Ctx, req *model.Request) (resp *model.Response, err error) {
+func Auction(ttx traceID.CtxInterface, req *model.Request) (resp *model.Response, err error) {
 	var pool []CV
 	if pool, err = filterClients(req); err != nil {
 		ttx.Error("build clients pool failed").Err(err)
@@ -35,7 +35,7 @@ func Auction(ttx *traceID.Ctx, req *model.Request) (resp *model.Response, err er
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	go func(ctx context.Context, ttx *traceID.Ctx, stream streamRE) {
+	go func(ctx context.Context, ttx traceID.CtxInterface, stream streamRE) {
 		var c int
 		tth := ttx.AcquireThread()
 		defer func() {
@@ -103,7 +103,7 @@ func Auction(ttx *traceID.Ctx, req *model.Request) (resp *model.Response, err er
 	return
 }
 
-func execReq(ttx *traceID.Ctx, cv *CV, req *model.Request, stream streamRE, wg *sync.WaitGroup) {
+func execReq(ttx traceID.CtxInterface, cv *CV, req *model.Request, stream streamRE, wg *sync.WaitGroup) {
 	var (
 		resp re
 		hr   *http.Response
@@ -120,15 +120,16 @@ func execReq(ttx *traceID.Ctx, cv *CV, req *model.Request, stream streamRE, wg *
 	switch cv.Version {
 	case "v1":
 		b := req.ToV1()
-		tth.Info("send request").
-			Var("addr", cv.Client).
+		tth.Info("send {version} request").
 			Var("version", cv.Version).
+			Var("addr", cv.Client).
 			Var("body", fastconv.B2S(b))
 		if hr, resp.err = http.Post(cv.Client+"/"+cv.Version, "application/json", bytes.NewBuffer(b)); resp.err != nil {
 			tth.Error("request failed").Err(resp.err)
 			return
 		}
-		tth.Debug("request v1 done").
+		tth.Debug("request {version} done").
+			Var("version", cv.Version).
 			Var("code", hr.StatusCode).
 			Var("len", hr.ContentLength)
 		buf, resp.err = io.ReadAll(hr.Body)
@@ -136,7 +137,8 @@ func execReq(ttx *traceID.Ctx, cv *CV, req *model.Request, stream streamRE, wg *
 			tth.Error("body read failed").Err(resp.err)
 			return
 		}
-		tth.Warn("response v1 body").
+		tth.Warn("response {version} body").
+			Var("version", cv.Version).
 			Var("body", string(buf))
 		if resp.err = resp.resp.FromV1(buf); resp.err != nil {
 			tth.Error("body decoding failed").
@@ -144,26 +146,29 @@ func execReq(ttx *traceID.Ctx, cv *CV, req *model.Request, stream streamRE, wg *
 				Err(resp.err)
 			return
 		}
-		tth.Error("decoded response v1").
+		tth.Error("decoded {version} response").
+			Var("version", cv.Version).
 			Var("decoded", resp.resp)
 	case "v2":
 		b := req.ToV2()
-		tth.Info("send request").
-			Var("addr", cv.Client).
+		tth.Info("send {version} request").
 			Var("version", cv.Version).
+			Var("addr", cv.Client).
 			Var("body", fastconv.B2S(b))
 		if hr, resp.err = http.Post(cv.Client+"/"+cv.Version, "application/json", bytes.NewBuffer(b)); resp.err != nil {
 			tth.Error("request failed").Err(resp.err)
 			return
 		}
-		tth.Fatal("request v2 done").
+		tth.Fatal("request {version} done").
+			Var("version", cv.Version).
 			Var("code", hr.StatusCode).
 			Var("len", hr.ContentLength)
 		if buf, resp.err = io.ReadAll(hr.Body); resp.err != nil {
 			tth.Error("body read failed").Err(resp.err)
 			return
 		}
-		tth.Assert("response v2 body").
+		tth.Assert("response {version} body").
+			Var("version", cv.Version).
 			Var("body", string(buf))
 		if resp.err = resp.resp.FromV2(buf); resp.err != nil {
 			tth.Error("body decoding failed").
@@ -171,27 +176,30 @@ func execReq(ttx *traceID.Ctx, cv *CV, req *model.Request, stream streamRE, wg *
 				Err(resp.err)
 			return
 		}
-		tth.Debug("decoded response v2").
+		tth.Debug("decoded {version} response").
+			Var("version", cv.Version).
 			Comment("life goes on, man").
 			Var("decoded", resp.resp)
 	case "v3":
 		b := req.ToV3()
-		tth.Info("send request").
-			Var("addr", cv.Client).
+		tth.Info("send {version} request").
 			Var("version", cv.Version).
+			Var("addr", cv.Client).
 			Var("url", fastconv.B2S(b))
 		if hr, resp.err = http.Get(cv.Client + string(b)); resp.err != nil {
 			tth.Error("request failed").Err(resp.err)
 			return
 		}
-		tth.Debug("request v3 done").
+		tth.Debug("request {version} done").
+			Var("version", cv.Version).
 			Var("code", hr.StatusCode).
 			Var("len", hr.ContentLength)
 		if buf, resp.err = io.ReadAll(hr.Body); resp.err != nil {
 			tth.Error("body read failed").Err(resp.err)
 			return
 		}
-		tth.Debug("response v3 body").
+		tth.Debug("response {version} body").
+			Var("version", cv.Version).
 			Var("body", string(buf))
 		if resp.err = resp.resp.FromV3(buf); resp.err != nil {
 			tth.Error("body decoding failed").
@@ -199,7 +207,8 @@ func execReq(ttx *traceID.Ctx, cv *CV, req *model.Request, stream streamRE, wg *
 				Err(resp.err)
 			return
 		}
-		tth.Debug("decoded response v3").
+		tth.Debug("decoded {version} response").
+			Var("version", cv.Version).
 			Var("decoded", resp.resp)
 	}
 	return
