@@ -148,6 +148,7 @@ func execReq(ttx traceID.CtxInterface, cv *CV, req *model.Request, stream stream
 		}
 		tth.Error("decoded {version} response").
 			Var("version", cv.Version).
+			Comment("life goes on, man").
 			Var("decoded", resp.resp)
 	case "v2":
 		b := req.ToV2()
@@ -209,6 +210,7 @@ func execReq(ttx traceID.CtxInterface, cv *CV, req *model.Request, stream stream
 		}
 		tth.Debug("decoded {version} response").
 			Var("version", cv.Version).
+			Comment("life goes on, man").
 			Var("decoded", resp.resp)
 	}
 	return
