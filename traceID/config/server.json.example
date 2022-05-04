@@ -1,0 +1,17 @@
+{
+  "listen": {
+    "appPort": 3360,
+    "cbPort": 3370,
+    "pbPort": 3371
+  },
+  "clients": [
+    3361,
+    3362,
+    3363
+  ],
+  "broadcaster": {
+    "handler": "http",
+    "addr": "http://:1234",
+    "path": "/post-msg"
+  }
+}

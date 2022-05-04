@@ -1,14 +1,14 @@
 package main
 
 import (
-	"flag"
+	"context"
 	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
 	"os"
+	"os/exec"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 
@@ -17,47 +17,51 @@ import (
 )
 
 var (
-	port   = flag.Uint("port", 0, "Application port.")
-	cbport = flag.Uint("cbport", 0, "Callback application port.")
-	pbport = flag.Uint("pbport", 0, "Postback application port.")
-	tport  = flag.Uint("tport", 0, "Trace daemon port.")
-	cport  = flag.String("cport", "", "Client applications port separated by comma.")
-
+	conf   Config
 	logger = log.New(os.Stdout, "", log.LstdFlags)
-
-	i10n chan os.Signal
+	i10n   chan os.Signal
 )
 
 func init() {
-	flag.Parse()
-	if *port == 0 {
-		log.Fatalln("empty app port provided")
-	}
-	if *tport == 0 {
-		log.Fatalln("empty traced port provided")
-	}
-	if len(*cport) == 0 {
-		log.Fatalln("empty client applications ports provided")
-	}
-	cports := strings.Split(*cport, ",")
-	for i := 0; i < len(cports); i++ {
-		cpool = append(cpool, fmt.Sprintf("http://:%s", cports[i]))
-	}
 	rand.Seed(time.Now().UnixNano())
 
-	bc := broadcaster.HTTP{Addr: fmt.Sprintf("http://:%d/post-msg", *tport)}
-	traceID.RegisterBroadcaster(&bc)
+	if err := conf.LoadFrom("config/server.json"); err != nil {
+		log.Fatalln(err)
+	}
+	for i := 0; i < len(conf.Clients); i++ {
+		cpool = append(cpool, fmt.Sprintf("http://:%d", conf.Clients[i]))
+	}
+
+	var bc traceID.Broadcaster
+	switch conf.Broadcaster.Handler {
+	case "http":
+		bc = &broadcaster.HTTP{}
+	case "zeromq":
+		bc = &broadcaster.ZeroMQ{}
+	}
+	bc.SetConfig(&conf.Broadcaster)
+	traceID.RegisterBroadcaster(bc)
 
 	i10n = make(chan os.Signal, 1)
 	signal.Notify(i10n, os.Interrupt, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
 }
 
 func main() {
+	for i := 0; i < len(conf.Clients); i++ {
+		go func(port uint) {
+			cmd := exec.CommandContext(context.Background(), "./bin/trace-client", "-port", fmt.Sprintf("%d", port))
+			err := cmd.Run()
+			if err != nil {
+				log.Println(err)
+			}
+		}(conf.Clients[i])
+	}
+
 	go func() {
-		addr := fmt.Sprintf(":%d", *port)
+		addr := fmt.Sprintf(":%d", conf.Listen.AppPort)
 		h := ServerHTTP{
-			PortCB: *cbport,
-			PortPB: *pbport,
+			PortCB: conf.Listen.CbPort,
+			PortPB: conf.Listen.PbPort,
 		}
 		log.Printf("starting HTTP server at '%s'\n", addr)
 		if err := http.ListenAndServe(addr, &h); err != nil {
@@ -66,7 +70,7 @@ func main() {
 	}()
 
 	go func() {
-		addr := fmt.Sprintf(":%d", *cbport)
+		addr := fmt.Sprintf(":%d", conf.Listen.CbPort)
 		h := CallbackHTTP{}
 		log.Printf("starting Callback server at '%s'\n", addr)
 		if err := http.ListenAndServe(addr, &h); err != nil {
@@ -75,7 +79,7 @@ func main() {
 	}()
 
 	go func() {
-		addr := fmt.Sprintf(":%d", *pbport)
+		addr := fmt.Sprintf(":%d", conf.Listen.PbPort)
 		h := PostbackHTTP{}
 		log.Printf("starting Postback server at '%s'\n", addr)
 		if err := http.ListenAndServe(addr, &h); err != nil {
