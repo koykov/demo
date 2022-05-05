@@ -25,7 +25,7 @@ var (
 func init() {
 	rand.Seed(time.Now().UnixNano())
 
-	if err := conf.LoadFrom("config/server.json"); err != nil {
+	if err := conf.LoadFrom("config/demo.json"); err != nil {
 		log.Fatalln(err)
 	}
 	for i := 0; i < len(conf.Clients); i++ {
