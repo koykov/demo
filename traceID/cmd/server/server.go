@@ -140,28 +140,37 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	resp.CB, _ = h.MakeCB(ttx, resp)
+	resp.CB1, _ = h.MakeCB(ttx, resp)
+
+	out, _ = json.Marshal(resp)
+}
+
+func (h *ServerHTTP) MakeCB(ttx traceID.CtxInterface, resp *model.Response) (string, error) {
+	uniqID := td.RandString(16)
+
 	pb := model.PBRequest{
 		Commission: float32(resp.Bid * .25),
 		Cur:        resp.Cur,
 		TraceID:    resp.TraceID,
+		UniqID:     uniqID,
 	}
 	pbBody, err := pb.Marshal()
 	if err != nil {
 		ttx.Error("postback build fail").Err(err)
-		return
+		return "", err
 	}
 	cb := model.CBRequest{
 		Bid:     resp.Bid,
 		Cur:     resp.Cur,
 		PB:      fmt.Sprintf("http://:%d/pb/%s", h.PortPB, string(pbBody)),
 		TraceID: resp.TraceID,
+		UniqID:  uniqID,
 	}
 	cbBody, err := cb.Marshal()
 	if err != nil {
 		ttx.Error("callback build fail").Err(err)
-		return
+		return "", err
 	}
-	resp.CB = fmt.Sprintf("http://:%d/cb/%s", h.PortCB, string(cbBody))
-
-	out, _ = json.Marshal(resp)
+	return fmt.Sprintf("http://:%d/cb/%s", h.PortCB, string(cbBody)), nil
 }

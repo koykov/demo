@@ -8,6 +8,7 @@ type Response struct {
 	Mkup    string  `json:"mkup"`
 	TraceID string  `json:"trace_id"`
 	CB      string  `json:"cb"`
+	CB1     string  `json:"cb_1,omitempty"`
 }
 
 type ResponseV1 struct {

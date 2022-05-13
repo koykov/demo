@@ -12,6 +12,7 @@ type PBRequest struct {
 	Commission float32 `json:"commission"`
 	Cur        string  `json:"cur"`
 	TraceID    string  `json:"trace_id"`
+	UniqID     string  `json:"uniq_id,omitempty"`
 }
 
 func (r PBRequest) Marshal() ([]byte, error) {
@@ -29,6 +30,12 @@ func (r PBRequest) Marshal() ([]byte, error) {
 		return nil, err
 	}
 	if _, err := buf.WriteString(r.TraceID); err != nil {
+		return nil, err
+	}
+	if err := binary.Write(&buf, binary.LittleEndian, uint16(len(r.UniqID))); err != nil {
+		return nil, err
+	}
+	if _, err := buf.WriteString(r.UniqID); err != nil {
 		return nil, err
 	}
 	buf1 := make([]byte, base32.StdEncoding.EncodedLen(buf.Len()))
@@ -71,6 +78,16 @@ func (r *PBRequest) Unmarshal(p []byte) error {
 		return ErrPacketTooShort
 	}
 	r.TraceID = string(p[:tl])
+	p = p[tl:]
+	if len(p) < 2 {
+		return ErrPacketTooShort
+	}
+	tl = binary.LittleEndian.Uint16(p[:2])
+	p = p[2:]
+	if uint16(len(p)) < tl {
+		return ErrPacketTooShort
+	}
+	r.UniqID = string(p[:tl])
 	return nil
 }
 

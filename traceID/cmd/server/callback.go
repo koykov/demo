@@ -65,7 +65,7 @@ func (h *CallbackHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ttx.SetID(req.TraceID).SetService("cbworker")
+	ttx.SetID(req.TraceID).SetServiceWithStage("cbworker", req.UniqID)
 	ttx.Info("income /cb request").
 		Var("method", r.Method).
 		Var("url", r.URL)

@@ -11,6 +11,7 @@ type CBRequest struct {
 	Cur     string  `json:"cur"`
 	PB      string  `json:"pb"`
 	TraceID string  `json:"trace_id"`
+	UniqID  string  `json:"uniq_id,omitempty"`
 }
 
 func (r CBRequest) Marshal() ([]byte, error) {
