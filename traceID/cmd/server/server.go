@@ -57,7 +57,7 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			traceID.ReleaseCtx(interface{}(ttx).(*traceID.Ctx))
 		}
 	}()
-	ttx.SetID(id).SetService("server")
+	ttx.SetID(id).SetServiceWithStage("server", "request")
 
 	if v := r.URL.Query()["traceOVR"]; len(v) > 0 {
 		ttx.SetFlag(traceID.FlagOverwrite, v[0] == "1" || v[0] == "true")
@@ -130,6 +130,7 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	req.TraceID = id
 
+	ttx.SetStage("auction")
 	if resp, err = Auction(ttx, &req); err != nil {
 		ttx.Error("auction failed").Err(err)
 		status = http.StatusInternalServerError
@@ -140,8 +141,13 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ttx.SetStage("response")
+
 	resp.CB, _ = h.MakeCB(ttx, resp)
 	resp.CB1, _ = h.MakeCB(ttx, resp)
+	ttx.Debug("build callback URLs").
+		Var("URL0", resp.CB).
+		Var("URL1", resp.CB1)
 
 	out, _ = json.Marshal(resp)
 }
