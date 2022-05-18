@@ -129,6 +129,8 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	req.TraceID = id
+	ttx.Debug("request model prepared for auction").
+		Var("request", &req)
 
 	ttx.SetStage("auction")
 	if resp, err = Auction(ttx, &req); err != nil {
@@ -142,6 +144,8 @@ func (h *ServerHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ttx.SetStage("response")
+	ttx.Debug("response model taken from auction").
+		Var("response", resp)
 
 	resp.CB, _ = h.MakeCB(ttx, resp)
 	resp.CB1, _ = h.MakeCB(ttx, resp)
