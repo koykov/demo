@@ -25,9 +25,7 @@ func (h *PostbackHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, X-Auth-Token")
 
-	var (
-		out []byte
-	)
+	var out []byte
 	status := http.StatusOK
 	ttx := traceID.AcquireCtx()
 	ttx.SetLogger(logger).SetMarshaller(marshaller.JSON{})
