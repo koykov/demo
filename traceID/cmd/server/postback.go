@@ -74,7 +74,8 @@ func (h *PostbackHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	body := td.RandString(20)
 	ttx.Info("PB response").
-		Var("body", body)
+		Var("body", body).
+		Var("hex", body).With(traceID.OptionMarshaller, marshaller.Binary{})
 
 	out = []byte(body)
 }

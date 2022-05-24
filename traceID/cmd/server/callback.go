@@ -9,7 +9,6 @@ import (
 
 	td "github.com/koykov/demo/traceID"
 	"github.com/koykov/demo/traceID/model"
-	"github.com/koykov/fastconv"
 	"github.com/koykov/traceID"
 	"github.com/koykov/traceID/marshaller"
 )
@@ -36,7 +35,8 @@ func (h *CallbackHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		ttx.Info("response").
 			Var("status", status).
-			Var("body", fastconv.B2S(out))
+			Var("body", out).
+			Var("hex", out).With(traceID.OptionMarshaller, marshaller.Binary{})
 
 		_ = ttx.Flush()
 		traceID.ReleaseCtx(ttx)

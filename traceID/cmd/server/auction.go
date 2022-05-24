@@ -10,6 +10,7 @@ import (
 	"github.com/koykov/demo/traceID/model"
 	"github.com/koykov/fastconv"
 	"github.com/koykov/traceID"
+	"github.com/koykov/traceID/marshaller"
 )
 
 type re struct {
@@ -139,7 +140,8 @@ func execReq(ttx traceID.CtxInterface, cv *CV, req *model.Request, stream stream
 		}
 		tth.Warn("response {version} body").
 			Var("version", cv.Version).
-			Var("body", string(buf))
+			Var("body", buf).
+			Var("hex", buf).With(traceID.OptionMarshaller, marshaller.Binary{})
 		if resp.err = resp.resp.FromV1(buf); resp.err != nil {
 			tth.Error("body decoding failed").
 				Var("version", cv.Version).
@@ -170,7 +172,8 @@ func execReq(ttx traceID.CtxInterface, cv *CV, req *model.Request, stream stream
 		}
 		tth.Assert("response {version} body").
 			Var("version", cv.Version).
-			Var("body", string(buf))
+			Var("body", buf).
+			Var("hex", buf).With(traceID.OptionMarshaller, marshaller.Binary{})
 		if resp.err = resp.resp.FromV2(buf); resp.err != nil {
 			tth.Error("body decoding failed").
 				Var("version", cv.Version).
@@ -201,7 +204,8 @@ func execReq(ttx traceID.CtxInterface, cv *CV, req *model.Request, stream stream
 		}
 		tth.Debug("response {version} body").
 			Var("version", cv.Version).
-			Var("body", string(buf))
+			Var("body", buf).
+			Var("hex", buf).With(traceID.OptionMarshaller, marshaller.Binary{})
 		if resp.err = resp.resp.FromV3(buf); resp.err != nil {
 			tth.Error("body decoding failed").
 				Var("version", cv.Version).
