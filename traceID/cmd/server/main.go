@@ -14,6 +14,7 @@ import (
 
 	"github.com/koykov/traceID"
 	"github.com/koykov/traceID/broadcaster"
+	"github.com/koykov/tracemod/zeromq"
 )
 
 var (
@@ -37,7 +38,7 @@ func init() {
 	case "http":
 		bc = &broadcaster.HTTP{}
 	case "zeromq":
-		bc = &broadcaster.ZeroMQ{}
+		bc = &zeromq.Broadcaster{}
 	}
 	bc.SetConfig(&conf.Broadcaster)
 	traceID.RegisterBroadcaster(bc)
