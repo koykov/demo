@@ -1,6 +1,6 @@
 package protobuf
 
-type SSP struct {
+type Source struct {
 	ID   int32  `json:"id"`
 	Name string `json:"name"`
 }

@@ -14,7 +14,7 @@ var (
 
 func init() {
 	mc.User = dmp.DMP{}
-	mc.SSP = models.SSPModel{}
+	mc.Source = models.SSPModel{}
 }
 
 func main() {

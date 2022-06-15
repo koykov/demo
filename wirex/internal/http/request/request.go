@@ -10,7 +10,7 @@ type Origin struct {
 	Body  []byte
 }
 
-type Inner protobuf.BidRequest
+type Inner protobuf.Request
 
 type Deliveler interface {
 	RequestURI() []byte
