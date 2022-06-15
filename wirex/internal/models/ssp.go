@@ -2,9 +2,9 @@ package models
 
 import "github.com/koykov/demo/wirex/internal/protobuf"
 
-type SSPModel struct{}
+type SourceModel struct{}
 
-func (m SSPModel) Get(id int32) *protobuf.Source {
+func (m SourceModel) Get(id int32) *protobuf.Source {
 	return &protobuf.Source{
 		ID:   id,
 		Name: "foobar",
