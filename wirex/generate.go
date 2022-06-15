@@ -1,0 +1,3 @@
+package wirex
+
+//go:generate wire ./...
