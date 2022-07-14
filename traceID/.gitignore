@@ -2,3 +2,5 @@ bin/trace-server
 bin/trace-client
 
 config/*.json
+
+vendor
