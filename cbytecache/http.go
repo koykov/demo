@@ -134,14 +134,11 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			resp.Error = err.Error()
 			return
 		}
-		if len(req.MetricsKey) == 0 {
-			req.MetricsKey = key
-		}
 
 		req.MapConfig(&conf)
 
 		conf.Hasher = fnv.Hasher{}
-		conf.MetricsWriter = metrics.NewPrometheusMetrics(req.MetricsKey)
+		conf.MetricsWriter = metrics.NewPrometheusMetrics()
 		conf.Logger = log.New(os.Stderr, "", log.LstdFlags)
 		conf.Clock = clock.NewClock()
 

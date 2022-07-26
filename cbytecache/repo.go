@@ -12,7 +12,6 @@ type RequestInit struct {
 	Vacuum         time.Duration         `json:"vacuum_ns"`
 	CollisionCheck bool                  `json:"collision_check"`
 	MaxSize        cbytecache.MemorySize `json:"max_size"`
-	MetricsKey     string                `json:"metrics_key"`
 
 	Writers     uint32 `json:"writers"`
 	WriterKRP   uint32 `json:"writer_krp"` // KRP - keys rotate percent
