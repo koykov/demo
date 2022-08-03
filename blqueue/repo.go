@@ -37,7 +37,8 @@ type RequestInit struct {
 		Producers uint32 `json:"producers,omitempty"`
 	} `json:"producers_schedule,omitempty"`
 
-	AllowLeak bool `json:"allow_leak,omitempty"`
+	AllowLeak bool   `json:"allow_leak,omitempty"`
+	DelayNs   uint64 `json:"delay_ns"`
 }
 
 func (r *RequestInit) MapConfig(conf *blqueue.Config) {
@@ -48,6 +49,7 @@ func (r *RequestInit) MapConfig(conf *blqueue.Config) {
 	conf.WorkersMax = r.WorkersMax
 	conf.WakeupFactor = r.WakeupFactor
 	conf.SleepFactor = r.SleepFactor
+	conf.Delay = time.Duration(r.DelayNs)
 	if len(r.WorkersSchedule) > 0 {
 		now := time.Now()
 		s := blqueue.NewSchedule()
