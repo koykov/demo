@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/koykov/blqueue"
 	metrics "github.com/koykov/metrics_writers/blqueue"
@@ -139,7 +140,7 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			log.Println("schedule", conf.Schedule.String())
 		}
 
-		conf.MetricsWriter = metrics.NewPrometheusMetrics()
+		conf.MetricsWriter = metrics.NewPrometheusMetricsWP(time.Millisecond)
 		conf.Dequeuer = NewDequeue(req.WorkerDelay)
 		if req.AllowLeak {
 			conf.DLQ = &blqueue.DummyDLQ{}
