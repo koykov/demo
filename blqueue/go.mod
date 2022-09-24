@@ -3,8 +3,8 @@ module github.com/koykov/demo/blqueue
 go 1.16
 
 require (
-	github.com/koykov/blqueue v0.0.0-20220803214104-160e91efb223
-	github.com/koykov/clock v0.0.0-20220407222926-01dff5a471c4
-	github.com/koykov/metrics_writers v0.0.0-20220803214800-82d51e5aca5e
-	github.com/prometheus/client_golang v1.12.2
+	github.com/koykov/blqueue v0.0.0-20220913150343-1e73382c39e6
+	github.com/koykov/clock v0.0.0-20220826192755-33ccae08b54b
+	github.com/koykov/metrics_writers v0.0.0-20220924200952-8c813293d8a7
+	github.com/prometheus/client_golang v1.13.0
 )
