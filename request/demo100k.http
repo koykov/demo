@@ -1,0 +1,29 @@
+### init
+POST http://localhost:8080/api/v1/init?key=demo100k
+Content-Type: application/json
+
+{
+  "size": 100000,
+  "workers_min": 2,
+  "workers_max": 32,
+  "worker_delay": 300000,
+  "heartbeat": 100000000,
+  "producers_min": 4,
+  "producers_max": 20,
+  "producer_delay": 5000000,
+  "wakeup_factor": 0.005,
+  "sleep_factor": 0.0025,
+  "allow_leak": true
+}
+
+### add X producers
+GET http://localhost:8080/api/v1/producer-up?key=demo100k&delta=4
+
+### stop X producers
+GET http://localhost:8080/api/v1/producer-down?key=demo100k&delta=4
+
+### graceful stop
+GET http://localhost:8080/api/v1/stop?key=demo100k
+
+### force stop
+GET http://localhost:8080/api/v1/force-stop?key=demo100k
