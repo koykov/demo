@@ -1,0 +1,47 @@
+### init
+POST http://localhost:8080/api/v1/init?key=demo100k_sched
+Content-Type: application/json
+
+{
+  "size": 100000,
+  "allow_leak": true,
+  "heartbeat": 100000000,
+  "wakeup_factor": 0.05,
+  "sleep_factor": 0.005,
+  "workers_min": 2,
+  "workers_max": 16,
+  "worker_delay": 5000000,
+  "workers_schedule": [
+	{"rel_range":"30s-1m","workers_min":4,"workers_max":50},
+	{"rel_range":"1m-1m30s","workers_min":8,"workers_max":50},
+	{"rel_range":"1m30s-2m","workers_min":12,"workers_max":50},
+	{"rel_range":"2m-2m30s","workers_min":16,"workers_max":50},
+	{"rel_range":"2m30s-3m","workers_min":12,"workers_max":50},
+	{"rel_range":"3m-3m30s","workers_min":8,"workers_max":50},
+	{"rel_range":"3m30s-4m","workers_min":4,"workers_max":50}
+  ],
+  "producers_min": 1,
+  "producers_max": 20,
+  "producer_delay": 5000000,
+  "producers_schedule": [
+	{"rel_range":"30s-1m","producers":4},
+	{"rel_range":"1m-1m30s","producers":8},
+	{"rel_range":"1m30s-2m","producers":12},
+	{"rel_range":"2m-2m30s","producers":16},
+	{"rel_range":"2m30s-3m","producers":12},
+	{"rel_range":"3m-3m30s","producers":8},
+	{"rel_range":"3m30s-4m","producers":4}
+  ]
+}
+
+### add X producers
+GET http://localhost:8080/api/v1/producer-up?key=demo100k_sched&delta=4
+
+### stop X producers
+GET http://localhost:8080/api/v1/producer-down?key=demo100k_sched&delta=4
+
+### graceful stop
+GET http://localhost:8080/api/v1/stop?key=demo100k_sched
+
+### force stop
+GET http://localhost:8080/api/v1/force-stop?key=demo100k_sched
