@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -22,35 +25,40 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": 2,
-  "iteration": 1639913657525,
   "links": [],
   "liveNow": false,
   "panels": [
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "CvmqOKgnz"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
+            "fillOpacity": 15,
+            "gradientMode": "opacity",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "linear",
+            "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
+            "showPoints": "never",
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -88,14 +96,20 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "CvmqOKgnz"
+          },
           "exemplar": true,
           "expr": "sum(blqueue_size{queue=\"$queue\"}) by (queue)",
           "interval": "",
@@ -107,30 +121,36 @@
       "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "CvmqOKgnz"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 15,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "linear",
+            "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
+            "showPoints": "never",
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -168,14 +188,20 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "CvmqOKgnz"
+          },
           "exemplar": true,
           "expr": "sum(irate(blqueue_in{queue=\"$queue\"}[30s])) by (queue)",
           "interval": "",
@@ -183,6 +209,10 @@
           "refId": "A"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "CvmqOKgnz"
+          },
           "exemplar": true,
           "expr": "sum(irate(blqueue_out{queue=\"$queue\"}[30s])) by (queue)",
           "hide": false,
@@ -191,6 +221,10 @@
           "refId": "B"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "CvmqOKgnz"
+          },
           "exemplar": true,
           "expr": "sum(irate(blqueue_leak{queue=\"$queue\"}[30s])) by (queue)",
           "hide": false,
@@ -199,6 +233,10 @@
           "refId": "C"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "CvmqOKgnz"
+          },
           "exemplar": true,
           "expr": "sum(irate(blqueue_lost{queue=\"$queue\"}[30s])) by (queue)",
           "hide": false,
@@ -211,12 +249,239 @@
       "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "CvmqOKgnz"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 10
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "CvmqOKgnz"
+          },
+          "exemplar": true,
+          "expr": "sum(blqueue_workers_active{queue=\"$queue\"}) by (queue)",
+          "interval": "",
+          "legendFormat": "{{queue}} active",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "CvmqOKgnz"
+          },
+          "exemplar": true,
+          "expr": "sum(blqueue_workers_sleep{queue=\"$queue\"}) by (queue)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "{{queue}} sleep",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "CvmqOKgnz"
+          },
+          "exemplar": true,
+          "expr": "sum(blqueue_workers_idle{queue=\"$queue\"}) by (queue)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "{{queue}} idle",
+          "refId": "C"
+        }
+      ],
+      "title": "Workers",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "CvmqOKgnz"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 10
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "CvmqOKgnz"
+          },
+          "exemplar": true,
+          "expr": "sum(blqueue_producers_active{queue=\"$queue\"}) by (queue)",
+          "interval": "",
+          "legendFormat": "{{queue}} active",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "CvmqOKgnz"
+          },
+          "exemplar": true,
+          "expr": "sum(blqueue_producers_idle{queue=\"$queue\"}) by (queue)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "{{queue}} idle",
+          "refId": "B"
+        }
+      ],
+      "title": "Producers",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "CvmqOKgnz"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -265,148 +530,54 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 10
+        "y": 20
       },
-      "id": 6,
+      "id": 10,
       "options": {
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
         {
-          "exemplar": true,
-          "expr": "sum(blqueue_workers_active{queue=\"$queue\"}) by (queue)",
-          "interval": "",
-          "legendFormat": "{{queue}} active",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "CvmqOKgnz"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.99, sum by(le, queue) (rate(blqueue_wait_bucket{queue=\"$queue\"}[$__rate_interval])))",
+          "hide": false,
+          "legendFormat": "__auto",
+          "range": true,
           "refId": "A"
-        },
-        {
-          "exemplar": true,
-          "expr": "sum(blqueue_workers_sleep{queue=\"$queue\"}) by (queue)",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "{{queue}} sleep",
-          "refId": "B"
-        },
-        {
-          "exemplar": true,
-          "expr": "sum(blqueue_workers_idle{queue=\"$queue\"}) by (queue)",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "{{queue}} idle",
-          "refId": "C"
         }
       ],
-      "title": "Workers",
-      "type": "timeseries"
-    },
-    {
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 12,
-        "x": 12,
-        "y": 10
-      },
-      "id": 8,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single"
-        }
-      },
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "sum(blqueue_producers_active{queue=\"$queue\"}) by (queue)",
-          "interval": "",
-          "legendFormat": "{{queue}} active",
-          "refId": "A"
-        },
-        {
-          "exemplar": true,
-          "expr": "sum(blqueue_producers_idle{queue=\"$queue\"}) by (queue)",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "{{queue}} idle",
-          "refId": "B"
-        }
-      ],
-      "title": "Producers",
+      "title": "Delayed execution wait (ms)",
       "type": "timeseries"
     }
   ],
   "refresh": "5s",
-  "schemaVersion": 34,
+  "schemaVersion": 37,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": [
       {
         "current": {
-          "isNone": true,
           "selected": false,
-          "text": "None",
-          "value": ""
+          "text": "demo100k",
+          "value": "demo100k"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "CvmqOKgnz"
         },
         "definition": "label_values(queue)",
         "hide": 0,
@@ -427,7 +598,7 @@
     ]
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-30m",
     "to": "now"
   },
   "timepicker": {
@@ -447,6 +618,6 @@
   "timezone": "",
   "title": "Balanced leaky queue",
   "uid": "KoAecKgnk",
-  "version": 12,
+  "version": 16,
   "weekStart": ""
 }
