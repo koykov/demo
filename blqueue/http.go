@@ -12,7 +12,10 @@ import (
 	"time"
 
 	"github.com/koykov/blqueue"
-	metrics "github.com/koykov/metrics_writers/blqueue"
+	"github.com/koykov/dlqdump"
+	"github.com/koykov/dlqdump/fs"
+	mw "github.com/koykov/metrics_writers/blqueue"
+	dlqmw "github.com/koykov/metrics_writers/dlqdump"
 )
 
 type QueueHTTP struct {
@@ -140,18 +143,53 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			log.Println("schedule", conf.Schedule.String())
 		}
 
-		conf.MetricsWriter = metrics.NewPrometheusMetricsWP(time.Millisecond)
+		conf.MetricsWriter = mw.NewPrometheusMetricsWP(time.Millisecond)
 		conf.Worker = NewWorker(req.WorkerDelay)
 		if req.AllowLeak {
 			conf.DLQ = &blqueue.DummyDLQ{}
 		}
 		conf.Logger = log.New(os.Stderr, "", log.LstdFlags)
 
-		qi, _ := blqueue.New(&conf)
+		var (
+			qi  *blqueue.Queue
+			rst *dlqdump.Restorer
+		)
+
+		if req.Dump && req.AllowLeak {
+			dconf := dlqdump.Config{
+				Version:       dlqdump.NewVersion(1, 0, 0, 0),
+				Key:           conf.Key,
+				MetricsWriter: dlqmw.NewPrometheusMetrics(),
+				Logger:        log.New(os.Stderr, "", log.LstdFlags),
+
+				Capacity:      5 * dlqdump.Megabyte,
+				FlushInterval: 30 * time.Second,
+				Encoder:       nil,
+				Writer: &fs.Writer{
+					Buffer:    512 * dlqdump.Kilobyte,
+					Directory: "dump",
+					FileMask:  conf.Key + "--%Y-%m-%d--%H-%M-%S--%N.bin",
+				},
+
+				CheckInterval:    time.Second,
+				PostponeInterval: 500 * time.Millisecond,
+				Reader: &fs.Reader{
+					MatchMask: "dump/*.bin",
+				},
+				Decoder: ItemDecoder{},
+				Queue:   qi,
+			}
+			conf.DLQ, _ = dlqdump.NewQueue(&dconf)
+			rst, _ = dlqdump.NewRestorer(&dconf)
+		}
+
+		qi, _ = blqueue.New(&conf)
 		q := demoQueue{
 			key:   key,
 			queue: qi,
 			req:   &req,
+			dlq:   conf.DLQ,
+			rst:   rst,
 		}
 		req.MapInternalQueue(&q)
 

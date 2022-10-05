@@ -9,12 +9,15 @@ import (
 	"time"
 
 	"github.com/koykov/blqueue"
+	"github.com/koykov/dlqdump"
 )
 
 type demoQueue struct {
 	key   string
 	queue *blqueue.Queue
 	req   *RequestInit
+	dlq   blqueue.Interface
+	rst   *dlqdump.Restorer
 
 	producersUp uint32
 	producers   []*producer
@@ -108,9 +111,18 @@ func (d *demoQueue) stop(force bool) {
 		ProducerStopMetric(d.key)
 	}
 	if force {
-		d.queue.ForceClose()
+		_ = d.queue.ForceClose()
+		if d.rst != nil {
+			_ = d.rst.ForceClose()
+		}
 	} else {
-		d.queue.Close()
+		_ = d.queue.Close()
+		if d.rst != nil {
+			_ = d.rst.Close()
+		}
+	}
+	if d.dlq != nil {
+		_ = d.dlq.Close()
 	}
 	d.cancel()
 }

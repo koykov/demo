@@ -38,7 +38,8 @@ type RequestInit struct {
 	} `json:"producers_schedule,omitempty"`
 
 	AllowLeak bool   `json:"allow_leak,omitempty"`
-	DelayNs   uint64 `json:"delay_ns"`
+	Dump      bool   `json:"dump,omitempty"`
+	DelayNs   uint64 `json:"delay_ns,omitempty"`
 }
 
 func (r *RequestInit) MapConfig(conf *blqueue.Config) {
