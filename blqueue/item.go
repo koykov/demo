@@ -22,3 +22,15 @@ func (i Item) MarshalTo(p []byte) (int, error) {
 	binary.LittleEndian.PutUint64(p[4:], i.Payload)
 	return i.Size(), nil
 }
+
+type ItemDecoder struct{}
+
+func (d ItemDecoder) Decode(p []byte) (interface{}, error) {
+	if len(p) < 12 {
+		return nil, io.ErrUnexpectedEOF
+	}
+	var i Item
+	i.Header = binary.LittleEndian.Uint32(p[:4])
+	i.Payload = binary.LittleEndian.Uint64(p[4:12])
+	return i, nil
+}
