@@ -62,12 +62,9 @@ func (p *producer) produce(q *blqueue.Queue) {
 			if p.getStatus() == statusIdle {
 				return
 			}
-			x := struct {
-				Header  uint32
-				Payload int64
-			}{4, math.MaxInt64}
+			x := Item{4, math.MaxUint64}
 			time.Sleep(time.Duration(p.delay) * time.Nanosecond)
-			q.Enqueue(x)
+			_ = q.Enqueue(x)
 		}
 	}
 }
