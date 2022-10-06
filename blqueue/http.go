@@ -13,6 +13,7 @@ import (
 
 	"github.com/koykov/blqueue"
 	"github.com/koykov/dlqdump"
+	"github.com/koykov/dlqdump/encoder"
 	"github.com/koykov/dlqdump/fs"
 	mw "github.com/koykov/metrics_writers/blqueue"
 	dlqmw "github.com/koykov/metrics_writers/dlqdump"
@@ -151,12 +152,13 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		conf.Logger = log.New(os.Stderr, "", log.LstdFlags)
 
 		var (
-			qi  *blqueue.Queue
-			rst *dlqdump.Restorer
+			qi    *blqueue.Queue
+			dconf dlqdump.Config
+			rst   *dlqdump.Restorer
 		)
 
 		if req.Dump && req.AllowLeak {
-			dconf := dlqdump.Config{
+			dconf = dlqdump.Config{
 				Version:       dlqdump.NewVersion(1, 0, 0, 0),
 				Key:           conf.Key,
 				MetricsWriter: dlqmw.NewPrometheusMetrics(),
@@ -164,7 +166,7 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				Capacity:      5 * dlqdump.Megabyte,
 				FlushInterval: 30 * time.Second,
-				Encoder:       nil,
+				Encoder:       encoder.Basic{},
 				Writer: &fs.Writer{
 					Buffer:    512 * dlqdump.Kilobyte,
 					Directory: "dump",
@@ -177,13 +179,17 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					MatchMask: "dump/*.bin",
 				},
 				Decoder: ItemDecoder{},
-				Queue:   qi,
 			}
 			conf.DLQ, _ = dlqdump.NewQueue(&dconf)
-			rst, _ = dlqdump.NewRestorer(&dconf)
 		}
 
 		qi, _ = blqueue.New(&conf)
+
+		if req.Dump && req.AllowLeak {
+			dconf.Queue = qi
+			rst, _ = dlqdump.NewRestorer(&dconf)
+		}
+
 		q := demoQueue{
 			key:   key,
 			queue: qi,
