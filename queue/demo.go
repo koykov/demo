@@ -8,21 +8,21 @@ import (
 	"log"
 	"time"
 
-	"github.com/koykov/blqueue"
 	"github.com/koykov/dlqdump"
+	"github.com/koykov/queue"
 )
 
 type demoQueue struct {
 	key   string
-	queue *blqueue.Queue
+	queue *queue.Queue
 	req   *RequestInit
-	dlq   blqueue.Interface
+	dlq   queue.Interface
 	rst   *dlqdump.Restorer
 
 	producersUp uint32
 	producers   []*producer
 
-	schedule *blqueue.Schedule
+	schedule *queue.Schedule
 	schedID  int
 
 	cancel context.CancelFunc
@@ -151,7 +151,7 @@ func (d *demoQueue) calibrate() {
 
 func (d *demoQueue) rtSize() (size uint32, schedID int) {
 	if d.schedule != nil {
-		var schedParams blqueue.ScheduleParams
+		var schedParams queue.ScheduleParams
 		if schedParams, schedID = d.schedule.Get(); schedID != -1 {
 			size = schedParams.WorkersMin
 			return

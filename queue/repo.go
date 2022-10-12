@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/koykov/blqueue"
 	"github.com/koykov/clock"
+	q "github.com/koykov/queue"
 )
 
 type RequestInit struct {
@@ -42,7 +42,7 @@ type RequestInit struct {
 	DelayNs   uint64 `json:"delay_ns,omitempty"`
 }
 
-func (r *RequestInit) MapConfig(conf *blqueue.Config) {
+func (r *RequestInit) MapConfig(conf *q.Config) {
 	conf.Size = r.Size
 	conf.Workers = r.Workers
 	conf.Heartbeat = r.Heartbeat
@@ -53,7 +53,7 @@ func (r *RequestInit) MapConfig(conf *blqueue.Config) {
 	conf.Delay = time.Duration(r.DelayNs)
 	if len(r.WorkersSchedule) > 0 {
 		now := time.Now()
-		s := blqueue.NewSchedule()
+		s := q.NewSchedule()
 		for _, rule := range r.WorkersSchedule {
 			var r1 string
 			if r1 = rule.Range; len(r1) == 0 {
@@ -73,7 +73,7 @@ func (r *RequestInit) MapConfig(conf *blqueue.Config) {
 					now0, now1 := now.Add(d0), now.Add(d1)
 					r0 := fmt.Sprintf("%02d:%02d:%02d-%02d:%02d:%02d", now0.Hour(), now0.Minute(), now0.Second(),
 						now1.Hour(), now1.Minute(), now1.Second())
-					params := blqueue.ScheduleParams{
+					params := q.ScheduleParams{
 						WorkersMin:   rule.WorkersMin,
 						WorkersMax:   rule.WorkersMax,
 						WakeupFactor: rule.WakeupFactor,
@@ -93,7 +93,7 @@ func (r *RequestInit) MapConfig(conf *blqueue.Config) {
 func (r *RequestInit) MapInternalQueue(queue *demoQueue) {
 	if len(r.ProducersSchedule) > 0 {
 		now := time.Now()
-		s := blqueue.NewSchedule()
+		s := q.NewSchedule()
 		for _, rule := range r.ProducersSchedule {
 			var r1 string
 			if r1 = rule.Range; len(r1) == 0 {
@@ -113,7 +113,7 @@ func (r *RequestInit) MapInternalQueue(queue *demoQueue) {
 					now0, now1 := now.Add(d0), now.Add(d1)
 					r0 := fmt.Sprintf("%02d:%02d:%02d-%02d:%02d:%02d", now0.Hour(), now0.Minute(), now0.Second(),
 						now1.Hour(), now1.Minute(), now1.Second())
-					params := blqueue.ScheduleParams{
+					params := q.ScheduleParams{
 						WorkersMin: rule.Producers,
 						WorkersMax: rule.Producers + 1,
 					}

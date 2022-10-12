@@ -11,12 +11,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/koykov/blqueue"
 	"github.com/koykov/dlqdump"
 	"github.com/koykov/dlqdump/encoder"
 	"github.com/koykov/dlqdump/fs"
-	mw "github.com/koykov/metrics_writers/blqueue"
 	dlqmw "github.com/koykov/metrics_writers/dlqdump"
+	mw "github.com/koykov/metrics_writers/queue"
+	"github.com/koykov/queue"
 )
 
 type QueueHTTP struct {
@@ -128,7 +128,7 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		var (
 			req  RequestInit
-			conf blqueue.Config
+			conf queue.Config
 		)
 
 		err = json.Unmarshal(body, &req)
@@ -138,21 +138,20 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			resp.Error = err.Error()
 			return
 		}
-		conf.Key = key
 		req.MapConfig(&conf)
 		if conf.Schedule != nil && conf.Schedule.Len() > 0 {
 			log.Println("schedule", conf.Schedule.String())
 		}
 
-		conf.MetricsWriter = mw.NewPrometheusMetricsWP(time.Millisecond)
+		conf.MetricsWriter = mw.NewPrometheusMetricsWP(key, time.Millisecond)
 		conf.Worker = NewWorker(req.WorkerDelay)
 		if req.AllowLeak {
-			conf.DLQ = &blqueue.DummyDLQ{}
+			conf.DLQ = &queue.DummyDLQ{}
 		}
-		conf.Logger = log.New(os.Stderr, "", log.LstdFlags)
+		conf.Logger = log.New(os.Stderr, "queue #"+key, log.LstdFlags)
 
 		var (
-			qi    *blqueue.Queue
+			qi    *queue.Queue
 			dconf dlqdump.Config
 			rst   *dlqdump.Restorer
 		)
@@ -160,9 +159,8 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if req.Dump && req.AllowLeak {
 			dconf = dlqdump.Config{
 				Version:       dlqdump.NewVersion(1, 0, 0, 0),
-				Key:           conf.Key,
-				MetricsWriter: dlqmw.NewPrometheusMetrics(),
-				Logger:        log.New(os.Stderr, "", log.LstdFlags),
+				MetricsWriter: dlqmw.NewPrometheusMetrics(key),
+				Logger:        log.New(os.Stderr, "dlq #"+key, log.LstdFlags),
 
 				Capacity:      5 * dlqdump.Megabyte,
 				FlushInterval: 30 * time.Second,
@@ -170,7 +168,7 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				Writer: &fs.Writer{
 					Buffer:    512 * dlqdump.Kilobyte,
 					Directory: "dump",
-					FileMask:  conf.Key + "--%Y-%m-%d--%H-%M-%S--%N.bin",
+					FileMask:  key + "--%Y-%m-%d--%H-%M-%S--%N.bin",
 				},
 
 				CheckInterval:    time.Second,
@@ -183,7 +181,7 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			conf.DLQ, _ = dlqdump.NewQueue(&dconf)
 		}
 
-		qi, _ = blqueue.New(&conf)
+		qi, _ = queue.New(&conf)
 
 		if req.Dump && req.AllowLeak {
 			dconf.Queue = qi

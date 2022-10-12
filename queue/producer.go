@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/koykov/blqueue"
+	"github.com/koykov/queue"
 )
 
 type status uint32
@@ -47,7 +47,7 @@ func (p *producer) stop() {
 	p.ctl <- signalStop
 }
 
-func (p *producer) produce(q *blqueue.Queue) {
+func (p *producer) produce(q *queue.Queue) {
 	for {
 		select {
 		case cmd := <-p.ctl:

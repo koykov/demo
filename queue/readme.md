@@ -1,6 +1,6 @@
 # Balanced Leaky Queue demo app
 
-Demo stage for [blqueue](https://github.com/koykov/blqueue) package.
+Demo stage for [queue](https://github.com/koykov/queue) package.
 
 ## Installation
 

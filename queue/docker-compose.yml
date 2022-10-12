@@ -1,7 +1,7 @@
 version: "3"
 
 networks:
-  blq-net:
+  queue-net:
     driver: bridge
 
 volumes:
@@ -46,7 +46,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-    image: blqueued
+    image: queued
     network_mode: "host"
     volumes:
-      - .:/go/src/github.com/koykov/demo/blqueue
+      - .:/go/src/github.com/koykov/demo/queue
