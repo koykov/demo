@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/koykov/dlqdump"
+	"github.com/koykov/dlqdump/decoder"
 	"github.com/koykov/dlqdump/encoder"
 	"github.com/koykov/dlqdump/fs"
 	dlqmw "github.com/koykov/metrics_writers/dlqdump"
@@ -164,7 +165,7 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				Capacity:      5 * dlqdump.Megabyte,
 				FlushInterval: 30 * time.Second,
-				Encoder:       encoder.Basic{},
+				Encoder:       encoder.MarshallerTo{},
 				Writer: &fs.Writer{
 					Buffer:    512 * dlqdump.Kilobyte,
 					Directory: "dump",
@@ -176,7 +177,7 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				Reader: &fs.Reader{
 					MatchMask: "dump/*.bin",
 				},
-				Decoder: ItemDecoder{},
+				Decoder: decoder.Unmarshaller{New: func() interface{} { return &Item{} }},
 			}
 			conf.DLQ, _ = dlqdump.NewQueue(&dconf)
 		}
