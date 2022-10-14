@@ -170,7 +170,7 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				Writer: &fs.Writer{
 					Buffer:    512 * dlqdump.Kilobyte,
 					Directory: "dump",
-					FileMask:  key + "--%Y-%m-%d--%H-%M-%S--%N.bin",
+					FileMask:  key + "--%Y-%m-%d--%H-%M-%S--%i.bin",
 				},
 
 				CheckInterval:    time.Second,
