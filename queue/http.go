@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -149,7 +150,7 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if req.AllowLeak {
 			conf.DLQ = &queue.DummyDLQ{}
 		}
-		conf.Logger = log.New(os.Stderr, "queue #"+key, log.LstdFlags)
+		conf.Logger = log.New(os.Stderr, fmt.Sprintf("queue #%s ", key), log.LstdFlags)
 
 		var (
 			qi    *queue.Queue
@@ -161,11 +162,11 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			dconf = dlqdump.Config{
 				Version:       dlqdump.NewVersion(1, 0, 0, 0),
 				MetricsWriter: dlqmw.NewPrometheusMetrics(key),
-				Logger:        log.New(os.Stderr, "dlq #"+key, log.LstdFlags),
+				Logger:        log.New(os.Stderr, fmt.Sprintf("dlq #%s ", key), log.LstdFlags),
 
 				Capacity:      5 * dlqdump.Megabyte,
 				FlushInterval: 30 * time.Second,
-				Encoder:       encoder.MarshallerTo{},
+				Encoder:       encoder.Marshaller{},
 				Writer: &fs.Writer{
 					Buffer:    512 * dlqdump.Kilobyte,
 					Directory: "dump",
@@ -177,7 +178,7 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				Reader: &fs.Reader{
 					MatchMask: "dump/*.bin",
 				},
-				Decoder: decoder.Unmarshaller{New: func() interface{} { return &Item{} }},
+				Decoder: decoder.Unmarshaller{New: func() decoder.UnmarshallerInterface { return &Item{} }},
 			}
 			conf.DLQ, _ = dlqdump.NewQueue(&dconf)
 		}
