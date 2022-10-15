@@ -10,7 +10,7 @@ import (
 )
 
 type RequestInit struct {
-	Size      uint64        `json:"size"`
+	Capacity  uint64        `json:"capacity"`
 	Workers   uint32        `json:"workers,omitempty"`
 	Heartbeat time.Duration `json:"heartbeat,omitempty"`
 
@@ -43,7 +43,7 @@ type RequestInit struct {
 }
 
 func (r *RequestInit) MapConfig(conf *q.Config) {
-	conf.Size = r.Size
+	conf.Capacity = r.Capacity
 	conf.Workers = r.Workers
 	conf.Heartbeat = r.Heartbeat
 	conf.WorkersMin = r.WorkersMin

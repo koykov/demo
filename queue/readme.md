@@ -1,4 +1,4 @@
-# Balanced Leaky Queue demo app
+# Queue demo app
 
 Demo stage for [queue](https://github.com/koykov/queue) package.
 
@@ -31,7 +31,7 @@ in metrics writers to filter queue metrics.
 `<configBody>` describes queue config in JSON format:
 ```json lines
 {
-  "size": 1e5, // Queue size in items. Exceeding this param will block the queue or leak extra items dependent of allow_leak param (see below).
+  "capacity": 1e5, // Queue size in items. Exceeding this param will block the queue or leak extra items dependent of allow_leak param (see below).
   "allow_leak": true, // Enable leaky feature of the queue. On false queue will block on QFR == 1.
   "heartbeat": 100000000, // Delay between heartbeats in nanosecond.
   "wakeup_factor": 0.05, // Reaching this QFR (queue fullness rate) value will trigger wakeup of idle/sleeping workers.

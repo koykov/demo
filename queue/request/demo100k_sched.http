@@ -3,7 +3,7 @@ POST http://localhost:8080/api/v1/init?key=demo100k_sched
 Content-Type: application/json
 
 {
-  "size": 100000,
+  "capacity": 100000,
   "allow_leak": true,
   "heartbeat": 100000000,
   "wakeup_factor": 0.05,

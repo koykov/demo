@@ -3,7 +3,7 @@ POST http://localhost:8080/api/v1/init?key=demo100k
 Content-Type: application/json
 
 {
-  "size": 100000,
+  "capacity": 100000,
   "workers_min": 2,
   "workers_max": 32,
   "worker_delay": 300000,
