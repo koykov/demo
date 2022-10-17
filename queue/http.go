@@ -158,23 +158,24 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			rst   *dlqdump.Restorer
 		)
 
-		if req.Dump && req.AllowLeak {
+		if req.Dump != nil && req.Restore != nil && req.AllowLeak {
 			dconf = dlqdump.Config{
 				Version:       dlqdump.NewVersion(1, 0, 0, 0),
 				MetricsWriter: dlqmw.NewPrometheusMetrics(key),
 				Logger:        log.New(os.Stderr, fmt.Sprintf("dlq #%s ", key), log.LstdFlags),
 
-				Capacity:      5 * dlqdump.Megabyte,
-				FlushInterval: 30 * time.Second,
+				Capacity:      dlqdump.MemorySize(req.Dump.Capacity),
+				FlushInterval: time.Duration(req.Dump.Flush),
 				Encoder:       encoder.Marshaller{},
 				Writer: &fs.Writer{
-					Buffer:    512 * dlqdump.Kilobyte,
+					Buffer:    dlqdump.MemorySize(req.Dump.Buffer),
 					Directory: "dump",
 					FileMask:  key + "--%Y-%m-%d--%H-%M-%S--%i.bin",
 				},
 
-				CheckInterval:    time.Second,
-				PostponeInterval: 500 * time.Millisecond,
+				CheckInterval:    time.Duration(req.Restore.Check),
+				PostponeInterval: time.Duration(req.Restore.Postpone),
+				AllowRate:        req.Restore.AllowRate,
 				Reader: &fs.Reader{
 					MatchMask: "dump/*.bin",
 				},
@@ -185,7 +186,7 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		qi, _ = queue.New(&conf)
 
-		if req.Dump && req.AllowLeak {
+		if req.Dump != nil && req.AllowLeak {
 			dconf.Queue = qi
 			rst, _ = dlqdump.NewRestorer(&dconf)
 		}

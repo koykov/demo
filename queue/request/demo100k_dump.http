@@ -14,7 +14,16 @@ Content-Type: application/json
   "wakeup_factor": 0.005,
   "sleep_factor": 0.0025,
   "allow_leak": true,
-  "dump": true
+  "dump": {
+	"capacity": 5242880,
+	"flush": 30000000000,
+	"buffer": 512000
+  },
+  "restore": {
+	"check": 1000000000,
+	"postpone": 500000000,
+	"allow_rate": 0.95
+  }
 }
 
 ### add X producers

@@ -37,20 +37,29 @@ type RequestInit struct {
 		Producers uint32 `json:"producers,omitempty"`
 	} `json:"producers_schedule,omitempty"`
 
-	AllowLeak bool   `json:"allow_leak,omitempty"`
-	Dump      bool   `json:"dump,omitempty"`
-	DelayNs   uint64 `json:"delay_ns,omitempty"`
+	AllowLeak bool `json:"allow_leak,omitempty"`
+	Dump      *struct {
+		Capacity uint64 `json:"capacity"`
+		Flush    int64  `json:"flush"`
+		Buffer   uint64 `json:"buffer,omitempty"`
+	} `json:"dump,omitempty"`
+	Restore *struct {
+		Check     int64   `json:"check"`
+		Postpone  int64   `json:"postpone"`
+		AllowRate float32 `json:"allow_rate"`
+	} `json:"restore,omitempty"`
+	DelayNs uint64 `json:"delay_ns,omitempty"`
 }
 
 func (r *RequestInit) MapConfig(conf *q.Config) {
 	conf.Capacity = r.Capacity
 	conf.Workers = r.Workers
-	conf.Heartbeat = r.Heartbeat
+	conf.HeartbeatInterval = r.Heartbeat
 	conf.WorkersMin = r.WorkersMin
 	conf.WorkersMax = r.WorkersMax
 	conf.WakeupFactor = r.WakeupFactor
 	conf.SleepFactor = r.SleepFactor
-	conf.Delay = time.Duration(r.DelayNs)
+	conf.DelayInterval = time.Duration(r.DelayNs)
 	if len(r.WorkersSchedule) > 0 {
 		now := time.Now()
 		s := q.NewSchedule()
