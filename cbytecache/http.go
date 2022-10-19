@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -139,7 +140,7 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		conf.Hasher = fnv.Hasher{}
 		conf.MetricsWriter = metrics.NewPrometheusMetrics(key)
-		conf.Logger = log.New(os.Stderr, "", log.LstdFlags)
+		conf.Logger = log.New(os.Stderr, fmt.Sprintf("cache #%s: ", key), log.LstdFlags)
 		conf.Clock = clock.NewClock()
 
 		ci, err := cbytecache.New(&conf)
