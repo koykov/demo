@@ -138,11 +138,11 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		req.MapConfig(&conf)
 
 		conf.Hasher = fnv.Hasher{}
-		conf.MetricsWriter = metrics.NewPrometheusMetrics()
+		conf.MetricsWriter = metrics.NewPrometheusMetrics(key)
 		conf.Logger = log.New(os.Stderr, "", log.LstdFlags)
 		conf.Clock = clock.NewClock()
 
-		ci, err := cbytecache.NewCByteCache(&conf)
+		ci, err := cbytecache.New(&conf)
 		if err != nil {
 			log.Println("err", err)
 			resp.Status = http.StatusInternalServerError
