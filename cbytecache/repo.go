@@ -8,10 +8,10 @@ import (
 
 type RequestInit struct {
 	Buckets        uint                  `json:"buckets"`
-	Expire         time.Duration         `json:"expire_ns"`
-	Vacuum         time.Duration         `json:"vacuum_ns"`
+	ExpireInterval time.Duration         `json:"expire_interval_ns"`
+	VacuumInterval time.Duration         `json:"vacuum_interval_ns"`
 	CollisionCheck bool                  `json:"collision_check"`
-	MaxSize        cbytecache.MemorySize `json:"max_size"`
+	Capacity       cbytecache.MemorySize `json:"capacity"`
 
 	Writers     uint32 `json:"writers"`
 	WriterKRP   uint32 `json:"writer_krp"` // KRP - keys rotate percent
@@ -23,8 +23,8 @@ type RequestInit struct {
 
 func (r *RequestInit) MapConfig(conf *cbytecache.Config) {
 	conf.Buckets = r.Buckets
-	conf.Expire = r.Expire
-	conf.Vacuum = r.Vacuum
+	conf.ExpireInterval = r.ExpireInterval
+	conf.VacuumInterval = r.VacuumInterval
 	conf.CollisionCheck = r.CollisionCheck
-	conf.MaxSize = r.MaxSize
+	conf.Capacity = r.Capacity
 }

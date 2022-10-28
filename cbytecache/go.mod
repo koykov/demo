@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/koykov/cbyte v1.0.2
-	github.com/koykov/cbytecache v0.0.0-20221024193753-fecf92865034
+	github.com/koykov/cbytecache v0.0.0-20221027213936-91adb8d305b5
 	github.com/koykov/clock v1.1.0
 	github.com/koykov/fastconv v1.0.0
 	github.com/koykov/hash v1.0.0

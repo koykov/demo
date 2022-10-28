@@ -4,10 +4,10 @@ Content-Type: application/json
 
 {
   "buckets": 1,
-  "expire_ns": 30000000000,
-  "max_size": 1073741824,
-  "collision_check": false,
-  "vacuum_ns": 60000000000,
+  "expire_interval_ns": 30000000000,
+  "capacity": 1073741824,
+  "collision_check": true,
+  "vacuum_interval_ns": 60000000000,
   "metrics_key": "demo1G",
   "force_set": true,
   "writers": 8,

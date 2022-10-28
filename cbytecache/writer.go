@@ -54,7 +54,7 @@ func (w *writer) run(cache *cbytecache.CByteCache) {
 					if delay := w.rawReq.WriterDelay; delay > 0 {
 						time.Sleep(time.Duration(delay))
 					}
-					keys.set(key, w.config.Expire)
+					keys.set(key, w.config.ExpireInterval)
 				}
 			}
 		}
