@@ -50,11 +50,12 @@ func (w *writer) run(cache *cbytecache.CByteCache) {
 				return
 			}
 			if key := keys.get(int(w.rawReq.WriterKRP)); len(key) > 0 {
-				if err := cache.Set(key, getTestBody()); err == nil {
-					if delay := w.rawReq.WriterDelay; delay > 0 {
-						time.Sleep(time.Duration(delay))
-					}
-					keys.set(key, w.config.ExpireInterval)
+				if err := cache.Set(key, getTestBody()); err != nil {
+					continue
+				}
+				keys.set(key, w.config.ExpireInterval)
+				if delay := w.rawReq.WriterDelay; delay > 0 {
+					time.Sleep(time.Duration(delay))
 				}
 			}
 		}
