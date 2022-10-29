@@ -39,14 +39,9 @@ func (r *keyRegistry) get(newPercent int) string {
 		if len(r.keys) <= 1 {
 			return ""
 		}
-		for c := 0; c < 10; c++ {
-			i := rand.Intn(len(r.keys) - 1)
-			key := &r.keys[i]
-			if int64(key.expire) < time.Now().Unix() {
-				return key.key
-			}
-		}
-		return ""
+		i := rand.Intn(len(r.keys) - 1)
+		key := &r.keys[i]
+		return key.key
 	}
 }
 
