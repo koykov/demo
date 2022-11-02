@@ -38,9 +38,7 @@ func (d *demoQueue) Run() {
 		d.producers[i].start()
 	}
 	d.producersUp = d.req.ProducersMin
-
-	producerActive.WithLabelValues(d.key).Add(float64(d.producersUp))
-	producerIdle.WithLabelValues(d.key).Add(float64(d.req.ProducersMax - d.producersUp))
+	ProducersInitMetric(d.key, d.producersUp, d.req.ProducersMax-d.producersUp)
 
 	d.schedID = -1
 

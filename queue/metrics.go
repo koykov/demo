@@ -19,6 +19,11 @@ func init() {
 	prometheus.MustRegister(producerIdle, producerActive)
 }
 
+func ProducersInitMetric(queue string, up, idle uint32) {
+	producerActive.WithLabelValues(queue).Add(float64(up))
+	producerIdle.WithLabelValues(queue).Add(float64(idle))
+}
+
 func ProducerStartMetric(queue string) {
 	producerActive.WithLabelValues(queue).Inc()
 	producerIdle.WithLabelValues(queue).Add(-1)
