@@ -207,6 +207,46 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		resp.Message = "success"
 
+	case r.URL.Path == "/api/v1/reader-up" && c != nil:
+		var delta uint32
+		if d := r.FormValue("delta"); len(d) > 0 {
+			ud, err := strconv.ParseUint(d, 10, 32)
+			if err != nil {
+				log.Println("err", err)
+				resp.Status = http.StatusInternalServerError
+				resp.Error = err.Error()
+				return
+			}
+			delta = uint32(ud)
+		}
+		if err := c.ReadersUp(delta); err != nil {
+			log.Println("err", err)
+			resp.Status = http.StatusInternalServerError
+			resp.Error = err.Error()
+			return
+		}
+		resp.Message = "success"
+
+	case r.URL.Path == "/api/v1/reader-down" && c != nil:
+		var delta uint32
+		if d := r.FormValue("delta"); len(d) > 0 {
+			ud, err := strconv.ParseUint(d, 10, 32)
+			if err != nil {
+				log.Println("err", err)
+				resp.Status = http.StatusInternalServerError
+				resp.Error = err.Error()
+				return
+			}
+			delta = uint32(ud)
+		}
+		if err := c.ReadersDown(delta); err != nil {
+			log.Println("err", err)
+			resp.Status = http.StatusInternalServerError
+			resp.Error = err.Error()
+			return
+		}
+		resp.Message = "success"
+
 	case r.URL.Path == "/api/v1/stop":
 		if c != nil {
 			c.Stop()
