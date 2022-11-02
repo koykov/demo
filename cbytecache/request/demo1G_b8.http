@@ -30,3 +30,6 @@ GET http://localhost:8080/api/v1/reader-up?key=cache1G&delta=2
 
 ### readers down
 GET http://localhost:8080/api/v1/reader-down?key=cache1G&delta=2
+
+### stop
+GET http://localhost:8080/api/v1/stop?key=cache1G
