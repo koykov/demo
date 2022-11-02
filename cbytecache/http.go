@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"sync"
 
 	"github.com/koykov/cbytecache"
@@ -140,7 +141,7 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		conf.Hasher = fnv.Hasher{}
 		conf.MetricsWriter = metrics.NewPrometheusMetrics(key)
-		conf.Logger = log.New(os.Stderr, fmt.Sprintf("cache #%s: ", key), log.LstdFlags)
+		conf.Logger = log.New(os.Stderr, fmt.Sprintf("cache #%s: 	", key), log.LstdFlags)
 		conf.Clock = clock.NewClock()
 
 		ci, err := cbytecache.New(&conf)
@@ -152,12 +153,10 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		c := demoCache{
-			key:     key,
-			config:  &conf,
-			rawReq:  &req,
-			cache:   ci,
-			writers: req.Writers,
-			readers: req.Readers,
+			key:    key,
+			config: &conf,
+			req:    &req,
+			cache:  ci,
 		}
 
 		h.mux.Lock()
@@ -166,6 +165,46 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		c.Run()
 
+		resp.Message = "success"
+
+	case r.URL.Path == "/api/v1/writer-up" && c != nil:
+		var delta uint32
+		if d := r.FormValue("delta"); len(d) > 0 {
+			ud, err := strconv.ParseUint(d, 10, 32)
+			if err != nil {
+				log.Println("err", err)
+				resp.Status = http.StatusInternalServerError
+				resp.Error = err.Error()
+				return
+			}
+			delta = uint32(ud)
+		}
+		if err := c.WritersUp(delta); err != nil {
+			log.Println("err", err)
+			resp.Status = http.StatusInternalServerError
+			resp.Error = err.Error()
+			return
+		}
+		resp.Message = "success"
+
+	case r.URL.Path == "/api/v1/writer-down" && c != nil:
+		var delta uint32
+		if d := r.FormValue("delta"); len(d) > 0 {
+			ud, err := strconv.ParseUint(d, 10, 32)
+			if err != nil {
+				log.Println("err", err)
+				resp.Status = http.StatusInternalServerError
+				resp.Error = err.Error()
+				return
+			}
+			delta = uint32(ud)
+		}
+		if err := c.WritersDown(delta); err != nil {
+			log.Println("err", err)
+			resp.Status = http.StatusInternalServerError
+			resp.Error = err.Error()
+			return
+		}
 		resp.Message = "success"
 
 	case r.URL.Path == "/api/v1/stop":

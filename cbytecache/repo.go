@@ -13,11 +13,14 @@ type RequestInit struct {
 	CollisionCheck bool                  `json:"collision_check"`
 	Capacity       cbytecache.MemorySize `json:"capacity"`
 
-	Writers     uint32 `json:"writers"`
-	WriterKRP   uint32 `json:"writer_krp"` // KRP - keys rotate percent
+	KRP uint32 `json:"krp"` // KRP - keys rotate percent
+
+	WritersMin  uint32 `json:"writers_min"`
+	WritersMax  uint32 `json:"writers_max"`
 	WriterDelay uint32 `json:"writer_delay"`
-	Readers     uint32 `json:"readers"`
-	ReaderKRP   uint32 `json:"reader_krp"` // KRP - keys rotate percent
+
+	ReadersMin  uint32 `json:"readers_min"`
+	ReadersMax  uint32 `json:"readers_max"`
 	ReaderDelay uint32 `json:"reader_delay"`
 }
 

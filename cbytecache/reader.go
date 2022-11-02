@@ -15,17 +15,17 @@ type reader struct {
 	idx    uint32
 	status status
 	config *cbytecache.Config
-	rawReq *RequestInit
+	req    *RequestInit
 	ctl    chan signal
 	dst    []byte
 }
 
-func makeReader(idx uint32, config *cbytecache.Config, rawReq *RequestInit) *reader {
+func makeReader(idx uint32, config *cbytecache.Config, req *RequestInit) *reader {
 	r := &reader{
 		idx:    idx,
 		status: statusIdle,
 		config: config,
-		rawReq: rawReq,
+		req:    req,
 		ctl:    make(chan signal, 1),
 	}
 	return r
@@ -55,7 +55,7 @@ func (r *reader) run(cache *cbytecache.CByteCache) {
 			if r.getStatus() == statusIdle {
 				return
 			}
-			if key := keys.get(int(r.rawReq.ReaderKRP)); len(key) > 0 {
+			if key := keys.get(0); len(key) > 0 {
 				if r.dst, err = cache.GetTo(r.dst[:0], key); err == nil && len(r.dst) > 0 {
 					ri := r.dst[:1]
 					if i, err := strconv.ParseInt(fastconv.B2S(ri), 10, 64); err == nil {
@@ -67,7 +67,7 @@ func (r *reader) run(cache *cbytecache.CByteCache) {
 				} else {
 					// log.Println("err", err, "len", len(r.dst))
 				}
-				if delay := r.rawReq.ReaderDelay; delay > 0 {
+				if delay := r.req.ReaderDelay; delay > 0 {
 					time.Sleep(time.Duration(delay))
 				}
 			}

@@ -11,16 +11,16 @@ type writer struct {
 	idx    uint32
 	status status
 	config *cbytecache.Config
-	rawReq *RequestInit
+	req    *RequestInit
 	ctl    chan signal
 }
 
-func makeWriter(idx uint32, config *cbytecache.Config, rawReq *RequestInit) *writer {
+func makeWriter(idx uint32, config *cbytecache.Config, req *RequestInit) *writer {
 	w := &writer{
 		idx:    idx,
 		status: statusIdle,
 		config: config,
-		rawReq: rawReq,
+		req:    req,
 		ctl:    make(chan signal, 1),
 	}
 	return w
@@ -49,12 +49,12 @@ func (w *writer) run(cache *cbytecache.CByteCache) {
 			if w.getStatus() == statusIdle {
 				return
 			}
-			if key := keys.get(int(w.rawReq.WriterKRP)); len(key) > 0 {
+			if key := keys.get(int(w.req.KRP)); len(key) > 0 {
 				if err := cache.Set(key, getTestBody()); err != nil {
 					continue
 				}
 				keys.set(key, w.config.ExpireInterval)
-				if delay := w.rawReq.WriterDelay; delay > 0 {
+				if delay := w.req.WriterDelay; delay > 0 {
 					time.Sleep(time.Duration(delay))
 				}
 			}
