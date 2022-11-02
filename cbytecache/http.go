@@ -141,7 +141,7 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		conf.Hasher = fnv.Hasher{}
 		conf.MetricsWriter = metrics.NewPrometheusMetrics(key)
-		conf.Logger = log.New(os.Stderr, fmt.Sprintf("cache #%s: 	", key), log.LstdFlags)
+		conf.Logger = log.New(os.Stderr, fmt.Sprintf("cache #%s: ", key), log.LstdFlags)
 		conf.Clock = clock.NewClock()
 
 		ci, err := cbytecache.New(&conf)
@@ -210,6 +210,17 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case r.URL.Path == "/api/v1/stop":
 		if c != nil {
 			c.Stop()
+		}
+
+		h.mux.Lock()
+		delete(h.pool, key)
+		h.mux.Unlock()
+
+		resp.Message = "success"
+
+	case r.URL.Path == "/api/v1/force-stop":
+		if c != nil {
+			c.ForceStop()
 		}
 
 		h.mux.Lock()

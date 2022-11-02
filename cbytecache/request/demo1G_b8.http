@@ -1,0 +1,32 @@
+### init
+POST http://localhost:8080/api/v1/init?key=cache1G
+Content-Type: application/json
+
+{
+  "buckets": 8,
+  "expire_interval_ns": 30000000000,
+  "capacity": 1073741824,
+  "collision_check": true,
+  "vacuum_interval_ns": 60000000000,
+  "metrics_key": "demo1G",
+  "force_set": true,
+  "krp": 10,
+  "writers_min": 2,
+  "writers_max": 32,
+  "writer_delay": 1000000,
+  "readers_min": 2,
+  "readers_max": 32,
+  "reader_delay": 1000000
+}
+
+### writers up
+GET http://localhost:8080/api/v1/writer-up?key=cache1G&delta=2
+
+### writers down
+GET http://localhost:8080/api/v1/writer-down?key=cache1G&delta=2
+
+### readers up
+GET http://localhost:8080/api/v1/reader-up?key=cache1G&delta=2
+
+### readers down
+GET http://localhost:8080/api/v1/reader-down?key=cache1G&delta=2

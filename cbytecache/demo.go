@@ -143,8 +143,35 @@ func (d *demoCache) ReadersDown(delta uint32) error {
 }
 
 func (d *demoCache) Stop() {
+	d.stop(false)
+}
+
+func (d *demoCache) ForceStop() {
+	d.stop(true)
+}
+
+func (d *demoCache) stop(force bool) {
+	c := d.writersUp
+	for i := uint32(0); i < c; i++ {
+		d.writers[i].stop()
+		d.writersUp--
+		WriterStopMetric(d.key)
+	}
+
+	c = d.readersUp
+	for i := uint32(0); i < c; i++ {
+		d.readers[i].stop()
+		d.readersUp--
+		ReaderStopMetric(d.key)
+	}
+
+	if force {
+		// todo implement me, still use Close()
+		_ = d.cache.Close()
+	} else {
+		_ = d.cache.Close()
+	}
 	d.cancel()
-	_ = d.cache.Close()
 }
 
 func (d *demoCache) String() string {
