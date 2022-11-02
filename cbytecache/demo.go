@@ -111,7 +111,7 @@ func (d *demoCache) ReadersUp(delta uint32) error {
 	if delta == 0 {
 		delta = 1
 	}
-	if d.writersUp+delta >= d.req.ReadersMax {
+	if d.readersUp+delta >= d.req.ReadersMax {
 		return errors.New("maximum readers count reached")
 	}
 	c := d.readersUp
