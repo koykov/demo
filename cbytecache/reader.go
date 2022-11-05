@@ -39,7 +39,7 @@ func (r *reader) stop() {
 	r.ctl <- signalStop
 }
 
-func (r *reader) run(cache *cbytecache.CByteCache) {
+func (r *reader) run(cache *cbytecache.Cache) {
 	var err error
 	for {
 		select {

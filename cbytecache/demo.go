@@ -23,7 +23,7 @@ type demoCache struct {
 	key    string
 	config *cbytecache.Config
 	req    *RequestInit
-	cache  *cbytecache.CByteCache
+	cache  *cbytecache.Cache
 
 	writersUp uint32
 	writers   []*writer

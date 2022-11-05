@@ -34,7 +34,7 @@ func (w *writer) stop() {
 	w.ctl <- signalStop
 }
 
-func (w *writer) run(cache *cbytecache.CByteCache) {
+func (w *writer) run(cache *cbytecache.Cache) {
 	for {
 		select {
 		case cmd := <-w.ctl:
