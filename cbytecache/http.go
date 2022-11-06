@@ -10,6 +10,7 @@ import (
 	"os"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/koykov/cbytecache"
 	"github.com/koykov/clock"
@@ -140,7 +141,7 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		req.MapConfig(&conf)
 
 		conf.Hasher = fnv.Hasher{}
-		conf.MetricsWriter = metrics.NewPrometheusMetrics(key)
+		conf.MetricsWriter = metrics.NewPrometheusMetricsWP(key, time.Millisecond)
 		conf.Logger = log.New(os.Stderr, fmt.Sprintf("cache #%s: ", key), log.LstdFlags)
 		conf.Clock = clock.NewClock()
 
