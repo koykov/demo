@@ -37,8 +37,10 @@ type RequestInit struct {
 		Producers uint32 `json:"producers,omitempty"`
 	} `json:"producers_schedule,omitempty"`
 
-	AllowLeak bool `json:"allow_leak,omitempty"`
-	Dump      *struct {
+	AllowLeak         bool   `json:"allow_leak,omitempty"`
+	LeakDirection     string `json:"leak_direction"`
+	FrontLeakAttempts uint32 `json:"front_leak_attempts"`
+	Dump              *struct {
 		Capacity uint64 `json:"capacity"`
 		Flush    int64  `json:"flush"`
 		Buffer   uint64 `json:"buffer,omitempty"`
@@ -60,6 +62,10 @@ func (r *RequestInit) MapConfig(conf *q.Config) {
 	conf.WakeupFactor = r.WakeupFactor
 	conf.SleepFactor = r.SleepFactor
 	conf.DelayInterval = time.Duration(r.DelayNs)
+	if r.LeakDirection == "front" {
+		conf.LeakDirection = q.LeakDirectionFront
+		conf.FrontLeakAttempts = r.FrontLeakAttempts
+	}
 	if len(r.WorkersSchedule) > 0 {
 		now := time.Now()
 		s := q.NewSchedule()
