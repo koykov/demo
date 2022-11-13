@@ -57,19 +57,19 @@ func (d *demoCache) Run() {
 	d.readersUp = d.req.ReadersMin
 	ReadersInitMetric(d.key, d.readersUp, d.req.ReadersMax-d.readersUp)
 
-	var clockExpire context.Context
-	clockExpire, d.cancel = context.WithCancel(context.Background())
-	tickerExpire := time.NewTicker(d.config.ExpireInterval / 4)
+	var clockEvict context.Context
+	clockEvict, d.cancel = context.WithCancel(context.Background())
+	tickerEvict := time.NewTicker(d.config.EvictInterval / 4)
 	go func(ctx context.Context) {
 		for {
 			select {
-			case <-tickerExpire.C:
+			case <-tickerEvict.C:
 				keys.bulkEvict()
 			case <-ctx.Done():
 				return
 			}
 		}
-	}(clockExpire)
+	}(clockEvict)
 }
 
 func (d *demoCache) WritersUp(delta uint32) error {
