@@ -11,6 +11,7 @@ type RequestInit struct {
 	ExpireInterval time.Duration         `json:"expire_interval_ns"`
 	EvictInterval  time.Duration         `json:"evict_interval_ns"`
 	VacuumInterval time.Duration         `json:"vacuum_interval_ns"`
+	VacuumRatio    float64               `json:"vacuum_ratio"`
 	CollisionCheck bool                  `json:"collision_check"`
 	Capacity       cbytecache.MemorySize `json:"capacity"`
 
@@ -30,6 +31,7 @@ func (r *RequestInit) MapConfig(conf *cbytecache.Config) {
 	conf.ExpireInterval = r.ExpireInterval
 	conf.EvictInterval = r.EvictInterval
 	conf.VacuumInterval = r.VacuumInterval
+	conf.VacuumRatio = r.VacuumRatio
 	conf.CollisionCheck = r.CollisionCheck
 	conf.Capacity = r.Capacity
 }
