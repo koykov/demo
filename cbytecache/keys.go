@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/koykov/cbytecache"
 	"github.com/koykov/fastconv"
 )
 
@@ -73,3 +74,11 @@ func (r *keyRegistry) bulkEvict() {
 	copy(r.keys[0:], r.keys[z:])
 	r.keys = r.keys[l-z:]
 }
+
+func (r *keyRegistry) Listen(entry cbytecache.Entry) error {
+	key := entry.Key
+	_ = key // todo remove key from registry
+	return nil
+}
+
+func (r *keyRegistry) Close() error { return nil }
