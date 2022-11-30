@@ -53,7 +53,7 @@ func (w *writer) run(cache *cbytecache.Cache) {
 				if err := cache.Set(key, getTestBody()); err != nil {
 					continue
 				}
-				keys.set(key, w.config.EvictInterval)
+				keys.set(key, w.config.ExpireInterval)
 				if delay := w.req.WriterDelay; delay > 0 {
 					time.Sleep(time.Duration(delay))
 				}
