@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/koykov/cbcdump/fs"
 	"github.com/koykov/cbytecache"
 	"github.com/koykov/clock"
 	"github.com/koykov/hash/fnv"
@@ -144,6 +145,13 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		conf.MetricsWriter = metrics.NewPrometheusMetricsWP(key, time.Millisecond)
 		conf.Logger = log.New(os.Stderr, fmt.Sprintf("cache #%s: ", key), log.LstdFlags)
 		conf.Clock = clock.NewClock()
+		conf.DumpWriter = &fs.Writer{
+			FilePath: fmt.Sprintf("dump/%s.bin", key),
+		}
+		// todo check reader
+		// conf.DumpReader = &fs.Reader{
+		// 	FilePath: fmt.Sprintf("dump/%s.bin", key),
+		// }
 
 		ci, err := cbytecache.New(&conf)
 		if err != nil {

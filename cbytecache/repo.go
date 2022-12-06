@@ -8,15 +8,17 @@ import (
 
 type RequestInit struct {
 	Buckets          uint                  `json:"buckets"`
+	Capacity         cbytecache.MemorySize `json:"capacity"`
 	ExpireIntervalNS time.Duration         `json:"expire_interval_ns"`
 	EvictIntervalNS  time.Duration         `json:"evict_interval_ns"`
 	VacuumIntervalNS time.Duration         `json:"vacuum_interval_ns"`
+	DumpIntervalNS   time.Duration         `json:"dump_interval_ns"`
 	ExpireInterval   string                `json:"expire_interval"`
 	EvictInterval    string                `json:"evict_interval"`
 	VacuumInterval   string                `json:"vacuum_interval"`
+	DumpInterval     string                `json:"dump_interval"`
 	VacuumRatio      float64               `json:"vacuum_ratio"`
 	CollisionCheck   bool                  `json:"collision_check"`
-	Capacity         cbytecache.MemorySize `json:"capacity"`
 
 	KRP uint32 `json:"krp"` // KRP - keys rotate percent
 
@@ -39,6 +41,9 @@ func (r *RequestInit) MapConfig(conf *cbytecache.Config) {
 	}
 	if conf.VacuumInterval = r.VacuumIntervalNS; conf.VacuumInterval == 0 {
 		conf.VacuumInterval, _ = time.ParseDuration(r.VacuumInterval)
+	}
+	if conf.DumpInterval = r.DumpIntervalNS; conf.DumpInterval == 0 {
+		conf.DumpInterval, _ = time.ParseDuration(r.DumpInterval)
 	}
 	conf.VacuumRatio = r.VacuumRatio
 	conf.CollisionCheck = r.CollisionCheck
