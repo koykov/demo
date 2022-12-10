@@ -148,10 +148,10 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		conf.DumpWriter = &fs.Writer{
 			FilePath: fmt.Sprintf("dump/%s.bin", key),
 		}
-		// todo check reader
-		// conf.DumpReader = &fs.Reader{
-		// 	FilePath: fmt.Sprintf("dump/%s.bin", key),
-		// }
+		conf.DumpReader = &fs.Reader{
+			FilePath: fmt.Sprintf("dump/%s.bin", key),
+			OnEOF:    fs.KeepFile,
+		}
 
 		ci, err := cbytecache.New(&conf)
 		if err != nil {
