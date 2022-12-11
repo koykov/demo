@@ -152,6 +152,7 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			FilePath: fmt.Sprintf("dump/%s.bin", key),
 			OnEOF:    fs.KeepFile,
 		}
+		conf.DumpReadAsync = true
 
 		ci, err := cbytecache.New(&conf)
 		if err != nil {
