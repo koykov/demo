@@ -1,0 +1,38 @@
+### init
+POST http://localhost:8080/api/v1/init?key=demo100M
+Content-Type: application/json
+
+{
+  "buckets": 8,
+  "expire_interval": "5m",
+  "capacity": 104857600,
+  "collision_check": true,
+  "evict_interval": "1s",
+  "vacuum_interval": "10s",
+  "vacuum_ratio": 0.1,
+  "metrics_key": "demo1G",
+  "dump_interval": "30s",
+  "force_set": true,
+  "krp": 10,
+  "writers_min": 2,
+  "writers_max": 32,
+  "writer_delay": 10000000,
+  "readers_min": 2,
+  "readers_max": 32,
+  "reader_delay": 10000000
+}
+
+### writers up
+GET http://localhost:8080/api/v1/writer-up?key=demo100M&delta=10
+
+### writers down
+GET http://localhost:8080/api/v1/writer-down?key=demo100M&delta=10
+
+### readers up
+GET http://localhost:8080/api/v1/reader-up?key=demo100M&delta=10
+
+### readers down
+GET http://localhost:8080/api/v1/reader-down?key=demo100M&delta=10
+
+### stop
+GET http://localhost:8080/api/v1/stop?key=demo100M
