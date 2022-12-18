@@ -49,10 +49,8 @@ func (w *writer) run(cache *cbytecache.Cache) {
 			if w.getStatus() == statusIdle {
 				return
 			}
-			if key := keys.get(int(w.req.KRP)); len(key) > 0 {
-				if err := cache.Set(key, getTestBody()); err != nil {
-					continue
-				}
+			if key := keys.get(100); len(key) > 0 {
+				_ = cache.Set(key, getTestBody())
 				keys.set(key, w.config.ExpireInterval)
 				if delay := w.req.WriterDelay; delay > 0 {
 					time.Sleep(time.Duration(delay))

@@ -20,8 +20,6 @@ type RequestInit struct {
 	VacuumRatio      float64               `json:"vacuum_ratio"`
 	CollisionCheck   bool                  `json:"collision_check"`
 
-	KRP uint32 `json:"krp"` // KRP - keys rotate percent
-
 	WritersMin  uint32 `json:"writers_min"`
 	WritersMax  uint32 `json:"writers_max"`
 	WriterDelay uint32 `json:"writer_delay"`
