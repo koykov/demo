@@ -147,7 +147,7 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		conf.Clock = clock.NewClock()
 		conf.DumpWriter = &fs.Writer{
 			FilePath: fmt.Sprintf("dump/%s.bin", key),
-			Buffer:   cbytecache.Megabyte * 16,
+			Buffer:   cbytecache.Megabyte,
 		}
 		conf.DumpReader = &fs.Reader{
 			FilePath: fmt.Sprintf("dump/%s.bin", key),
