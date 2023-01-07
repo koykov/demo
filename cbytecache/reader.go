@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"log"
+	"math/rand"
 	"strconv"
 	"sync/atomic"
 	"time"
@@ -63,6 +64,9 @@ func (r *reader) run(cache *cbytecache.Cache) {
 						if !bytes.Equal(r.dst, e) {
 							log.Println("bad answer")
 						}
+					}
+					if r.req.DeletePercent > 0 && uint(rand.Intn(100)) < r.req.DeletePercent {
+						_ = cache.Delete(key)
 					}
 				} else {
 					// log.Println("err", err, "len", len(r.dst))

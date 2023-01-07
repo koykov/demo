@@ -19,6 +19,7 @@ type RequestInit struct {
 	DumpInterval     string                `json:"dump_interval"`
 	VacuumRatio      float64               `json:"vacuum_ratio"`
 	CollisionCheck   bool                  `json:"collision_check"`
+	DeletePercent    uint                  `json:"delete_percent"`
 
 	WritersMin  uint32 `json:"writers_min"`
 	WritersMax  uint32 `json:"writers_max"`
@@ -46,4 +47,7 @@ func (r *RequestInit) MapConfig(conf *cbytecache.Config) {
 	conf.VacuumRatio = r.VacuumRatio
 	conf.CollisionCheck = r.CollisionCheck
 	conf.Capacity = r.Capacity
+	if r.DeletePercent > 100 {
+		r.DeletePercent = 0
+	}
 }

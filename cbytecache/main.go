@@ -4,7 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/koykov/cbyte"
 	mw "github.com/koykov/metrics_writers/cbyte"
@@ -18,6 +20,7 @@ var (
 )
 
 func init() {
+	rand.Seed(time.Now().UnixNano())
 	flag.Parse()
 
 	m := mw.NewPrometheusMetrics()
