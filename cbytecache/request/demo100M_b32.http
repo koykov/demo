@@ -3,23 +3,22 @@ POST http://localhost:8080/api/v1/init?key=demo100M
 Content-Type: application/json
 
 {
-  "buckets": 8,
+  "buckets": 32,
   "expire_interval": "5m",
   "capacity": 104857600,
   "collision_check": true,
   "evict_interval": "1s",
-  "vacuum_interval": "1m",
+  "vacuum_interval": "30s",
   "vacuum_ratio": 0.1,
   "metrics_key": "demo1G",
-  "dump_interval": "30s",
-  "force_set": true,
-  "krp": 10,
+  "dump_interval": "1m",
   "writers_min": 2,
   "writers_max": 32,
   "writer_delay": 10000000,
   "readers_min": 2,
   "readers_max": 32,
-  "reader_delay": 10000000
+  "reader_delay": 10000000,
+  "delete_percent" : 10
 }
 
 ### writers up
