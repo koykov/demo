@@ -4,9 +4,9 @@ go 1.18
 
 require (
 	github.com/koykov/clock v1.1.0
-	github.com/koykov/dlqdump v1.0.0
-	github.com/koykov/metrics_writers/dlqdump v0.0.0-20221112175620-d91061433bf6
-	github.com/koykov/metrics_writers/queue v0.0.0-20221112175620-d91061433bf6
+	github.com/koykov/dlqdump v1.0.1
+	github.com/koykov/metrics_writers/dlqdump v0.0.0-20230106205500-ee0e98da29d8
+	github.com/koykov/metrics_writers/queue v0.0.0-20230106205500-ee0e98da29d8
 	github.com/koykov/queue v1.1.3
 	github.com/prometheus/client_golang v1.14.0
 )
