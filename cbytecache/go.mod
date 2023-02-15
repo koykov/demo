@@ -3,7 +3,7 @@ module github.com/koykov/demo/cbytecache
 go 1.16
 
 require (
-	github.com/koykov/cbcdump v0.0.0-20221219195108-c3981200f5f9
+	github.com/koykov/cbcdump v0.0.0-20230111200844-a7f1ad609df7
 	github.com/koykov/cbyte v1.0.2
 	github.com/koykov/cbytecache v0.0.0-20230106205557-b806622b2484
 	github.com/koykov/clock v1.1.0
