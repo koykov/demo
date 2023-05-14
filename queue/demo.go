@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"log"
 	"time"
 
@@ -16,7 +17,7 @@ type demoQueue struct {
 	key   string
 	queue *queue.Queue
 	req   *RequestInit
-	dlq   queue.Interface
+	dlq   queue.Enqueuer
 	rst   *dlqdump.Restorer
 
 	producersUp uint32
@@ -120,7 +121,8 @@ func (d *demoQueue) stop(force bool) {
 		}
 	}
 	if d.dlq != nil {
-		_ = d.dlq.Close()
+		inst := any(d.dlq).(io.Closer)
+		_ = inst.Close()
 	}
 	d.cancel()
 }
