@@ -10,11 +10,11 @@ type Item struct {
 	Payload uint64
 }
 
-func (i Item) Size() int {
+func (i *Item) Size() int {
 	return 12
 }
 
-func (i Item) MarshalTo(p []byte) (int, error) {
+func (i *Item) MarshalTo(p []byte) (int, error) {
 	if len(p) < i.Size() {
 		return 0, io.ErrShortBuffer
 	}

@@ -51,6 +51,16 @@ type RequestInit struct {
 		AllowRate float32 `json:"allow_rate"`
 	} `json:"restore,omitempty"`
 	DelayNs uint64 `json:"delay_ns,omitempty"`
+
+	QoS *struct {
+		Algo   string `json:"algo"`
+		Egress uint64 `json:"egress,omitempty"`
+		Queues []struct {
+			Name     string `json:"name,omitempty"`
+			Capacity uint64 `json:"capacity"`
+			Weight   uint64 `json:"weight"`
+		} `json:"queues"`
+	} `json:"qos,omitempty"`
 }
 
 func (r *RequestInit) MapConfig(conf *q.Config) {

@@ -19,6 +19,7 @@ import (
 	dlqmw "github.com/koykov/metrics_writers/dlqdump"
 	mw "github.com/koykov/metrics_writers/queue"
 	"github.com/koykov/queue"
+	"github.com/koykov/queue/priority"
 )
 
 type QueueHTTP struct {
@@ -182,6 +183,27 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				Decoder: decoder.Unmarshaller{New: func() decoder.UnmarshallerInterface { return &Item{} }},
 			}
 			conf.DLQ, _ = dlqdump.NewQueue(&dconf)
+		}
+
+		if req.QoS != nil {
+			var algo queue.QoSAlgo
+			switch req.QoS.Algo {
+			case "PQ":
+				algo = queue.PQ
+			case "RR":
+				algo = queue.RR
+			case "WRR":
+				algo = queue.WRR
+			default:
+				resp.Status = http.StatusBadRequest
+				resp.Error = fmt.Sprintf("unknown QoS algo: %s", req.QoS.Algo)
+				return
+			}
+			qos := queue.NewQoS(algo, priority.Random{}).SetEgressCapacity(req.QoS.Egress)
+			for _, q1 := range req.QoS.Queues {
+				qos.AddNamedQueue(q1.Name, q1.Capacity, q1.Weight)
+			}
+			conf.QoS = qos
 		}
 
 		qi, _ = queue.New(&conf)
