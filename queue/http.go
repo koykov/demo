@@ -199,7 +199,9 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				resp.Error = fmt.Sprintf("unknown QoS algo: %s", req.QoS.Algo)
 				return
 			}
-			qos := queue.NewQoS(algo, priority.Random{}).SetEgressCapacity(req.QoS.Egress)
+			qos := queue.NewQoS(algo, priority.Random{}).
+				SetEgressCapacity(req.QoS.EgressCapacity).
+				SetEgressWorkers(req.QoS.EgressWorkers)
 			for _, q1 := range req.QoS.Queues {
 				qos.AddQueue(queue.QoSQueue{
 					Name:          q1.Name,
