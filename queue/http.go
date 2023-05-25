@@ -20,6 +20,7 @@ import (
 	mw "github.com/koykov/metrics_writers/queue"
 	"github.com/koykov/queue"
 	"github.com/koykov/queue/priority"
+	"github.com/koykov/queue/qos"
 )
 
 type QueueHTTP struct {
@@ -186,30 +187,30 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if req.QoS != nil {
-			var algo queue.QoSAlgo
+			var algo qos.Algo
 			switch req.QoS.Algo {
 			case "PQ":
-				algo = queue.PQ
+				algo = qos.PQ
 			case "RR":
-				algo = queue.RR
+				algo = qos.RR
 			case "WRR":
-				algo = queue.WRR
+				algo = qos.WRR
 			default:
 				resp.Status = http.StatusBadRequest
 				resp.Error = fmt.Sprintf("unknown QoS algo: %s", req.QoS.Algo)
 				return
 			}
-			qos := queue.NewQoS(algo, priority.Random{}).
+			qc := qos.New(algo, priority.Random{}).
 				SetEgressCapacity(req.QoS.EgressCapacity).
 				SetEgressWorkers(req.QoS.EgressWorkers)
 			for _, q1 := range req.QoS.Queues {
-				qos.AddQueue(queue.QoSQueue{
+				qc.AddQueue(qos.Queue{
 					Name:     q1.Name,
 					Capacity: q1.Capacity,
 					Weight:   q1.Weight,
 				})
 			}
-			conf.QoS = qos
+			conf.QoS = qc
 		}
 
 		qi, _ = queue.New(&conf)
