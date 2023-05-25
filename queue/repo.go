@@ -57,10 +57,9 @@ type RequestInit struct {
 		EgressCapacity uint64 `json:"egress_capacity"`
 		EgressWorkers  uint32 `json:"egress_workers"`
 		Queues         []struct {
-			Name          string `json:"name,omitempty"`
-			Capacity      uint64 `json:"capacity"`
-			IngressWeight uint64 `json:"ingress_weight"`
-			EgressWeight  uint64 `json:"egress_weight"`
+			Name     string `json:"name,omitempty"`
+			Capacity uint64 `json:"capacity"`
+			Weight   uint64 `json:"weight"`
 		} `json:"queues"`
 	} `json:"qos,omitempty"`
 }

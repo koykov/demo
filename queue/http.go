@@ -204,10 +204,9 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				SetEgressWorkers(req.QoS.EgressWorkers)
 			for _, q1 := range req.QoS.Queues {
 				qos.AddQueue(queue.QoSQueue{
-					Name:          q1.Name,
-					Capacity:      q1.Capacity,
-					IngressWeight: q1.IngressWeight,
-					EgressWeight:  q1.EgressWeight,
+					Name:     q1.Name,
+					Capacity: q1.Capacity,
+					Weight:   q1.Weight,
 				})
 			}
 			conf.QoS = qos
