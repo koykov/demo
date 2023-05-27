@@ -53,10 +53,14 @@ type RequestInit struct {
 	DelayNs uint64 `json:"delay_ns,omitempty"`
 
 	QoS *struct {
-		Algo           string `json:"algo"`
-		EgressCapacity uint64 `json:"egress_capacity"`
-		EgressWorkers  uint32 `json:"egress_workers"`
-		Queues         []struct {
+		Algo   string `json:"algo"`
+		Egress struct {
+			Capacity      uint64 `json:"capacity"`
+			Workers       uint32 `json:"workers"`
+			IdleThreshold uint32 `json:"idle_threshold"`
+			IdleTimeout   int64  `json:"idle_timeout"`
+		} `json:"egress"`
+		Queues []struct {
 			Name     string `json:"name,omitempty"`
 			Capacity uint64 `json:"capacity"`
 			Weight   uint64 `json:"weight"`

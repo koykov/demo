@@ -201,8 +201,10 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			qc := qos.New(algo, priority.Random{}).
-				SetEgressCapacity(req.QoS.EgressCapacity).
-				SetEgressWorkers(req.QoS.EgressWorkers)
+				SetEgressCapacity(req.QoS.Egress.Capacity).
+				SetEgressWorkers(req.QoS.Egress.Workers).
+				SetEgressIdleThreshold(req.QoS.Egress.IdleThreshold).
+				SetEgressIdleTimeout(time.Duration(req.QoS.Egress.IdleTimeout))
 			for _, q1 := range req.QoS.Queues {
 				qc.AddQueue(qos.Queue{
 					Name:     q1.Name,
