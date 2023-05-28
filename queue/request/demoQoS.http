@@ -1,0 +1,44 @@
+### init
+POST http://localhost:8080/api/v1/init?key=demoQoS
+Content-Type: application/json
+
+{
+  "capacity": 2000,
+  "workers_min": 1,
+  "workers_max": 120,
+  "worker_delay": 300000,
+  "heartbeat": 100000000,
+  "producers_min": 0,
+  "producers_max": 120,
+  "producer_delay": 500000,
+  "wakeup_factor": 0.005,
+  "sleep_threshold": 4,
+  "sleep_factor": 0.0025,
+  "allow_leak": true,
+  "leak_direction": "front",
+  "front_leak_attempts": 1,
+  "qos": {
+	"algo": "WRR",
+	"egress": {
+	  "capacity": 1000,
+	  "workers": 2
+	},
+	"queues": [
+	  {"name":"high","capacity":100,"weight":5},
+	  {"name":"medium","capacity":400,"weight":20},
+	  {"name":"low","capacity":1500,"weight":75}
+	]
+  }
+}
+
+### add X producers
+GET http://localhost:8080/api/v1/producer-up?key=demoQoS&delta=5
+
+### stop X producers
+GET http://localhost:8080/api/v1/producer-down?key=demoQoS&delta=5
+
+### graceful stop
+GET http://localhost:8080/api/v1/stop?key=demoQoS
+
+### force stop
+GET http://localhost:8080/api/v1/stop?key=demoQoS
