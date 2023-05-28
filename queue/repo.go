@@ -19,6 +19,7 @@ type RequestInit struct {
 	WorkerDelay     uint32  `json:"worker_delay,omitempty"`
 	WakeupFactor    float32 `json:"wakeup_factor,omitempty"`
 	SleepFactor     float32 `json:"sleep_factor,omitempty"`
+	SleepThreshold  uint32  `json:"sleep_threshold"`
 	WorkersSchedule []struct {
 		Range        string  `json:"range,omitempty"`
 		RelRange     string  `json:"rel_range,omitempty"`
@@ -76,6 +77,7 @@ func (r *RequestInit) MapConfig(conf *q.Config) {
 	conf.WorkersMax = r.WorkersMax
 	conf.WakeupFactor = r.WakeupFactor
 	conf.SleepFactor = r.SleepFactor
+	conf.SleepThreshold = r.SleepThreshold
 	conf.DelayInterval = time.Duration(r.DelayNs)
 	if r.LeakDirection == "front" {
 		conf.LeakDirection = q.LeakDirectionFront
