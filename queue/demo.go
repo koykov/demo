@@ -63,7 +63,7 @@ func (d *demoQueue) ProducersUp(delta uint32) error {
 	if delta == 0 {
 		delta = 1
 	}
-	if d.producersUp+delta >= d.req.ProducersMax {
+	if d.producersUp+delta-1 >= d.req.ProducersMax {
 		return errors.New("maximum producers count reached")
 	}
 	c := d.producersUp
