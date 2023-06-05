@@ -40,6 +40,7 @@ type RequestInit struct {
 
 	AllowLeak         bool   `json:"allow_leak,omitempty"`
 	LeakDirection     string `json:"leak_direction"`
+	AllowDeadline     bool   `json:"allow_deadline,omitempty"`
 	FrontLeakAttempts uint32 `json:"front_leak_attempts"`
 	Dump              *struct {
 		Capacity uint64 `json:"capacity"`

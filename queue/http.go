@@ -148,9 +148,13 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		conf.MetricsWriter = mw.NewPrometheusMetricsWP(key, time.Millisecond)
-		conf.Worker = NewWorker(req.WorkerDelay)
+		conf.Worker = NewWorker(req.WorkerDelay, req.AllowDeadline)
 		if req.AllowLeak {
 			conf.DLQ = &queue.DummyDLQ{}
+		}
+		if req.AllowDeadline {
+			conf.DLQ = &queue.DummyDLQ{}
+			conf.DeadlineToDLQ = true
 		}
 		conf.Logger = log.New(os.Stderr, fmt.Sprintf("queue #%s ", key), log.LstdFlags)
 

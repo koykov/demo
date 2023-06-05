@@ -32,7 +32,7 @@ type demoQueue struct {
 func (d *demoQueue) Run() {
 	d.producers = make([]*producer, d.req.ProducersMax)
 	for i := 0; i < int(d.req.ProducersMax); i++ {
-		d.producers[i] = makeProducer(uint32(i), d.req.ProducerDelay)
+		d.producers[i] = makeProducer(uint32(i), d.req.ProducerDelay, d.req.AllowDeadline, d.req.WorkerDelay)
 	}
 	for i := 0; i < int(d.req.ProducersMin); i++ {
 		go d.producers[i].produce(d.queue)
