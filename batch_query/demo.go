@@ -1,49 +1,31 @@
 package main
 
 import (
-	"context"
-	"io"
-	"time"
+	"errors"
+
+	"github.com/koykov/batch_query"
 )
 
 type demoBQ struct {
 	key string
+	bq  *batch_query.BatchQuery
 	req *RequestInit
 
 	producersUp uint32
 	producers   []*producer
-
-	cancel context.CancelFunc
 }
 
 func (d *demoBQ) Run() {
 	d.producers = make([]*producer, d.req.ProducersMax)
 	for i := 0; i < int(d.req.ProducersMax); i++ {
-		d.producers[i] = makeProducer(uint32(i), d.req.ProducerDelay, d.req.AllowDeadline, d.req.WorkerDelay)
+		d.producers[i] = makeProducer(uint32(i))
 	}
 	for i := 0; i < int(d.req.ProducersMin); i++ {
-		go d.producers[i].produce(d.queue)
+		go d.producers[i].produce(d.bq)
 		d.producers[i].start()
 	}
 	d.producersUp = d.req.ProducersMin
 	ProducersInitMetric(d.key, d.producersUp, d.req.ProducersMax-d.producersUp)
-
-	d.schedID = -1
-
-	var ctx context.Context
-	ctx, d.cancel = context.WithCancel(context.Background())
-	ticker := time.NewTicker(time.Millisecond * 50)
-	go func(ctx context.Context) {
-		for {
-			select {
-			case <-ticker.C:
-				d.calibrate()
-			case <-ctx.Done():
-				ticker.Stop()
-				return
-			}
-		}
-	}(ctx)
 }
 
 func (d *demoBQ) ProducersUp(delta uint32) error {
@@ -55,7 +37,7 @@ func (d *demoBQ) ProducersUp(delta uint32) error {
 	}
 	c := d.producersUp
 	for i := c; i < c+delta; i++ {
-		go d.producers[i].produce(d.queue)
+		go d.producers[i].produce(d.bq)
 		d.producers[i].start()
 		d.producersUp++
 		ProducerStartMetric(d.key)
@@ -97,19 +79,8 @@ func (d *demoBQ) stop(force bool) {
 		ProducerStopMetric(d.key)
 	}
 	if force {
-		_ = d.queue.ForceClose()
-		if d.rst != nil {
-			_ = d.rst.ForceClose()
-		}
+		_ = d.bq.ForceClose()
 	} else {
-		_ = d.queue.Close()
-		if d.rst != nil {
-			_ = d.rst.Close()
-		}
+		_ = d.bq.Close()
 	}
-	if d.dlq != nil {
-		inst := any(d.dlq).(io.Closer)
-		_ = inst.Close()
-	}
-	d.cancel()
 }

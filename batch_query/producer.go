@@ -3,7 +3,7 @@ package main
 import (
 	"sync/atomic"
 
-	"github.com/koykov/queue"
+	"github.com/koykov/batch_query"
 )
 
 type status uint32
@@ -18,25 +18,16 @@ const (
 )
 
 type producer struct {
-	idx      uint32
-	delay    uint32
-	wdelay   uint32
-	deadline bool
-	ctl      chan signal
-	status   status
+	idx    uint32
+	ctl    chan signal
+	status status
 }
 
-func makeProducer(idx, delay uint32, allowDeadline bool, workerDelay uint32) *producer {
+func makeProducer(idx uint32) *producer {
 	p := &producer{
-		idx:      idx,
-		delay:    delay,
-		wdelay:   workerDelay,
-		deadline: allowDeadline,
-		ctl:      make(chan signal, 1),
-		status:   statusIdle,
-	}
-	if p.delay == 0 {
-		p.delay = 50
+		idx:    idx,
+		ctl:    make(chan signal, 1),
+		status: statusIdle,
 	}
 	return p
 }
@@ -49,7 +40,7 @@ func (p *producer) stop() {
 	p.ctl <- signalStop
 }
 
-func (p *producer) produce(q *queue.Queue) {
+func (p *producer) produce(bq *batch_query.BatchQuery) {
 	for {
 		select {
 		case cmd := <-p.ctl:
@@ -62,6 +53,7 @@ func (p *producer) produce(q *queue.Queue) {
 			}
 		default:
 			// todo implement me
+			_ = bq
 		}
 	}
 }
