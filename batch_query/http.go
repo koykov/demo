@@ -2,8 +2,17 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
+	"log"
 	"net/http"
+	"os"
+	"strconv"
 	"sync"
+	"time"
+
+	"github.com/koykov/batch_query"
+	mw "github.com/koykov/metrics_writers/batch_query"
 )
 
 type BQHTTP struct {
@@ -68,6 +77,116 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.URL.Path == "/api/v1/ping":
 		resp.Message = "pong"
+
+	case r.URL.Path == "/api/v1/init":
+		if bq != nil {
+			resp.Status = http.StatusNotAcceptable
+			return
+		}
+
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			log.Println("err", err)
+			resp.Status = http.StatusBadRequest
+			resp.Error = err.Error()
+			return
+		}
+
+		var (
+			req  RequestInit
+			conf batch_query.Config
+		)
+
+		err = json.Unmarshal(body, &req)
+		if err != nil {
+			log.Println("err", err)
+			resp.Status = http.StatusBadRequest
+			resp.Error = err.Error()
+			return
+		}
+		req.MapConfig(&conf)
+
+		conf.MetricsWriter = mw.NewPrometheusMetricsWP(key, time.Millisecond)
+		conf.Logger = log.New(os.Stderr, fmt.Sprintf("queue #%s ", key), log.LstdFlags)
+
+		var qi *batch_query.BatchQuery
+		qi, _ = batch_query.New(&conf)
+
+		q := demoBQ{
+			key: key,
+			bq:  qi,
+			req: &req,
+		}
+
+		h.mux.Lock()
+		h.pool[key] = &q
+		h.mux.Unlock()
+
+		q.Run()
+
+		resp.Message = "success"
+
+	case r.URL.Path == "/api/v1/producer-up" && bq != nil:
+		var delta uint32
+		if d := r.FormValue("delta"); len(d) > 0 {
+			ud, err := strconv.ParseUint(d, 10, 32)
+			if err != nil {
+				log.Println("err", err)
+				resp.Status = http.StatusInternalServerError
+				resp.Error = err.Error()
+				return
+			}
+			delta = uint32(ud)
+		}
+		if err := bq.ProducersUp(delta); err != nil {
+			log.Println("err", err)
+			resp.Status = http.StatusInternalServerError
+			resp.Error = err.Error()
+			return
+		}
+		resp.Message = "success"
+
+	case r.URL.Path == "/api/v1/producer-down" && bq != nil:
+		var delta uint32
+		if d := r.FormValue("delta"); len(d) > 0 {
+			ud, err := strconv.ParseUint(d, 10, 32)
+			if err != nil {
+				log.Println("err", err)
+				resp.Status = http.StatusInternalServerError
+				resp.Error = err.Error()
+				return
+			}
+			delta = uint32(ud)
+		}
+		if err := bq.ProducersDown(delta); err != nil {
+			log.Println("err", err)
+			resp.Status = http.StatusInternalServerError
+			resp.Error = err.Error()
+			return
+		}
+		resp.Message = "success"
+
+	case r.URL.Path == "/api/v1/stop":
+		if bq != nil {
+			bq.Stop()
+		}
+
+		h.mux.Lock()
+		delete(h.pool, key)
+		h.mux.Unlock()
+
+		resp.Message = "success"
+
+	case r.URL.Path == "/api/v1/force-stop":
+		if bq != nil {
+			bq.ForceStop()
+		}
+
+		h.mux.Lock()
+		delete(h.pool, key)
+		h.mux.Unlock()
+
+		resp.Message = "success"
 	default:
 		resp.Status = http.StatusNotFound
 		return
