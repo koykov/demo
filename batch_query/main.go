@@ -18,6 +18,7 @@ var (
 
 func init() {
 	flag.Parse()
+	bqh = NewBQHTTP()
 }
 
 func main() {

@@ -29,7 +29,7 @@ type BQResponse struct {
 	Message string `json:"message,omitempty"`
 }
 
-func NewBQHTTP(hport, pport int) *BQHTTP {
+func NewBQHTTP() *BQHTTP {
 	h := &BQHTTP{
 		pool: make(map[string]*demoBQ),
 		allow400: map[string]bool{
