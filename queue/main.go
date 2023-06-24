@@ -19,7 +19,7 @@ var (
 
 func init() {
 	flag.Parse()
-	qh = NewQueueHTTP(*hport, *pport)
+	qh = NewQueueHTTP()
 }
 
 func main() {
