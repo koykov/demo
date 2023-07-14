@@ -14,11 +14,16 @@ var (
 	hport  = flag.Int("hport", 8080, "HTTP port")
 	pport  = flag.Int("pport", 8081, "Prometheus port")
 	pfport = flag.Int("pfport", 8082, "pprof port")
+
+	krepo keysRepo
 )
 
 func init() {
 	flag.Parse()
 	bqh = NewBQHTTP()
+	if err := krepo.load(); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func main() {
