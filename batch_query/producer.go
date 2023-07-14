@@ -52,8 +52,9 @@ func (p *producer) produce(bq *batch_query.BatchQuery) {
 				return
 			}
 		default:
-			// todo implement me
-			_ = bq
+			key := krepo.get()
+			rec, err := bq.Find(key)
+			_, _ = rec, err
 		}
 	}
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"math/rand"
 	"os"
 	"strconv"
 )
@@ -26,4 +27,8 @@ func (r *keysRepo) load() error {
 		r.buf = append(r.buf, int64(key))
 	}
 	return nil
+}
+
+func (r *keysRepo) get() int64 {
+	return r.buf[rand.Intn(len(r.buf))]
 }
