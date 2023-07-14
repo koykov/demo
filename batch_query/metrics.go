@@ -8,28 +8,28 @@ var (
 
 func init() {
 	producerIdle = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "queue_producers_idle",
+		Name: "query_producers_idle",
 		Help: "Indicates how many producers idle.",
-	}, []string{"queue"})
+	}, []string{"query"})
 	producerActive = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "queue_producers_active",
+		Name: "query_producers_active",
 		Help: "Indicates how many producers active.",
-	}, []string{"queue"})
+	}, []string{"query"})
 
 	prometheus.MustRegister(producerIdle, producerActive)
 }
 
-func ProducersInitMetric(queue string, up, idle uint32) {
-	producerActive.WithLabelValues(queue).Add(float64(up))
-	producerIdle.WithLabelValues(queue).Add(float64(idle))
+func ProducersInitMetric(query string, up, idle uint32) {
+	producerActive.WithLabelValues(query).Add(float64(up))
+	producerIdle.WithLabelValues(query).Add(float64(idle))
 }
 
-func ProducerStartMetric(queue string) {
-	producerActive.WithLabelValues(queue).Inc()
-	producerIdle.WithLabelValues(queue).Add(-1)
+func ProducerStartMetric(query string) {
+	producerActive.WithLabelValues(query).Inc()
+	producerIdle.WithLabelValues(query).Add(-1)
 }
 
-func ProducerStopMetric(queue string) {
-	producerIdle.WithLabelValues(queue).Inc()
-	producerActive.WithLabelValues(queue).Add(-1)
+func ProducerStopMetric(query string) {
+	producerIdle.WithLabelValues(query).Inc()
+	producerActive.WithLabelValues(query).Add(-1)
 }
