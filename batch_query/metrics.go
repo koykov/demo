@@ -2,17 +2,15 @@ package main
 
 import "github.com/prometheus/client_golang/prometheus"
 
-var (
-	producerIdle, producerActive *prometheus.GaugeVec
-)
+var producerIdle, producerActive *prometheus.GaugeVec
 
 func init() {
 	producerIdle = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "query_producers_idle",
+		Name: "batch_query_producers_idle",
 		Help: "Indicates how many producers idle.",
 	}, []string{"query"})
 	producerActive = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "query_producers_active",
+		Name: "batch_query_producers_active",
 		Help: "Indicates how many producers active.",
 	}, []string{"query"})
 
