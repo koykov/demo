@@ -15,6 +15,18 @@ type RequestInit struct {
 	ProducersMin  uint32 `json:"producers_min"`
 	ProducersMax  uint32 `json:"producers_max"`
 	ProducerDelay uint32 `json:"producer_delay,omitempty"`
+
+	Aerospike *struct {
+		Host            string        `json:"host"`
+		Port            int           `json:"port"`
+		Namespace       string        `json:"namespace"`
+		SetName         string        `json:"set_name"`
+		Bins            []string      `json:"bins"`
+		ReadTimeoutNS   time.Duration `json:"read_timeout_ns"`
+		TotalTimeoutNS  time.Duration `json:"total_timeout_ns"`
+		SocketTimeoutNS time.Duration `json:"socket_timeout_ns"`
+		MaxRetries      int           `json:"max_retries"`
+	} `json:"aerospike"`
 }
 
 func (r *RequestInit) MapConfig(conf *batch_query.Config) {
