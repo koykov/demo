@@ -12,7 +12,9 @@ import (
 	"time"
 
 	"github.com/koykov/batch_query"
+	"github.com/koykov/batch_query/mods/aerospike"
 	mw "github.com/koykov/metrics_writers/batch_query"
+	aerospike2 "gitlab.sdev.pw/kadam/gomodules/aerospike-client-go"
 )
 
 type BQHTTP struct {
@@ -106,6 +108,15 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		req.MapConfig(&conf)
 
+		policy := aerospike2.NewClientPolicy()
+		client, _ := aerospike2.NewClientWithPolicy(policy, "127.0.0.1", 9000)
+		conf.Batcher = aerospike.Batcher{
+			Namespace: "stat",
+			SetName:   "user",
+			Bins:      []string{"COMMON", "MATCHES", "IMPRESSIONS", "SKIPS", "EXT_SKIPS"},
+			Policy:    policy,
+			Client:    client,
+		}
 		conf.MetricsWriter = mw.NewPrometheusMetricsWP(key, time.Millisecond)
 		conf.Logger = log.New(os.Stderr, fmt.Sprintf("queue #%s ", key), log.LstdFlags)
 
