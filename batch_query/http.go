@@ -140,7 +140,7 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		conf.MetricsWriter = mw.NewPrometheusMetricsWP(key, time.Millisecond)
-		conf.Logger = log.New(os.Stderr, fmt.Sprintf("queue #%s ", key), log.LstdFlags)
+		conf.Logger = log.New(os.Stderr, fmt.Sprintf("query #%s ", key), log.LstdFlags)
 
 		var qi *batch_query.BatchQuery
 		qi, _ = batch_query.New(&conf)
