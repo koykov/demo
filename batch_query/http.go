@@ -109,7 +109,13 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		req.MapConfig(&conf)
 
 		policy := aerospike2.NewClientPolicy()
-		client, _ := aerospike2.NewClientWithPolicy(policy, "127.0.0.1", 9000)
+		client, err := aerospike2.NewClientWithPolicy(policy, "127.0.0.1", 9000)
+		if err != nil {
+			log.Println("err", err)
+			resp.Status = http.StatusInternalServerError
+			resp.Error = err.Error()
+			return
+		}
 		conf.Batcher = aerospike.Batcher{
 			Namespace: "stat",
 			SetName:   "user",
