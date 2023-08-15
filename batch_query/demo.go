@@ -53,6 +53,9 @@ func (d *demoBQ) ProducersDown(delta uint32) error {
 		return errors.New("minimum producers count reached")
 	}
 	c := d.producersUp
+	if c >= d.req.ProducersMin {
+		c = d.req.ProducersMin
+	}
 	for i := c; i >= c-delta; i-- {
 		if d.producers[i].getStatus() == statusActive {
 			d.producers[i].stop()
