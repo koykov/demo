@@ -8,6 +8,7 @@ import (
 
 type RequestInit struct {
 	QueryChunkSize       uint64        `json:"query_chunk_size,omitempty"`
+	QueryTimeoutInterval time.Duration `json:"query_timeout_interval,omitempty"`
 	QueryCollectInterval time.Duration `json:"query_collect_interval,omitempty"`
 	QueryWorkers         uint          `json:"query_workers"`
 	QueryBuffer          uint64        `json:"query_buffer,omitempty"`
@@ -32,6 +33,7 @@ type RequestInit struct {
 func (r *RequestInit) MapConfig(conf *batch_query.Config) {
 	conf.ChunkSize = r.QueryChunkSize
 	conf.CollectInterval = r.QueryCollectInterval
+	conf.TimeoutInterval = r.QueryTimeoutInterval
 	conf.Workers = r.QueryWorkers
 	conf.Buffer = r.QueryBuffer
 }
