@@ -2,32 +2,28 @@ package main
 
 import "github.com/prometheus/client_golang/prometheus"
 
-var producerIdle, producerActive *prometheus.GaugeVec
+var producers *prometheus.GaugeVec
 
 func init() {
-	producerIdle = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "batch_query_producers_idle",
+	producers = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "batch_query_producers",
 		Help: "Indicates how many producers idle.",
-	}, []string{"query"})
-	producerActive = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "batch_query_producers_active",
-		Help: "Indicates how many producers active.",
-	}, []string{"query"})
+	}, []string{"query", "status"})
 
-	prometheus.MustRegister(producerIdle, producerActive)
+	prometheus.MustRegister(producers)
 }
 
 func ProducersInitMetric(query string, up, idle uint32) {
-	producerActive.WithLabelValues(query).Add(float64(up))
-	producerIdle.WithLabelValues(query).Add(float64(idle))
+	producers.WithLabelValues(query, "active").Add(float64(up))
+	producers.WithLabelValues(query, "idle").Add(float64(idle))
 }
 
 func ProducerStartMetric(query string) {
-	producerActive.WithLabelValues(query).Inc()
-	producerIdle.WithLabelValues(query).Add(-1)
+	producers.WithLabelValues(query, "active").Inc()
+	producers.WithLabelValues(query, "idle").Add(-1)
 }
 
 func ProducerStopMetric(query string) {
-	producerIdle.WithLabelValues(query).Inc()
-	producerActive.WithLabelValues(query).Add(-1)
+	producers.WithLabelValues(query, "active").Add(-1)
+	producers.WithLabelValues(query, "idle").Inc()
 }
