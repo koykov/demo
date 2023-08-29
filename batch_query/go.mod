@@ -4,9 +4,9 @@ go 1.20
 
 require (
 	github.com/aerospike/aerospike-client-go v4.5.2+incompatible
-	github.com/koykov/batch_query v0.0.0-20230623202900-bf06b453035f
-	github.com/koykov/batch_query/mods/aerospike v0.0.0-20230713205035-96b743a06112
-	github.com/koykov/metrics_writers/batch_query v0.0.0-20230625200229-8b7a60fa2fe2
+	github.com/koykov/batch_query v0.0.0-20230829204403-17fb595bc1e0
+	github.com/koykov/batch_query/mods/aerospike v0.0.0-20230828163208-4ad2d52eaf60
+	github.com/koykov/metrics_writers/batch_query v0.0.0-20230828163301-aa25434c95d3
 	github.com/prometheus/client_golang v1.16.0
 )
 
