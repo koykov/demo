@@ -119,19 +119,42 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			batchPolicy.TotalTimeout = asc.TotalTimeoutNS
 			batchPolicy.SocketTimeout = asc.SocketTimeoutNS
 			batchPolicy.MaxRetries = asc.MaxRetries
-			client, err := as.NewClientWithPolicy(readPolicy, asc.Host, asc.Port)
-			if err != nil {
-				log.Println("err", err)
-				resp.Status = http.StatusInternalServerError
-				resp.Error = err.Error()
-				return
-			}
-			conf.Batcher = aerospike.Batcher{
-				Namespace: asc.Namespace,
-				SetName:   asc.SetName,
-				Bins:      asc.Bins,
-				Policy:    batchPolicy,
-				Client:    client,
+
+			inst := asc.Instances
+			if inst < 2 {
+				client, err := as.NewClientWithPolicy(readPolicy, asc.Host, asc.Port)
+				if err != nil {
+					log.Println("err", err)
+					resp.Status = http.StatusInternalServerError
+					resp.Error = err.Error()
+					return
+				}
+				conf.Batcher = aerospike.Batcher{
+					Namespace: asc.Namespace,
+					SetName:   asc.SetName,
+					Bins:      asc.Bins,
+					Policy:    batchPolicy,
+					Client:    client,
+				}
+			} else {
+				clients := make([]*as.Client, 0, inst)
+				for i := uint(0); i < inst; i++ {
+					client, err := as.NewClientWithPolicy(readPolicy, asc.Host, asc.Port)
+					if err != nil {
+						log.Println("err", err)
+						resp.Status = http.StatusInternalServerError
+						resp.Error = err.Error()
+						return
+					}
+					clients = append(clients, client)
+				}
+				conf.Batcher = aerospike.MCBatcher{
+					Namespace: asc.Namespace,
+					SetName:   asc.SetName,
+					Bins:      asc.Bins,
+					Policy:    batchPolicy,
+					Clients:   clients,
+				}
 			}
 		default:
 			log.Println(fmt.Errorf("no mod config provided"))

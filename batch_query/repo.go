@@ -20,6 +20,7 @@ type RequestInit struct {
 	Aerospike *struct {
 		Host            string        `json:"host"`
 		Port            int           `json:"port"`
+		Instances       uint          `json:"instances"`
 		Namespace       string        `json:"namespace"`
 		SetName         string        `json:"set_name"`
 		Bins            []string      `json:"bins"`
