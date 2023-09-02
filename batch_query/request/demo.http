@@ -1,0 +1,32 @@
+### init
+POST http://localhost:8080/api/v1/init?key=demo100k
+Content-Type: application/json
+
+{
+  "query_workers": 8,
+  "query_buffer": 8,
+  "query_timeout_interval": 5000000000,
+  "producers_min": 1,
+  "producers_max": 1024,
+  "aerospike": {
+	"host": "127.0.0.1",
+	"port": 3000,
+	"instances": 4,
+	"namespace": "example",
+	"set_name": "my_object",
+	"bins": ["HEADER", "BODY", "EXT"],
+	"read_timeout_ns": 10000000000,
+	"total_timeout_ns": 60000000000,
+	"socket_timeout_ns": 60000000000,
+	"max_retries": 0
+  }
+}
+
+### add X producers
+GET http://localhost:8080/api/v1/producer-up?key=demo&delta=4
+
+### stop X producers
+GET http://localhost:8080/api/v1/producer-down?key=demo&delta=4
+
+### graceful stop
+GET http://localhost:8080/api/v1/stop?key=demo
