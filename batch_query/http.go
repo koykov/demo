@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,8 +13,10 @@ import (
 	"time"
 
 	as "github.com/aerospike/aerospike-client-go"
+	"github.com/go-sql-driver/mysql"
 	"github.com/koykov/batch_query"
 	"github.com/koykov/batch_query/mods/aerospike"
+	bqsql "github.com/koykov/batch_query/mods/sql"
 	mw "github.com/koykov/metrics_writers/batch_query"
 )
 
@@ -155,6 +158,29 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					Policy:    batchPolicy,
 					Clients:   clients,
 				}
+			}
+		case req.Mysql != nil:
+			cfg := mysql.Config{
+				User:   os.Getenv("DBUSER"),
+				Passwd: os.Getenv("DBPASS"),
+				Net:    "tcp",
+				Addr:   "127.0.0.1:3306",
+				DBName: "recordings",
+			}
+			db, err := sql.Open("mysql", cfg.FormatDSN())
+			if err != nil {
+				log.Println("err", err)
+				resp.Status = http.StatusInternalServerError
+				resp.Error = err.Error()
+				return
+			}
+			rec := &MysqlRecord{}
+			conf.Batcher = bqsql.Batcher{
+				DB:             db,
+				Query:          "select id, name, status, bio, balance from users where id in (::args::)",
+				QueryFormatter: bqsql.MacrosQueryFormatter{},
+				RecordScanner:  rec,
+				RecordMatcher:  rec,
 			}
 		default:
 			log.Println(fmt.Errorf("no mod config provided"))

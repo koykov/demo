@@ -29,6 +29,13 @@ type RequestInit struct {
 		SocketTimeoutNS time.Duration `json:"socket_timeout_ns"`
 		MaxRetries      int           `json:"max_retries"`
 	} `json:"aerospike"`
+	Mysql *struct {
+		Addr     string `json:"addr"`
+		User     string `json:"user"`
+		Pass     string `json:"pass"`
+		Protocol string `json:"protocol"`
+		DBName   string `json:"db_name"`
+	}
 }
 
 func (r *RequestInit) MapConfig(conf *batch_query.Config) {
