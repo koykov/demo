@@ -174,7 +174,7 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				resp.Error = err.Error()
 				return
 			}
-			rec := &MysqlRecord{}
+			rec := &SQLRecord{}
 			conf.Batcher = bqsql.Batcher{
 				DB:             db,
 				Query:          "select id, name, status, bio, balance from users where id in (::args::)",
