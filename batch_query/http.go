@@ -160,14 +160,18 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		case req.Mysql != nil:
-			cfg := mysql.Config{
-				User:   os.Getenv("DBUSER"),
-				Passwd: os.Getenv("DBPASS"),
-				Net:    "tcp",
-				Addr:   "127.0.0.1:3306",
-				DBName: "recordings",
+			var dsn string
+			if len(req.Mysql.DSN) == 0 {
+				cfg := mysql.Config{
+					User:   os.Getenv("DBUSER"),
+					Passwd: os.Getenv("DBPASS"),
+					Net:    "tcp",
+					Addr:   "127.0.0.1:3306",
+					DBName: "recordings",
+				}
+				dsn = cfg.FormatDSN()
 			}
-			db, err := sql.Open("mysql", cfg.FormatDSN())
+			db, err := sql.Open("mysql", dsn)
 			if err != nil {
 				log.Println("err", err)
 				resp.Status = http.StatusInternalServerError

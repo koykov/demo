@@ -30,6 +30,7 @@ type RequestInit struct {
 		MaxRetries      int           `json:"max_retries"`
 	} `json:"aerospike"`
 	Mysql *struct {
+		DSN      string `json:"dsn"`
 		Addr     string `json:"addr"`
 		User     string `json:"user"`
 		Pass     string `json:"pass"`
