@@ -163,11 +163,11 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			var dsn string
 			if len(req.Mysql.DSN) == 0 {
 				cfg := mysql.Config{
-					User:   os.Getenv("DBUSER"),
-					Passwd: os.Getenv("DBPASS"),
-					Net:    "tcp",
-					Addr:   "127.0.0.1:3306",
-					DBName: "recordings",
+					User:   req.Mysql.User,
+					Passwd: req.Mysql.Pass,
+					Net:    req.Mysql.Protocol,
+					Addr:   req.Mysql.Addr,
+					DBName: req.Mysql.DBName,
 				}
 				dsn = cfg.FormatDSN()
 			}
