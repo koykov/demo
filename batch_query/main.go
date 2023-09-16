@@ -21,9 +21,6 @@ var (
 func init() {
 	flag.Parse()
 	bqh = NewBQHTTP()
-	if err := krepo.load(); err != nil {
-		log.Fatal(err)
-	}
 }
 
 func main() {

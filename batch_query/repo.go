@@ -18,6 +18,7 @@ type RequestInit struct {
 	ProducerDelay uint32 `json:"producer_delay,omitempty"`
 
 	Aerospike *struct {
+		KeysPath        string        `json:"keys_path"`
 		Host            string        `json:"host"`
 		Port            int           `json:"port"`
 		Instances       uint          `json:"instances"`

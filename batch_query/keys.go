@@ -11,8 +11,8 @@ type keysRepo struct {
 	buf []int64
 }
 
-func (r *keysRepo) load() error {
-	f, err := os.Open("batch_query/aerospike.txt")
+func (r *keysRepo) load(keysPath string) error {
+	f, err := os.Open(keysPath)
 	if err != nil {
 		return err
 	}

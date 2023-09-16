@@ -116,6 +116,13 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		case req.Aerospike != nil:
 			asc := req.Aerospike
 
+			if err = krepo.load(asc.KeysPath); err != nil {
+				log.Println("err", err)
+				resp.Status = http.StatusInternalServerError
+				resp.Error = err.Error()
+				return
+			}
+
 			readPolicy := as.NewClientPolicy()
 			readPolicy.Timeout = asc.ReadTimeoutNS
 
