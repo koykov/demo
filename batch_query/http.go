@@ -179,7 +179,8 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				}
 				dsn = cfg.FormatDSN()
 			}
-			db, err := sql.Open("mysql", dsn)
+			var db *sql.DB
+			db, err = sql.Open("mysql", dsn)
 			if err != nil {
 				log.Println("err", err)
 				resp.Status = http.StatusInternalServerError
@@ -187,8 +188,8 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			if req.Mysql.ApplyDDL {
-				if err = ddl.ApplyMysql(db); err != nil {
+			if len(req.Mysql.DDL) > 0 {
+				if err = ddl.ApplyMysql(db, req.Mysql.DDL); err != nil {
 					log.Println("err", err)
 					resp.Status = http.StatusInternalServerError
 					resp.Error = err.Error()

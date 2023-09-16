@@ -37,8 +37,8 @@ type RequestInit struct {
 		Pass     string `json:"pass"`
 		Protocol string `json:"protocol"`
 		DBName   string `json:"db_name"`
-		ApplyDDL bool   `json:"apply_ddl"`
-		ApplyDML bool   `json:"apply_dml"`
+		DDL      string `json:"ddl"`
+		DML      bool   `json:"dml"`
 	}
 }
 
