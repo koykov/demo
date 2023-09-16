@@ -7,6 +7,8 @@ import (
 	"strconv"
 )
 
+const maxKey = 100_000
+
 type keysRepo struct {
 	buf []int64
 }
@@ -30,5 +32,8 @@ func (r *keysRepo) load(keysPath string) error {
 }
 
 func (r *keysRepo) get() int64 {
+	if len(r.buf) == 0 {
+		return rand.Int63n(maxKey)
+	}
 	return r.buf[rand.Intn(len(r.buf))]
 }
