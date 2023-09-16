@@ -17,6 +17,7 @@ import (
 	"github.com/koykov/batch_query"
 	"github.com/koykov/batch_query/mods/aerospike"
 	bqsql "github.com/koykov/batch_query/mods/sql"
+	"github.com/koykov/demo/batch_query/ddl"
 	mw "github.com/koykov/metrics_writers/batch_query"
 )
 
@@ -161,7 +162,7 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 		case req.Mysql != nil:
 			var dsn string
-			if len(req.Mysql.DSN) == 0 {
+			if dsn = req.Mysql.DSN; len(dsn) == 0 {
 				cfg := mysql.Config{
 					User:   req.Mysql.User,
 					Passwd: req.Mysql.Pass,
@@ -178,6 +179,16 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				resp.Error = err.Error()
 				return
 			}
+
+			if req.Mysql.ApplyDDL {
+				if err = ddl.ApplyMysql(db); err != nil {
+					log.Println("err", err)
+					resp.Status = http.StatusInternalServerError
+					resp.Error = err.Error()
+					return
+				}
+			}
+
 			rec := &SQLRecord{}
 			conf.Batcher = bqsql.Batcher{
 				DB:             db,
