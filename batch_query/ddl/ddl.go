@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func ApplyMysql(db *sql.DB, ddlPath string) error {
+func ApplyMysqlDDL(db *sql.DB, ddlPath string) error {
 	raw, err := os.ReadFile(ddlPath)
 	if err != nil {
 		return err

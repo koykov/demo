@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-const maxKey = 100_000
+const maxKey = 10_000
 
 type keysRepo struct {
 	buf []int64

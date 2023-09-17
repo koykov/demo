@@ -189,7 +189,15 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 
 			if len(req.Mysql.DDL) > 0 {
-				if err = ddl.ApplyMysql(db, req.Mysql.DDL); err != nil {
+				if err = ddl.ApplyMysqlDDL(db, req.Mysql.DDL); err != nil {
+					log.Println("err", err)
+					resp.Status = http.StatusInternalServerError
+					resp.Error = err.Error()
+					return
+				}
+			}
+			if req.Mysql.DML {
+				if err = ddl.ApplyMysqlDML(db, maxKey); err != nil {
 					log.Println("err", err)
 					resp.Status = http.StatusInternalServerError
 					resp.Error = err.Error()
