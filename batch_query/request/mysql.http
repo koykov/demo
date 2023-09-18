@@ -1,0 +1,26 @@
+### init
+POST http://localhost:8080/api/v1/init?key=demo
+Content-Type: application/json
+
+{
+  "query_workers": 64,
+  "query_buffer": 8,
+  "query_collect_interval": 250000000,
+  "query_timeout_interval": 300000000,
+  "producers_min": 1,
+  "producers_max": 1024,
+  "mysql": {
+	"dsn": "koykov:cv@tcp(localhost:3306)/bq",
+	"ddl": "batch_query/ddl/mysql.sql",
+	"dml": true
+  }
+}
+
+### add X producers
+GET http://localhost:8080/api/v1/producer-up?key=demo&delta=4
+
+### stop X producers
+GET http://localhost:8080/api/v1/producer-down?key=demo&delta=4
+
+### graceful stop
+GET http://localhost:8080/api/v1/stop?key=demo
