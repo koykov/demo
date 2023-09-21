@@ -20,6 +20,12 @@ func ApplyMysqlDML(db *sql.DB, maxKey int64) error {
 	return nil
 }
 
+func ApplyPgsqlDML(db *sql.DB, maxKey int64) error {
+	_, _ = db, maxKey
+	// todo implement me
+	return nil
+}
+
 func randbyte(len_ int) []byte {
 	buf := make([]byte, 0, len_)
 	for i := 0; i < len_; i++ {

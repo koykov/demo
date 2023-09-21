@@ -213,6 +213,47 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				RecordScanner:  rec,
 				RecordMatcher:  rec,
 			}
+		case req.Pgsql != nil:
+			var dsn string
+			if dsn = req.Pgsql.DSN; len(dsn) == 0 {
+				dsn = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+					req.Pgsql.Host, req.Pgsql.Port, req.Pgsql.User, req.Pgsql.Pass, req.Pgsql.DBName)
+			}
+			var db *sql.DB
+			db, err = sql.Open("postgres", dsn)
+			if err != nil {
+				log.Println("err", err)
+				resp.Status = http.StatusInternalServerError
+				resp.Error = err.Error()
+				return
+			}
+
+			if len(req.Pgsql.DDL) > 0 {
+				if err = ddl.ApplyPgsqlDDL(db, req.Pgsql.DDL); err != nil {
+					log.Println("err", err)
+					resp.Status = http.StatusInternalServerError
+					resp.Error = err.Error()
+					return
+				}
+			}
+			if req.Pgsql.DML {
+				if err = ddl.ApplyPgsqlDML(db, maxKey); err != nil {
+					log.Println("err", err)
+					resp.Status = http.StatusInternalServerError
+					resp.Error = err.Error()
+					return
+				}
+			}
+
+			rec := &SQLRecord{}
+			conf.Batcher = bqsql.Batcher{
+				DB:             db,
+				Query:          "select id, name, status, bio, balance from users where id in (::args::)",
+				QueryFormatter: bqsql.MacrosQueryFormatter{PlaceholderType: bqsql.PlaceholderPgSQL},
+				RecordScanner:  rec,
+				RecordMatcher:  rec,
+			}
+
 		default:
 			log.Println(fmt.Errorf("no mod config provided"))
 			resp.Status = http.StatusBadRequest

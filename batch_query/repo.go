@@ -40,6 +40,16 @@ type RequestInit struct {
 		DDL      string `json:"ddl"`
 		DML      bool   `json:"dml"`
 	}
+	Pgsql *struct {
+		DSN    string `json:"dsn"`
+		Host   string `json:"host"`
+		Port   uint   `json:"port"`
+		User   string `json:"user"`
+		Pass   string `json:"pass"`
+		DBName string `json:"db_name"`
+		DDL    string `json:"ddl"`
+		DML    bool   `json:"dml"`
+	}
 }
 
 func (r *RequestInit) MapConfig(conf *batch_query.Config) {

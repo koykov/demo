@@ -24,3 +24,7 @@ func ApplyMysqlDDL(db *sql.DB, ddlPath string) error {
 	}
 	return nil
 }
+
+func ApplyPgsqlDDL(db *sql.DB, ddlPath string) error {
+	return ApplyMysqlDDL(db, ddlPath)
+}
