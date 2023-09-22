@@ -30,26 +30,21 @@ type RequestInit struct {
 		SocketTimeoutNS time.Duration `json:"socket_timeout_ns"`
 		MaxRetries      int           `json:"max_retries"`
 	} `json:"aerospike"`
-	Mysql *struct {
-		DSN      string `json:"dsn"`
-		Addr     string `json:"addr"`
-		User     string `json:"user"`
-		Pass     string `json:"pass"`
-		Protocol string `json:"protocol"`
-		DBName   string `json:"db_name"`
-		DDL      string `json:"ddl"`
-		DML      bool   `json:"dml"`
-	}
-	Pgsql *struct {
-		DSN    string `json:"dsn"`
-		Host   string `json:"host"`
-		Port   uint   `json:"port"`
-		User   string `json:"user"`
-		Pass   string `json:"pass"`
-		DBName string `json:"db_name"`
-		DDL    string `json:"ddl"`
-		DML    bool   `json:"dml"`
-	}
+	Mysql *DBConfig `json:"mysql"`
+	Pgsql *DBConfig `json:"pgsql"`
+}
+
+type DBConfig struct {
+	DSN      string `json:"dsn"`
+	Addr     string `json:"addr"`
+	Host     string `json:"host"`
+	Port     uint   `json:"port"`
+	User     string `json:"user"`
+	Pass     string `json:"pass"`
+	Protocol string `json:"protocol"`
+	DBName   string `json:"db_name"`
+	DDL      string `json:"ddl"`
+	DML      bool   `json:"dml"`
 }
 
 func (r *RequestInit) MapConfig(conf *batch_query.Config) {

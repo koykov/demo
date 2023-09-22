@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func ApplyMysqlDDL(db *sql.DB, ddlPath string) error {
+func ApplyDDL(db *sql.DB, ddlPath string) error {
 	raw, err := os.ReadFile(ddlPath)
 	if err != nil {
 		return err
@@ -23,8 +23,4 @@ func ApplyMysqlDDL(db *sql.DB, ddlPath string) error {
 		}
 	}
 	return nil
-}
-
-func ApplyPgsqlDDL(db *sql.DB, ddlPath string) error {
-	return ApplyMysqlDDL(db, ddlPath)
 }

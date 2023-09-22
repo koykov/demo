@@ -2,27 +2,31 @@ package ddl
 
 import (
 	"database/sql"
+	"fmt"
 	"math/rand"
+
+	bqsql "github.com/koykov/batch_query/mods/sql"
 )
 
 const chars = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789"
 
-func ApplyMysqlDML(db *sql.DB, maxKey int64) error {
+func ApplyDML(db *sql.DB, maxKey int64, pt bqsql.PlaceholderType) error {
 	for i := int64(0); i < maxKey; i++ {
 		name := string(randbyte(32))
 		status := rand.Intn(1_000_000)
 		bio := randbyte(512)
 		balance := rand.Float32()
-		if _, err := db.Exec("insert into users(name, status, bio, balance) values(?,?,?,?)", name, status, bio, balance); err != nil {
+		var pts string
+		switch pt {
+		case bqsql.PlaceholderMySQL:
+			pts = "?,?,?,?"
+		case bqsql.PlaceholderPgSQL:
+			pts = "$1,$2,$3,$4"
+		}
+		if _, err := db.Exec(fmt.Sprintf("insert into users(name, status, bio, balance) values(%s)", pts), name, status, bio, balance); err != nil {
 			return err
 		}
 	}
-	return nil
-}
-
-func ApplyPgsqlDML(db *sql.DB, maxKey int64) error {
-	_, _ = db, maxKey
-	// todo implement me
 	return nil
 }
 

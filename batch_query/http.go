@@ -167,20 +167,39 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					Clients:   clients,
 				}
 			}
-		case req.Mysql != nil:
-			var dsn string
-			if dsn = req.Mysql.DSN; len(dsn) == 0 {
-				cfg := mysql.Config{
-					User:   req.Mysql.User,
-					Passwd: req.Mysql.Pass,
-					Net:    req.Mysql.Protocol,
-					Addr:   req.Mysql.Addr,
-					DBName: req.Mysql.DBName,
+		case req.Mysql != nil || req.Pgsql != nil:
+			var (
+				dsn, typ string
+				dbc      *DBConfig
+				pt       bqsql.PlaceholderType
+			)
+			switch {
+			case req.Mysql != nil:
+				if dsn = req.Mysql.DSN; len(dsn) == 0 {
+					cfg := mysql.Config{
+						User:   req.Mysql.User,
+						Passwd: req.Mysql.Pass,
+						Net:    req.Mysql.Protocol,
+						Addr:   req.Mysql.Addr,
+						DBName: req.Mysql.DBName,
+					}
+					dsn = cfg.FormatDSN()
 				}
-				dsn = cfg.FormatDSN()
+				typ = "mysql"
+				dbc = req.Mysql
+				pt = bqsql.PlaceholderMySQL
+			case req.Pgsql != nil:
+				if dsn = req.Pgsql.DSN; len(dsn) == 0 {
+					dsn = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+						req.Pgsql.Host, req.Pgsql.Port, req.Pgsql.User, req.Pgsql.Pass, req.Pgsql.DBName)
+				}
+				typ = "pgsql"
+				dbc = req.Pgsql
+				pt = bqsql.PlaceholderPgSQL
 			}
+
 			var db *sql.DB
-			db, err = sql.Open("mysql", dsn)
+			db, err = sql.Open(typ, dsn)
 			if err != nil {
 				log.Println("err", err)
 				resp.Status = http.StatusInternalServerError
@@ -188,16 +207,16 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			if len(req.Mysql.DDL) > 0 {
-				if err = ddl.ApplyMysqlDDL(db, req.Mysql.DDL); err != nil {
+			if len(dbc.DDL) > 0 {
+				if err = ddl.ApplyDDL(db, dbc.DDL); err != nil {
 					log.Println("err", err)
 					resp.Status = http.StatusInternalServerError
 					resp.Error = err.Error()
 					return
 				}
 			}
-			if req.Mysql.DML {
-				if err = ddl.ApplyMysqlDML(db, maxKey); err != nil {
+			if dbc.DML {
+				if err = ddl.ApplyDML(db, maxKey, pt); err != nil {
 					log.Println("err", err)
 					resp.Status = http.StatusInternalServerError
 					resp.Error = err.Error()
@@ -209,47 +228,7 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			conf.Batcher = bqsql.Batcher{
 				DB:             db,
 				Query:          "select id, name, status, bio, balance from users where id in (::args::)",
-				QueryFormatter: bqsql.MacrosQueryFormatter{},
-				RecordScanner:  rec,
-				RecordMatcher:  rec,
-			}
-		case req.Pgsql != nil:
-			var dsn string
-			if dsn = req.Pgsql.DSN; len(dsn) == 0 {
-				dsn = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-					req.Pgsql.Host, req.Pgsql.Port, req.Pgsql.User, req.Pgsql.Pass, req.Pgsql.DBName)
-			}
-			var db *sql.DB
-			db, err = sql.Open("postgres", dsn)
-			if err != nil {
-				log.Println("err", err)
-				resp.Status = http.StatusInternalServerError
-				resp.Error = err.Error()
-				return
-			}
-
-			if len(req.Pgsql.DDL) > 0 {
-				if err = ddl.ApplyPgsqlDDL(db, req.Pgsql.DDL); err != nil {
-					log.Println("err", err)
-					resp.Status = http.StatusInternalServerError
-					resp.Error = err.Error()
-					return
-				}
-			}
-			if req.Pgsql.DML {
-				if err = ddl.ApplyPgsqlDML(db, maxKey); err != nil {
-					log.Println("err", err)
-					resp.Status = http.StatusInternalServerError
-					resp.Error = err.Error()
-					return
-				}
-			}
-
-			rec := &SQLRecord{}
-			conf.Batcher = bqsql.Batcher{
-				DB:             db,
-				Query:          "select id, name, status, bio, balance from users where id in (::args::)",
-				QueryFormatter: bqsql.MacrosQueryFormatter{PlaceholderType: bqsql.PlaceholderPgSQL},
+				QueryFormatter: bqsql.MacrosQueryFormatter{PlaceholderType: pt},
 				RecordScanner:  rec,
 				RecordMatcher:  rec,
 			}
