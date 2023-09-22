@@ -19,6 +19,7 @@ import (
 	bqsql "github.com/koykov/batch_query/mods/sql"
 	"github.com/koykov/demo/batch_query/ddl"
 	mw "github.com/koykov/metrics_writers/batch_query"
+	_ "github.com/lib/pq"
 )
 
 type BQHTTP struct {
@@ -193,7 +194,7 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					dsn = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 						req.Pgsql.Host, req.Pgsql.Port, req.Pgsql.User, req.Pgsql.Pass, req.Pgsql.DBName)
 				}
-				typ = "pgsql"
+				typ = "postgres"
 				dbc = req.Pgsql
 				pt = bqsql.PlaceholderPgSQL
 			}

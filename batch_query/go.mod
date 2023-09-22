@@ -9,6 +9,7 @@ require (
 	github.com/koykov/batch_query/mods/aerospike v0.0.0-20230913162319-8106fdef0d53
 	github.com/koykov/batch_query/mods/sql v0.0.0-20230913162319-8106fdef0d53
 	github.com/koykov/metrics_writers/batch_query v0.0.0-20230904210402-14dadf68561a
+	github.com/lib/pq v1.10.9
 	github.com/prometheus/client_golang v1.16.0
 )
 
