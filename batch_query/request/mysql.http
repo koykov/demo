@@ -10,7 +10,7 @@ Content-Type: application/json
   "producers_min": 1,
   "producers_max": 1024,
   "mysql": {
-	"dsn": "koykov:cv@tcp(localhost:3306)/bq",
+	"dsn": "user:pass@tcp(localhost:3306)/db_name",
 	"ddl": "batch_query/ddl/mysql.sql",
 	"dml": true
   }
