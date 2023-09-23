@@ -1,3 +1,7 @@
+drop table if exists bq.users;
+
+drop schema if exists bq;
+
 create schema bq;
 
 create table bq.users
