@@ -16,14 +16,14 @@ func ApplyDML(db *sql.DB, maxKey int64, pt bqsql.PlaceholderType) error {
 		status := rand.Intn(1_000_000)
 		bio := randbyte(512)
 		balance := rand.Float32()
-		var pts string
+		var pts, pfx string
 		switch pt {
 		case bqsql.PlaceholderMySQL:
-			pts = "?,?,?,?"
+			pts, pfx = "?,?,?,?", ""
 		case bqsql.PlaceholderPgSQL:
-			pts = "$1,$2,$3,$4"
+			pts, pfx = "$1,$2,$3,$4", "bq."
 		}
-		if _, err := db.Exec(fmt.Sprintf("insert into users(name, status, bio, balance) values(%s)", pts), name, status, bio, balance); err != nil {
+		if _, err := db.Exec(fmt.Sprintf("insert into %susers(name, status, bio, balance) values(%s)", pfx, pts), name, status, bio, balance); err != nil {
 			return err
 		}
 	}
