@@ -170,9 +170,9 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 		case req.Mysql != nil || req.Pgsql != nil:
 			var (
-				dsn, typ string
-				dbc      *DBConfig
-				pt       bqsql.PlaceholderType
+				dsn, typ, pfx string
+				dbc           *DBConfig
+				pt            bqsql.PlaceholderType
 			)
 			switch {
 			case req.Mysql != nil:
@@ -197,6 +197,7 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				typ = "postgres"
 				dbc = req.Pgsql
 				pt = bqsql.PlaceholderPgSQL
+				pfx = "bq."
 			}
 
 			var db *sql.DB
@@ -228,7 +229,7 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			rec := &SQLRecord{}
 			conf.Batcher = bqsql.Batcher{
 				DB:             db,
-				Query:          "select id, name, status, bio, balance from users where id in (::args::)",
+				Query:          fmt.Sprintf("select id, name, status, bio, balance from %susers where id in (::args::)", pfx),
 				QueryFormatter: bqsql.MacrosQueryFormatter{PlaceholderType: pt},
 				RecordScanner:  rec,
 				RecordMatcher:  rec,
