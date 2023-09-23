@@ -10,7 +10,7 @@ Content-Type: application/json
   "producers_min": 1,
   "producers_max": 1024,
   "pgsql": {
-	"host": "localhost",
+	"host": "127.0.0.1",
 	"port": 5432,
 	"user": "user",
 	"pass": "pass",
