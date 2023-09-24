@@ -32,6 +32,26 @@ type RequestInit struct {
 	} `json:"aerospike"`
 	Mysql *DBConfig `json:"mysql"`
 	Pgsql *DBConfig `json:"pgsql"`
+	Redis *struct {
+		KeysPath           string        `json:"keys_path"`
+		DSN                string        `json:"dsn"`
+		Network            string        `json:"network"`
+		Addr               string        `json:"addr"`
+		Pass               string        `json:"pass"`
+		DB                 int           `json:"db"`
+		MaxRetries         int           `json:"max_retries"`
+		MinRetryBackoff    time.Duration `json:"min_retry_backoff"`
+		MaxRetryBackoff    time.Duration `json:"max_retry_backoff"`
+		DialTimeout        time.Duration `json:"dial_timeout"`
+		ReadTimeout        time.Duration `json:"read_timeout"`
+		WriteTimeout       time.Duration `json:"write_timeout"`
+		PoolSize           int           `json:"pool_size"`
+		MinIdleConns       int           `json:"min_idle_conns"`
+		MaxConnAge         time.Duration `json:"max_conn_age"`
+		PoolTimeout        time.Duration `json:"pool_timeout"`
+		IdleTimeout        time.Duration `json:"idle_timeout"`
+		IdleCheckFrequency time.Duration `json:"idle_check_frequency"`
+	} `json:"redis"`
 }
 
 type DBConfig struct {
