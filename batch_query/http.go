@@ -115,58 +115,10 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		switch {
 		case req.Aerospike != nil:
-			asc := req.Aerospike
-
-			if err = krepo.load(asc.KeysPath); err != nil {
+			if err = h.initAS(&req, &conf); err != nil {
 				log.Println("err", err)
 				resp.Status = http.StatusInternalServerError
 				resp.Error = err.Error()
-				return
-			}
-
-			readPolicy := as.NewClientPolicy()
-			readPolicy.Timeout = asc.ReadTimeoutNS
-
-			batchPolicy := as.NewBatchPolicy()
-			batchPolicy.TotalTimeout = asc.TotalTimeoutNS
-			batchPolicy.SocketTimeout = asc.SocketTimeoutNS
-			batchPolicy.MaxRetries = asc.MaxRetries
-
-			inst := asc.Instances
-			if inst < 2 {
-				client, err := as.NewClientWithPolicy(readPolicy, asc.Host, asc.Port)
-				if err != nil {
-					log.Println("err", err)
-					resp.Status = http.StatusInternalServerError
-					resp.Error = err.Error()
-					return
-				}
-				conf.Batcher = aerospike.Batcher{
-					Namespace: asc.Namespace,
-					SetName:   asc.SetName,
-					Bins:      asc.Bins,
-					Policy:    batchPolicy,
-					Client:    client,
-				}
-			} else {
-				clients := make([]*as.Client, 0, inst)
-				for i := uint(0); i < inst; i++ {
-					client, err := as.NewClientWithPolicy(readPolicy, asc.Host, asc.Port)
-					if err != nil {
-						log.Println("err", err)
-						resp.Status = http.StatusInternalServerError
-						resp.Error = err.Error()
-						return
-					}
-					clients = append(clients, client)
-				}
-				conf.Batcher = aerospike.MCBatcher{
-					Namespace: asc.Namespace,
-					SetName:   asc.SetName,
-					Bins:      asc.Bins,
-					Policy:    batchPolicy,
-					Clients:   clients,
-				}
 			}
 		case req.Mysql != nil || req.Pgsql != nil:
 			var (
@@ -326,6 +278,55 @@ func (h *BQHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		resp.Status = http.StatusNotFound
 		return
 	}
+}
+
+func (h *BQHTTP) initAS(req *RequestInit, conf *batch_query.Config) error {
+	asc := req.Aerospike
+
+	if err := krepo.load(asc.KeysPath); err != nil {
+		return err
+	}
+
+	readPolicy := as.NewClientPolicy()
+	readPolicy.Timeout = asc.ReadTimeoutNS
+
+	batchPolicy := as.NewBatchPolicy()
+	batchPolicy.TotalTimeout = asc.TotalTimeoutNS
+	batchPolicy.SocketTimeout = asc.SocketTimeoutNS
+	batchPolicy.MaxRetries = asc.MaxRetries
+
+	inst := asc.Instances
+	if inst < 2 {
+		client, err := as.NewClientWithPolicy(readPolicy, asc.Host, asc.Port)
+		if err != nil {
+			return err
+		}
+		conf.Batcher = aerospike.Batcher{
+			Namespace: asc.Namespace,
+			SetName:   asc.SetName,
+			Bins:      asc.Bins,
+			Policy:    batchPolicy,
+			Client:    client,
+		}
+	} else {
+		clients := make([]*as.Client, 0, inst)
+		for i := uint(0); i < inst; i++ {
+			client, err := as.NewClientWithPolicy(readPolicy, asc.Host, asc.Port)
+			if err != nil {
+				return err
+			}
+			clients = append(clients, client)
+		}
+		conf.Batcher = aerospike.MCBatcher{
+			Namespace: asc.Namespace,
+			SetName:   asc.SetName,
+			Bins:      asc.Bins,
+			Policy:    batchPolicy,
+			Clients:   clients,
+		}
+	}
+
+	return nil
 }
 
 func (h *BQHTTP) get(key string) *demoBQ {
