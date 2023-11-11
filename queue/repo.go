@@ -58,6 +58,7 @@ type RequestInit struct {
 		Algo   string `json:"algo"`
 		Egress struct {
 			Capacity      uint64 `json:"capacity"`
+			Instances     uint32 `json:"instances"`
 			Workers       uint32 `json:"workers"`
 			IdleThreshold uint32 `json:"idle_threshold"`
 			IdleTimeout   int64  `json:"idle_timeout"`
