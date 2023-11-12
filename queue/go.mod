@@ -7,7 +7,7 @@ require (
 	github.com/koykov/dlqdump v1.0.2
 	github.com/koykov/metrics_writers/dlqdump v0.0.0-20230904210402-14dadf68561a
 	github.com/koykov/metrics_writers/queue v0.0.0-20230904210402-14dadf68561a
-	github.com/koykov/queue v1.1.5-0.20231111210901-aa76b408a11e
+	github.com/koykov/queue v1.1.5-0.20231111211816-42f626689762
 	github.com/prometheus/client_golang v1.17.0
 )
 
