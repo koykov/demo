@@ -208,9 +208,11 @@ func (h *QueueHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				SetEgressIdleTimeout(time.Duration(req.QoS.Egress.IdleTimeout))
 			for _, q1 := range req.QoS.Queues {
 				qc.AddQueue(qos.Queue{
-					Name:     q1.Name,
-					Capacity: q1.Capacity,
-					Weight:   q1.Weight,
+					Name:          q1.Name,
+					Capacity:      q1.Capacity,
+					Weight:        q1.Weight,
+					IngressWeight: q1.IngressWeight,
+					EgressWeight:  q1.EgressWeight,
 				})
 			}
 			conf.QoS = qc

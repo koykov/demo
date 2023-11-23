@@ -64,9 +64,11 @@ type RequestInit struct {
 			IdleTimeout   int64  `json:"idle_timeout"`
 		} `json:"egress"`
 		Queues []struct {
-			Name     string `json:"name,omitempty"`
-			Capacity uint64 `json:"capacity"`
-			Weight   uint64 `json:"weight"`
+			Name          string `json:"name,omitempty"`
+			Capacity      uint64 `json:"capacity"`
+			Weight        uint64 `json:"weight"`
+			IngressWeight uint64 `json:"ingress_weight"`
+			EgressWeight  uint64 `json:"egress_weight"`
 		} `json:"queues"`
 	} `json:"qos,omitempty"`
 }
