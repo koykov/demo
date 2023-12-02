@@ -11,6 +11,7 @@ import (
 
 type RequestInit struct {
 	Capacity  uint64        `json:"capacity"`
+	Instances uint32        `json:"instances"`
 	Workers   uint32        `json:"workers,omitempty"`
 	Heartbeat time.Duration `json:"heartbeat,omitempty"`
 
@@ -75,6 +76,7 @@ type RequestInit struct {
 
 func (r *RequestInit) MapConfig(conf *q.Config) {
 	conf.Capacity = r.Capacity
+	conf.Instances = r.Instances
 	conf.Workers = r.Workers
 	conf.HeartbeatInterval = r.Heartbeat
 	conf.WorkersMin = r.WorkersMin
