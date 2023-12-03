@@ -11,7 +11,7 @@ import (
 
 type RequestInit struct {
 	Capacity  uint64        `json:"capacity"`
-	Instances uint32        `json:"instances"`
+	Streams   uint32        `json:"streams"`
 	Workers   uint32        `json:"workers,omitempty"`
 	Heartbeat time.Duration `json:"heartbeat,omitempty"`
 
@@ -59,7 +59,7 @@ type RequestInit struct {
 		Algo   string `json:"algo"`
 		Egress struct {
 			Capacity      uint64 `json:"capacity"`
-			Instances     uint32 `json:"instances"`
+			Streams       uint32 `json:"streams"`
 			Workers       uint32 `json:"workers"`
 			IdleThreshold uint32 `json:"idle_threshold"`
 			IdleTimeout   int64  `json:"idle_timeout"`
@@ -76,7 +76,7 @@ type RequestInit struct {
 
 func (r *RequestInit) MapConfig(conf *q.Config) {
 	conf.Capacity = r.Capacity
-	conf.Instances = r.Instances
+	conf.Streams = r.Streams
 	conf.Workers = r.Workers
 	conf.HeartbeatInterval = r.Heartbeat
 	conf.WorkersMin = r.WorkersMin
