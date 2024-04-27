@@ -8,8 +8,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/koykov/byteconv"
 	"github.com/koykov/cbytecache"
-	"github.com/koykov/fastconv"
 )
 
 type reader struct {
@@ -59,7 +59,7 @@ func (r *reader) run(cache *cbytecache.Cache) {
 			if key := keys.get(0); len(key) > 0 {
 				if r.dst, err = cache.GetTo(r.dst[:0], key); err == nil && len(r.dst) > 0 {
 					ri := r.dst[:1]
-					if i, err := strconv.ParseInt(fastconv.B2S(ri), 10, 64); err == nil {
+					if i, err := strconv.ParseInt(byteconv.B2S(ri), 10, 64); err == nil {
 						e := testData[i]
 						if !bytes.Equal(r.dst, e) {
 							log.Println("bad answer")

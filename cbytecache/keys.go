@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/koykov/byteconv"
 	"github.com/koykov/cbytecache"
-	"github.com/koykov/fastconv"
 )
 
 type ckey struct {
@@ -35,7 +35,7 @@ func (r *keyRegistry) get(newPercent int) string {
 		for i := 0; i < l; i++ {
 			b[i] = chars[rand.Intn(len(chars)-1)]
 		}
-		return fastconv.B2S(b)
+		return byteconv.B2S(b)
 	} else {
 		if len(r.keys) <= 1 {
 			return ""
