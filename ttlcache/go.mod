@@ -3,8 +3,8 @@ module github.com/koykov/demo/ttlcache
 go 1.18
 
 require (
+	github.com/koykov/byteconv v1.0.0
 	github.com/koykov/clock v1.1.3
-	github.com/koykov/fastconv v1.0.1
 	github.com/koykov/hash v1.0.0
 	github.com/koykov/ttlcache v0.0.0-20240518135746-68107dfd2e1f
 	github.com/koykov/ttlcache/metrics/prometheus v0.0.0-20240518135746-68107dfd2e1f
@@ -15,7 +15,6 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/koykov/bytealg v1.0.4 // indirect
-	github.com/koykov/byteconv v1.0.0 // indirect
 	github.com/koykov/byteseq v1.0.1 // indirect
 	github.com/koykov/entry v1.0.2 // indirect
 	github.com/prometheus/client_model v0.5.0 // indirect
