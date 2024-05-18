@@ -4,7 +4,7 @@ import (
 	"math"
 	"math/rand"
 
-	"github.com/koykov/fastconv"
+	"github.com/koykov/byteconv"
 )
 
 var (
@@ -22,7 +22,7 @@ var (
 func getTestBody() entry {
 	i := rand.Intn(tdLen)
 	c := i % tdLen
-	s, b := fastconv.B2S(testData[c]), testData[c]
+	s, b := byteconv.B2S(testData[c]), testData[c]
 	return entry{
 		c: c,
 		i: math.MaxInt64,
