@@ -14,9 +14,9 @@ import (
 
 	"github.com/koykov/clock"
 	"github.com/koykov/hash/fnv"
-	metrics "github.com/koykov/metrics_writers/ttlcache"
 	"github.com/koykov/ttlcache"
 	"github.com/koykov/ttlcache/dumpfs"
+	metrics "github.com/koykov/ttlcache/metrics/prometheus"
 )
 
 type CacheHTTP struct {
@@ -142,7 +142,7 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		req.MapConfig(&conf)
 
 		conf.Hasher = fnv.Hasher{}
-		conf.MetricsWriter = metrics.NewPrometheusMetricsWP(key, time.Millisecond)
+		conf.MetricsWriter = metrics.NewWriterWP(key, time.Millisecond)
 		conf.Logger = log.New(os.Stderr, fmt.Sprintf("cache #%s: ", key), log.LstdFlags)
 		conf.Clock = clock.NewClock()
 		conf.DumpWriter = &dumpfs.Writer{
