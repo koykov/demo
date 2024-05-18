@@ -1,6 +1,6 @@
 module github.com/koykov/demo/cbytecache
 
-go 1.22
+go 1.18
 
 require (
 	github.com/koykov/byteconv v1.0.0
