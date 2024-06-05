@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	as "github.com/aerospike/aerospike-client-go"
+	as "github.com/aerospike/aerospike-client-go/v7"
 	"github.com/go-sql-driver/mysql"
 	"github.com/koykov/batch_query"
 	"github.com/koykov/batch_query/mods/aerospike"
