@@ -149,11 +149,13 @@ func (h *CacheHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			FilePath: fmt.Sprintf("dump/%s.bin", key),
 			Buffer:   64,
 		}
+		conf.DumpEncoder = entryEncoder[entry]{}
 		conf.DumpReader = &dumpfs.Reader{
 			FilePath: fmt.Sprintf("dump/%s.bin", key),
 			OnEOF:    dumpfs.KeepFile,
 		}
 		conf.DumpReadAsync = true
+		conf.DumpDecoder = entryDecoder[entry]{}
 
 		ci, err := ttlcache.New(&conf)
 		if err != nil {
