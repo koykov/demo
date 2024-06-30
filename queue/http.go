@@ -16,9 +16,9 @@ import (
 	"github.com/koykov/dlqdump/decoder"
 	"github.com/koykov/dlqdump/encoder"
 	"github.com/koykov/dlqdump/fs"
-	dlqmw "github.com/koykov/metrics_writers/dlqdump"
-	mw "github.com/koykov/metrics_writers/queue"
+	dlqmw "github.com/koykov/dlqdump/metrics/prometheus"
 	"github.com/koykov/queue"
+	mw "github.com/koykov/queue/metrics/prometheus"
 	"github.com/koykov/queue/priority"
 	"github.com/koykov/queue/qos"
 )
