@@ -6,3 +6,4 @@ Currently supports packages:
 * [cbytecache](https://github.com/koykov/cbytecache)
 * [traceID](https://github.com/koykov/traceID)
 * [laborpool](https://github.com/koykov/laborpool)
+* [ttlcache](https://github.com/koykov/ttlcache)
