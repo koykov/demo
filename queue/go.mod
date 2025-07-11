@@ -6,8 +6,8 @@ require (
 	github.com/koykov/clock v1.1.6
 	github.com/koykov/dlqdump v1.0.4
 	github.com/koykov/dlqdump/metrics/prometheus v0.0.0-20240716205120-55e81df99881
-	github.com/koykov/queue v1.1.7-0.20250710195621-899347874cc7
-	github.com/koykov/queue/metrics/prometheus v0.0.0-20240628220203-8484e6b0df01
+	github.com/koykov/queue v1.1.7-0.20250711202531-9cbeda399400
+	github.com/koykov/queue/metrics/prometheus v0.0.0-20250711202531-9cbeda399400
 	github.com/prometheus/client_golang v1.19.1
 )
 
