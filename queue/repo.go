@@ -7,6 +7,7 @@ import (
 
 	"github.com/koykov/clock"
 	q "github.com/koykov/queue"
+	"github.com/koykov/queue/backoff"
 )
 
 type RequestInit struct {
@@ -38,6 +39,10 @@ type RequestInit struct {
 		RelRange  string `json:"rel_range,omitempty"`
 		Producers uint32 `json:"producers,omitempty"`
 	} `json:"producers_schedule,omitempty"`
+
+	MaxRetries      uint32 `json:"max_retries,omitempty"`
+	RetryIntervalNs uint64 `json:"retry_interval_ns,omitempty"`
+	Backoff         string `json:"backoff,omitempty"`
 
 	AllowLeak         bool   `json:"allow_leak,omitempty"`
 	LeakDirection     string `json:"leak_direction"`
@@ -89,6 +94,24 @@ func (r *RequestInit) MapConfig(conf *q.Config) {
 		conf.LeakDirection = q.LeakDirectionFront
 		conf.FrontLeakAttempts = r.FrontLeakAttempts
 	}
+
+	conf.MaxRetries = r.MaxRetries
+	conf.RetryInterval = time.Duration(r.RetryIntervalNs)
+	switch r.Backoff {
+	case "linear":
+		conf.Backoff = backoff.Linear{}
+	case "exponential":
+		conf.Backoff = backoff.Exponential{}
+	case "polynomial":
+		conf.Backoff = backoff.Polynomial{K: 3}
+	case "quadratic":
+		conf.Backoff = backoff.Quadratic{}
+	case "logarithmic":
+		conf.Backoff = backoff.Logarithmic{}
+	case "fibonacci":
+		conf.Backoff = backoff.Fibonacci{}
+	}
+
 	if len(r.WorkersSchedule) > 0 {
 		now := time.Now()
 		s := q.NewSchedule()
