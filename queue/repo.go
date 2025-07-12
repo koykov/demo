@@ -40,9 +40,10 @@ type RequestInit struct {
 		Producers uint32 `json:"producers,omitempty"`
 	} `json:"producers_schedule,omitempty"`
 
-	MaxRetries      uint32 `json:"max_retries,omitempty"`
-	RetryIntervalNs uint64 `json:"retry_interval_ns,omitempty"`
-	Backoff         string `json:"backoff,omitempty"`
+	FailRate        float32 `json:"fail_rate,omitempty"`
+	MaxRetries      uint32  `json:"max_retries,omitempty"`
+	RetryIntervalNs uint64  `json:"retry_interval_ns,omitempty"`
+	Backoff         string  `json:"backoff,omitempty"`
 
 	AllowLeak         bool   `json:"allow_leak,omitempty"`
 	LeakDirection     string `json:"leak_direction"`
